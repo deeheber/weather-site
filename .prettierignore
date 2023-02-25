@@ -1,0 +1,14 @@
+# CDK
+*/cdk.out/**
+
+# typeORM migration files
+*/migrations/*
+
+# Node modules
+*/node_modules/**
+
+# dist
+*/dist/**
+
+# package-lock
+*/package-lock.json
