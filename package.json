@@ -9,7 +9,9 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "clean": "rm -rf dist",
+    "deploy": "npm run clean && npm run build && npm run cdk deploy -a WeatherSiteStack"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
