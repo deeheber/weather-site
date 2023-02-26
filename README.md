@@ -27,7 +27,7 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
 
 **Still a work in progress**
 
-1. Ensure you have Node.js and Docker installed
+1. Ensure you have Node.js installed
 2. Ensure you have an AWS account and have configured your credentials
 3. Get an API key from [Open Weather Map](https://openweathermap.org/api/one-call-3)
 4. Copy `.env.example` to `.env` and add your API key and other info
