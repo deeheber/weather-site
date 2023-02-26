@@ -25,7 +25,17 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
 
 ## Instructions to run
 
-// TODO
+**Still a work in progress**
+
+1. Ensure you have Node.js and Docker installed
+2. Ensure you have an AWS account and have configured your credentials
+3. Get an API key from [Open Weather Map](https://openweathermap.org/api/one-call-3)
+4. Copy `.env.example` to `.env` and add your API key and other info
+5. Clone the repo
+6. Run `npm install`
+7. Run `npm run build`
+8. Run `export AWS_PROFILE=<your_aws_profile>` (optional if you have a default profile)
+9. Run `npm run cdk deploy`
 
 ## Step Function State machine
 
