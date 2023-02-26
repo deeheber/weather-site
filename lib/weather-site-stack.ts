@@ -11,6 +11,9 @@ import {
   StateMachine,
   StateMachineType,
 } from 'aws-cdk-lib/aws-stepfunctions'
+import { config } from 'dotenv'
+
+config()
 
 export class WeatherSiteStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -41,13 +44,12 @@ export class WeatherSiteStack extends Stack {
         architecture: Architecture.ARM_64,
         timeout: Duration.seconds(30),
         memorySize: 3008,
-        /* TODO: Add env vars as params
-         *  Weather API key
-         *  Weather Location Lat
-         *  Weather Location Lon
-         *  Weather Type
-         * (https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2)
-         */
+        environment: {
+          WEATHER_API_KEY: process.env.WEATHER_API_KEY!,
+          WEATHER_LOCATION_LAT: process.env.WEATHER_LOCATION_LAT!,
+          WEATHER_LOCATION_LON: process.env.WEATHER_LOCATION_LON!,
+          WEATHER_TYPE: process.env.WEATHER_TYPE!,
+        },
       }
     )
 
