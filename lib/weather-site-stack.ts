@@ -23,15 +23,12 @@ import {
   TaskInput,
 } from 'aws-cdk-lib/aws-stepfunctions'
 import {
-  CallAwsService,
   DynamoAttributeValue,
   DynamoGetItem,
   DynamoUpdateItem,
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import { config } from 'dotenv'
-
 config()
 
 export class WeatherSiteStack extends Stack {
@@ -54,11 +51,11 @@ export class WeatherSiteStack extends Stack {
 
     const checkCurrentWeatherFunction = new NodejsFunction(
       this,
-      'WeatherSiteFunction',
+      'checkCurrentWeatherFunction',
       {
-        functionName: 'WeatherSiteFunction',
+        functionName: 'checkCurrentWeatherFunction',
         runtime: Runtime.NODEJS_18_X,
-        entry: 'dist/src/functions/weather-site-function.js',
+        entry: 'dist/src/functions/check-current-weather.js',
         logRetention: RetentionDays.ONE_WEEK,
         architecture: Architecture.ARM_64,
         timeout: Duration.seconds(30),
@@ -72,11 +69,19 @@ export class WeatherSiteStack extends Stack {
       }
     )
 
-    const logGroup = new LogGroup(this, 'WeatherSiteLogGroup', {
-      logGroupName: 'WeatherSiteLogGroup',
-      retention: RetentionDays.ONE_WEEK,
-      removalPolicy: RemovalPolicy.DESTROY,
+    const updateSiteFunction = new NodejsFunction(this, 'updateSiteFunction', {
+      functionName: 'updateSiteFunction',
+      runtime: Runtime.NODEJS_18_X,
+      entry: 'dist/src/functions/update-site.js',
+      logRetention: RetentionDays.ONE_WEEK,
+      architecture: Architecture.ARM_64,
+      timeout: Duration.seconds(30),
+      memorySize: 3008,
+      environment: {
+        BUCKET_NAME: bucket.bucketName,
+      },
     })
+    bucket.grantWrite(updateSiteFunction)
 
     // Tasks for Step Function Definition
     const getSiteStatus = new DynamoGetItem(this, 'Get site status', {
@@ -97,32 +102,27 @@ export class WeatherSiteStack extends Stack {
         payload: TaskInput.fromJsonPathAt('$'),
         comment: 'Get current weather using external API',
         resultPath: '$.CurrentWeather',
-        resultSelector: { 'Body.$': '$.Payload.body' },
+        resultSelector: { 'Status.$': '$.Payload.body' },
       }
     )
 
     const siteIsUpToDate = new Pass(this, 'Site is up to date')
-
-    const updateSite = new CallAwsService(this, 'Update site', {
-      resultPath: '$.BucketPutResult',
+    /**
+     * I tried the s3:PutOjbect direct integration, but was unable to
+     *  remove the "" from around the body
+     * (needed for HTML to display in a browser properly).
+     *
+     * So I used the Lambda function to do the update where I
+     * could send a Buffer as the body of the PutObject command.
+     *
+     * Would much prefer the direct integration, suggestions welcome.
+     */
+    const updateSite = new LambdaInvoke(this, 'Update site', {
+      lambdaFunction: updateSiteFunction,
+      payload: TaskInput.fromJsonPathAt('$'),
       comment: 'Update site with new weather data ',
-      service: 's3',
-      action: 'putObject',
-      iamResources: ['*'],
-      parameters: {
-        ContentType: 'text/html',
-        Bucket: bucket.bucketName,
-        Key: 'index.html',
-        // TODO: figure out how to get rid of extra quotes
-        //'Body.$': '$.CurrentWeather.Body.Html',
-        Body: JsonPath.stringAt('$.CurrentWeather.Body.Html'),
-      },
-      additionalIamStatements: [
-        new PolicyStatement({
-          actions: ['s3:getObject'],
-          resources: [bucket.bucketArn],
-        }),
-      ],
+      resultPath: '$.BucketPutResult',
+      resultSelector: { 'Body.$': '$.Payload.body' },
     })
     updateSite.addCatch(new Fail(this, 'Site update failure'))
     updateSite.next(
@@ -133,7 +133,7 @@ export class WeatherSiteStack extends Stack {
         table,
         expressionAttributeValues: {
           ':currentWeather': DynamoAttributeValue.fromString(
-            JsonPath.stringAt('$.CurrentWeather.Body.Status')
+            JsonPath.stringAt('$.CurrentWeather.Status')
           ),
         },
         updateExpression: 'SET Weather = :currentWeather',
@@ -149,17 +149,23 @@ export class WeatherSiteStack extends Stack {
           .when(
             Condition.stringEqualsJsonPath(
               '$.SiteStatus.Body',
-              '$.CurrentWeather.Body.Status'
+              '$.CurrentWeather.Status'
             ),
             siteIsUpToDate
           )
           .otherwise(updateSite)
       )
+    // End of Tasks for Step Function Definition
+
+    const logGroup = new LogGroup(this, 'WeatherSiteLogGroup', {
+      logGroupName: 'WeatherSiteLogGroup',
+      retention: RetentionDays.ONE_WEEK,
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
 
     new StateMachine(this, 'WeatherSiteStateMachine', {
       stateMachineName: 'WeatherSiteStateMachine',
       stateMachineType: StateMachineType.EXPRESS,
-      tracingEnabled: true,
       logs: {
         destination: logGroup,
         includeExecutionData: true,
