@@ -5,6 +5,7 @@ export const handler = async (event: any = {}): Promise<any> => {
   console.log(event)
 
   // TODO: get status from the event (event.CurrentWeather.Status) and pick the proper HTML
+  // TODO: write out full html with minimal styles using process.env.WEATHER_TYPE
   const snow =
     '<html><title>Is it snowing?</title><h1>It is snowing!!!</h1></html>'
   const noSnow =

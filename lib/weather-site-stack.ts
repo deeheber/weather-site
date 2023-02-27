@@ -79,6 +79,7 @@ export class WeatherSiteStack extends Stack {
       memorySize: 3008,
       environment: {
         BUCKET_NAME: bucket.bucketName,
+        WEATHER_TYPE: process.env.WEATHER_TYPE!,
       },
     })
     bucket.grantWrite(updateSiteFunction)
