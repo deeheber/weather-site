@@ -4,6 +4,7 @@
 node_modules
 dist
 .env
+.DS_Store
 
 # CDK asset staging directory
 .cdk.staging

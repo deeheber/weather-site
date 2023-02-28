@@ -10,8 +10,12 @@ export const handler = async (event: any = {}): Promise<any> => {
    * offer the native fetch in their node 18 runtime)
    * 2. Set Status
    */
+
+  // get value from current.weather.main.toLowerCase()
+  // if there isn't a value there (unlikely) -> throw error
   return {
     statusCode: 200,
+    // 'snow' or 'no snow'
     body: 'snow',
   }
 }

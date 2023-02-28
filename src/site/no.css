@@ -1,0 +1,31 @@
+body {
+  color: white;
+  background-color: green;
+}
+
+.supercontainer {
+  display: flex;
+  height: 100%;
+}
+
+.container {
+  text-align: center;
+  width: 100%;
+  margin-top: 7%;
+  display : table;
+}
+
+.title {
+  font-size: 100px;
+  font-weight: bold;
+}
+
+.footer {
+  display: table-row;
+  vertical-align: bottom;
+  height: 1px;
+}
+
+.footer > p {
+  margin: 0;
+}

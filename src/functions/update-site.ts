@@ -4,18 +4,58 @@ import { Buffer } from 'buffer'
 export const handler = async (event: any = {}): Promise<any> => {
   console.log(event)
 
-  // TODO: get status from the event (event.CurrentWeather.Status) and pick the proper HTML
-  // TODO: write out full html with minimal styles using process.env.WEATHER_TYPE
-  const snow =
-    '<html><title>Is it snowing?</title><h1>It is snowing!!!</h1></html>'
-  const noSnow =
-    '<html><title>Is it snowing?</title><h1>It is not snowing.</h1></html>'
+  const weatherType = process.env.WEATHER_TYPE!
+  let weather = weatherType
+  if (
+    weather.toLowerCase().endsWith('e') ||
+    weather.toLowerCase().endsWith('s')
+  ) {
+    // Remove the last letter so adding 'ing' will work (kinda hacky)
+    // Examples: 'haze' -> 'haz' -> 'hazing'
+    // 'clouds' -> 'cloud' -> 'clouding'
+    weather = weather.slice(0, -1)
+  }
+
+  // Should be something like 'no snow' or 'snow', 'no rain' or 'rain' etc.
+  const status = event.CurrentWeather.Status
+  const answerText = status.startsWith('no') ? 'NO.' : 'YES!!!'
+
+  // TODO: Consider exporting this to a separate file
+  const htmlString = `<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="${
+      status.startsWith('no') ? 'no' : 'yes'
+    }.css">
+    <title>Is it ${weather}ing in ${process.env.LOCATION_NAME}?</title>
+  </head>
+  <body>
+    <div class="supercontainer">
+      <div class="container">
+        <div class="title">
+          <h1>${answerText}</h1>
+        </div>
+        <div class="footer">
+          <p>
+            If you're wondering why it's not matching what you're seeing check <a href="${
+              process.env.OPEN_WEATHER_URL
+            }">here</a>
+          </p>
+          <p>Inspired by <a href="http://isitsnowinginpdx.com/">Is it snowing in PDX</a></p>
+          <p>
+            Made by <a href="https://www.danielleheberling.xyz/">Danielle Heberling</a>
+            * <a href="https://github.com/deeheber/weather-site">Code contributions welcome</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>`
 
   const s3 = new S3Client({ region: process.env.AWS_REGION })
   const params = {
     Bucket: process.env.BUCKET_NAME,
     Key: 'index.html',
-    Body: Buffer.from(snow),
+    Body: Buffer.from(htmlString),
     ContentType: 'text/html',
   }
 

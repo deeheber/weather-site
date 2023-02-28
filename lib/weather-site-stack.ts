@@ -28,7 +28,9 @@ import {
   DynamoUpdateItem,
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
 import { config } from 'dotenv'
+import * as path from 'path'
 config()
 
 export class WeatherSiteStack extends Stack {
@@ -41,6 +43,12 @@ export class WeatherSiteStack extends Stack {
       publicReadAccess: true,
       // TODO: Revisit this to possibly RETAIN
       removalPolicy: RemovalPolicy.DESTROY,
+    })
+
+    new BucketDeployment(this, 'UploadCssFiles', {
+      sources: [Source.asset(path.join(__dirname, '../src/site'))],
+      destinationBucket: bucket,
+      retainOnDelete: false,
     })
 
     const table = new Table(this, 'WeatherSiteTable', {
@@ -79,6 +87,8 @@ export class WeatherSiteStack extends Stack {
       memorySize: 3008,
       environment: {
         BUCKET_NAME: bucket.bucketName,
+        LOCATION_NAME: process.env.LOCATION_NAME!,
+        OPEN_WEATHER_URL: process.env.OPEN_WEATHER_URL!,
         WEATHER_TYPE: process.env.WEATHER_TYPE!,
       },
     })
