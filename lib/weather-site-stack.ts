@@ -43,7 +43,7 @@ export class WeatherSiteStack extends Stack {
     super(scope, id, props)
 
     const bucket = new Bucket(this, 'WeatherSiteBucket', {
-      // TODO: Uncomment if you want to use a custom bucket name
+      // TODO: Uncomment to use a custom bucket name
       // bucketName: process.env.BUCKET_NAME,
       websiteIndexDocument: 'index.html',
       publicReadAccess: true,

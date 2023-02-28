@@ -25,18 +25,20 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
 
 ## Instructions to run
 
-**Still a work in progress**
+### Prerequisites
 
-1. Ensure you have Node.js installed
-2. Ensure you have an AWS account and have configured your credentials
+1. Install Node.js
+2. Ensure you have an AWS account, install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), and [configure your credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
 3. Get an API key from [Open Weather Map](https://openweathermap.org/api/one-call-3)
-4. Copy `.env.example` to `.env` and add your API key and other info
-5. Clone the repo
-6. Run `npm install`
-7. Run `npm run build`
-8. Run `export AWS_PROFILE=<your_aws_profile>`
+
+### Steps
+
+1. Clone the repo
+2. Copy `.env.example` to `.env` and add your API key and other info
+3. Run `npm install`
+4. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead
-9. Run `npm run cdk deploy`
+5. Run `npm run cdk deploy`
 
 ## Step Function State machine
 
