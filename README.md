@@ -23,6 +23,10 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
 3. [TypeScript](https://www.typescriptlang.org/)
 4. [Open Weather API](https://openweathermap.org/api/one-call-3)
 
+## Step Function State machine
+
+<img width="620" alt="weather-site-workflow" src="https://user-images.githubusercontent.com/12616554/221385438-87a3509a-788c-41cf-8a76-ddac15bcc7fd.png">
+
 ## Instructions to run
 
 ### Prerequisites
@@ -40,6 +44,6 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
    - Optional if you have a default profile or use `--profile` instead
 5. Run `npm run cdk deploy`
 
-## Step Function State machine
+## Contributing
 
-<img width="620" alt="weather-site-workflow" src="https://user-images.githubusercontent.com/12616554/221385438-87a3509a-788c-41cf-8a76-ddac15bcc7fd.png">
+See [CONTRIBUTING.md](https://github.com/deeheber/weather-site/blob/main/CONTRIBUTING.md) for more info on our guildelines.
