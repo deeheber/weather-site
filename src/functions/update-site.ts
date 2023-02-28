@@ -19,16 +19,14 @@ export const handler = async (event: any = {}): Promise<any> => {
   // Should be something like 'no snow' or 'snow', 'no rain' or 'rain' etc.
   const status = event.CurrentWeather.Status
   const answerText = status.startsWith('no') ? 'NO.' : 'YES!!!'
+  const backgroundColor = status.startsWith('no') ? 'green' : 'red'
 
-  // TODO: Consider exporting this to a separate file
   const htmlString = `<html>
   <head>
-    <link rel="stylesheet" type="text/css" href="${
-      status.startsWith('no') ? 'no' : 'yes'
-    }.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Is it ${weather}ing in ${process.env.LOCATION_NAME}?</title>
   </head>
-  <body>
+  <body style="background-color: ${backgroundColor};">
     <div class="supercontainer">
       <div class="container">
         <div class="title">
@@ -36,9 +34,7 @@ export const handler = async (event: any = {}): Promise<any> => {
         </div>
         <div class="footer">
           <p>
-            If you're wondering why it's not matching what you're seeing check <a href="${
-              process.env.OPEN_WEATHER_URL
-            }">here</a>
+            If you're wondering why it's not matching what you're seeing check <a href="${process.env.OPEN_WEATHER_URL}">here</a>
           </p>
           <p>Inspired by <a href="http://isitsnowinginpdx.com/">Is it snowing in PDX</a></p>
           <p>
