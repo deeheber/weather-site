@@ -29,6 +29,11 @@ import {
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
+import {
+  AwsCustomResource,
+  AwsCustomResourcePolicy,
+  PhysicalResourceId,
+} from 'aws-cdk-lib/custom-resources'
 import { config } from 'dotenv'
 import * as path from 'path'
 config()
@@ -38,13 +43,15 @@ export class WeatherSiteStack extends Stack {
     super(scope, id, props)
 
     const bucket = new Bucket(this, 'WeatherSiteBucket', {
-      // TODO: add and parameterize bucket name
+      // TODO: Uncomment if you want to use a custom bucket name
+      // bucketName: process.env.BUCKET_NAME,
       websiteIndexDocument: 'index.html',
       publicReadAccess: true,
       // TODO: Revisit this to possibly RETAIN
       removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
     })
-
+    // Upload CSS files to the bucket
     new BucketDeployment(this, 'UploadCssFiles', {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
       destinationBucket: bucket,
@@ -55,6 +62,24 @@ export class WeatherSiteStack extends Stack {
       partitionKey: { name: 'PK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
+    })
+    // Add an item to the table to track the current weather
+    new AwsCustomResource(this, 'initDBResource', {
+      onCreate: {
+        service: 'DynamoDB',
+        action: 'putItem',
+        parameters: {
+          TableName: table.tableName,
+          Item: {
+            PK: { S: 'SiteStatus' },
+            Weather: { S: 'initial state' },
+          },
+        },
+        physicalResourceId: PhysicalResourceId.of('initDBResource'),
+      },
+      policy: AwsCustomResourcePolicy.fromSdkCalls({
+        resources: [table.tableArn],
+      }),
     })
 
     const checkCurrentWeatherFunction = new NodejsFunction(

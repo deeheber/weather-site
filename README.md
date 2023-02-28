@@ -37,16 +37,6 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
 8. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead
 9. Run `npm run cdk deploy`
-10. Add a record to the DynamoDB table with the following info:
-
-```json
-{
-  "PK": "SiteStatus",
-  "Weather": "initial state"
-}
-```
-
-- TODO: Add a custom resource to automate this step
 
 ## Step Function State machine
 

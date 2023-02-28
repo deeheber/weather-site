@@ -43,7 +43,7 @@ export const handler = async (event: any = {}): Promise<any> => {
           <p>Inspired by <a href="http://isitsnowinginpdx.com/">Is it snowing in PDX</a></p>
           <p>
             Made by <a href="https://www.danielleheberling.xyz/">Danielle Heberling</a>
-            * <a href="https://github.com/deeheber/weather-site">Code contributions welcome</a>
+            - <a href="https://github.com/deeheber/weather-site">Code contributions welcome</a>
           </p>
         </div>
       </div>
