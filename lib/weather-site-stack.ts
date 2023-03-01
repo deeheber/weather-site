@@ -203,7 +203,7 @@ export class WeatherSiteStack extends Stack {
       logs: {
         destination: logGroup,
         includeExecutionData: true,
-        // TODO: Revisit this to possibly set to ERROR to save $$$
+        // TODO: Consider setting to ERROR if there's a need to save $$$
         level: LogLevel.ALL,
       },
       definition,
