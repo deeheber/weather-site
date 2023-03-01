@@ -1,7 +1,19 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { Buffer } from 'buffer'
 
-export const handler = async (event: any = {}): Promise<any> => {
+type FunctionInput = {
+  SiteStatus: { Body: string }
+  CurrentWeather: { Status: string }
+}
+
+type FunctionResponse = {
+  statusCode: number
+  body: string
+}
+
+export const handler = async (
+  event: FunctionInput
+): Promise<FunctionResponse> => {
   console.log(event)
 
   const weatherType = process.env.WEATHER_TYPE!

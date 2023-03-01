@@ -1,21 +1,52 @@
-export const handler = async (event: any = {}): Promise<any> => {
+import fetch from 'node-fetch'
+
+type FunctionInput = {
+  SiteStatus: { Body: string }
+}
+
+type FunctionResponse = {
+  statusCode: number
+  body: string
+}
+
+export const handler = async (
+  event: FunctionInput
+): Promise<FunctionResponse> => {
   console.log(event)
 
-  /*
-   * TODO actually write code for this function
-   * for now we're returning a static response
-   *
-   * 1. HTTP call to Open Weather API
-   * (axios or node-fetch, since it appears AWS doesn't
-   * offer the native fetch in their node 18 runtime)
-   * 2. Set Status
-   */
+  try {
+    const weatherType = process.env.WEATHER_TYPE!.toLowerCase()
 
-  // get value from current.weather.main.toLowerCase()
-  // if there isn't a value there (unlikely) -> throw error
-  return {
-    statusCode: 200,
-    // 'snow' or 'no snow'
-    body: 'snow',
+    const response = await fetch(
+      `https://api.openweathermap.org/data/3.0/onecall?lat=${process.env.WEATHER_LOCATION_LAT}&lon=${process.env.WEATHER_LOCATION_LON}&exclude=minutely,hourly,daily,alerts&appid=${process.env.WEATHER_API_KEY}`
+    )
+    // https://github.com/node-fetch/node-fetch/issues/1262
+    const responseBody = (await response.json()) as any
+
+    let currentWeather
+    if (responseBody?.current?.weather.length > 0) {
+      currentWeather = responseBody?.current?.weather[0].main.toLowerCase()
+    } else {
+      console.log('No weather data found')
+      throw new Error('No weather data found')
+    }
+
+    console.log(`Current weather is ${currentWeather}`)
+
+    return {
+      statusCode: 200,
+      // ex. 'snow' or 'no snow', 'rain' or 'no rain' etc.
+      body: currentWeather.includes(weatherType)
+        ? `${weatherType}`
+        : `no ${weatherType}`,
+    }
+  } catch (err) {
+    console.log('Error', err)
+
+    if (err instanceof Error) {
+      throw new Error(`${err.message}`)
+    }
+
+    throw new Error('Unknown error ocurred')
   }
 }

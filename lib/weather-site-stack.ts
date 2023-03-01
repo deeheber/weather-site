@@ -47,7 +47,6 @@ export class WeatherSiteStack extends Stack {
       // bucketName: process.env.BUCKET_NAME,
       websiteIndexDocument: 'index.html',
       publicReadAccess: true,
-      // TODO: Revisit this to possibly RETAIN
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     })
@@ -55,7 +54,6 @@ export class WeatherSiteStack extends Stack {
     new BucketDeployment(this, 'UploadCssFiles', {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
       destinationBucket: bucket,
-      retainOnDelete: false,
     })
 
     const table = new Table(this, 'WeatherSiteTable', {
