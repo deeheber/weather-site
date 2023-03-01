@@ -34,6 +34,8 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources'
+import * as scheduler from 'aws-cdk-lib/aws-scheduler'
+import * as iam from 'aws-cdk-lib/aws-iam'
 import { config } from 'dotenv'
 import * as path from 'path'
 config()
@@ -197,7 +199,7 @@ export class WeatherSiteStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     })
 
-    new StateMachine(this, 'WeatherSiteStateMachine', {
+    const stepFunction = new StateMachine(this, 'WeatherSiteStateMachine', {
       stateMachineName: 'WeatherSiteStateMachine',
       stateMachineType: StateMachineType.EXPRESS,
       logs: {
@@ -213,6 +215,38 @@ export class WeatherSiteStack extends Stack {
       value: bucket.bucketWebsiteUrl,
     })
 
-    // TODO: Add EventBridge Scheduler to invoke SF every 15 minutes
+    // Resources for scheduler to periodically invoke the step function
+    const invokeStepFunctionPolicy = new iam.PolicyDocument({
+      statements: [
+        new iam.PolicyStatement({
+          resources: [stepFunction.stateMachineArn],
+          actions: ['states:StartExecution'],
+        }),
+      ],
+    })
+    const schedulerToStepFunctionRole = new iam.Role(
+      this,
+      'schedulerToStepFunctionRole',
+      {
+        assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
+        description: 'Role for scheduler to invoke step function',
+        inlinePolicies: {
+          InvokeSFPolicy: invokeStepFunctionPolicy,
+        },
+      }
+    )
+    // TODO: Update to L2 construct when available
+    // https://github.com/aws/aws-cdk/issues/23394
+    new scheduler.CfnSchedule(this, 'WeatherSiteScheduler', {
+      name: 'WeatherSiteScheduler',
+      scheduleExpression: 'rate(10 minutes)',
+      flexibleTimeWindow: {
+        mode: 'OFF',
+      },
+      target: {
+        arn: stepFunction.stateMachineArn,
+        roleArn: schedulerToStepFunctionRole.roleArn,
+      },
+    })
   }
 }
