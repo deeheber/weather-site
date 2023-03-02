@@ -1,7 +1,5 @@
 # Weather Site
 
-**This repo is a work in progress**
-
 ## Description
 
 Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a workflow that:
@@ -9,6 +7,8 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
 1. Gets the current website status for a specified location
 2. Hits the [open weather map API](https://openweathermap.org/) to get the current weather conditions
 3. If #1 and #2 are different 👉🏻 update the website with the current weather conditions
+
+My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 ## Technologies used
 
