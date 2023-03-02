@@ -17,6 +17,7 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
    - [Step Functions](https://aws.amazon.com/step-functions/)
    - [DynamoDB](https://aws.amazon.com/dynamodb/)
    - [Lambda](https://aws.amazon.com/lambda/)
+   - [EventBridge Scheduler](https://aws.amazon.com/eventbridge/scheduler/)
    - [IAM](https://aws.amazon.com/iam/)
    - [CDK](https://aws.amazon.com/cdk/)
 2. [Node.js](https://nodejs.org/en/) - specific version is in `.nvmrc` file
