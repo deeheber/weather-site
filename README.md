@@ -45,6 +45,10 @@ Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a work
    - Optional if you have a default profile or use `--profile` instead
 5. Run `npm run cdk deploy`
 
+### Tests
+
+There's some super basic tests in the `test` folder. To run them, run `npm run test`.
+
 ## Contributing
 
 See [CONTRIBUTING.md](https://github.com/deeheber/weather-site/blob/main/CONTRIBUTING.md) for more info on our guildelines.
