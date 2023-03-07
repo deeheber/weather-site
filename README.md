@@ -2,7 +2,10 @@
 
 ## Description
 
-Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/), this is a workflow that:
+Inspired by [isitsnowinginpdx.com](http://isitsnowinginpdx.com/).
+See [blog post](https://www.danielleheberling.xyz/blog/serverless-weather-reporting/) for more details.
+
+This is a workflow that:
 
 1. Gets the current website status for a specified location
 2. Hits the [open weather map API](https://openweathermap.org/) to get the current weather conditions
