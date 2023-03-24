@@ -49,11 +49,10 @@ export const handler = async (
             This site uses a weather API, so if you're wondering why it's not matching what you're seeing check <a href="${process.env.OPEN_WEATHER_URL}">here</a>
           </p>
           <p>
-            Inspired by <a href="http://isitsnowinginpdx.com/">Is it snowing in PDX</a>
+            Made by <a href="https://www.danielleheberling.xyz/">Danielle Heberling</a> - Inspired by <a href="http://isitsnowinginpdx.com/">Is it snowing in PDX</a>
           </p>
           <p>
-            Made by <a href="https://www.danielleheberling.xyz/">Danielle Heberling</a>
-            * <a href="https://github.com/deeheber/weather-site">Code contributions welcome</a>
+            <a href="https://github.com/deeheber/weather-site">Code contributions welcome</a>
           </p>
         </div>
       </div>

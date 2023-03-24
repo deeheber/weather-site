@@ -52,10 +52,11 @@ export class WeatherSiteStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     })
-    // Upload CSS files to the bucket
+    // Upload CSS file to the bucket
     new BucketDeployment(this, 'UploadCssFiles', {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
       destinationBucket: bucket,
+      prune: false,
     })
 
     const table = new Table(this, 'WeatherSiteTable', {
