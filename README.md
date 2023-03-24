@@ -13,6 +13,15 @@ This is a workflow that:
 
 My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
+**The weather is happening site looks like this**
+
+<img width="1430" alt="Screenshot 2023-03-24 at 8 59 11 AM" src="https://user-images.githubusercontent.com/12616554/227594815-a8560813-2bff-4afd-b216-d24dc518c4cd.png">
+
+
+**The weather is not happening site looks like this**
+
+<img width="1430" alt="Screenshot 2023-03-24 at 8 58 11 AM" src="https://user-images.githubusercontent.com/12616554/227594838-a20aec0b-a4e2-4d09-919e-a3e1f2d08ff5.png">
+
 ## Technologies used
 
 1. [AWS](https://aws.amazon.com/)
