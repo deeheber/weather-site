@@ -15,7 +15,7 @@ body {
 }
 
 .title {
-  font-size: 75px;
+  font-size: 100px;
   font-weight: bold;
 }
 
@@ -30,5 +30,6 @@ body {
 }
 
 .footer > p {
+  font-size: 25px;
   margin: 0;
 }
