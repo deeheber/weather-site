@@ -48,10 +48,14 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
    - Optional if you have a default profile or use `--profile` instead
 5. Run `npm run cdk deploy`
 
+### Cleanup
+
+If you want to delete the resources created by this project, run `npm run cdk destroy`.
+
 ### Tests
 
 There's some super basic tests in the `test` folder. To run them, run `npm run test`.
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://github.com/deeheber/weather-site/blob/main/CONTRIBUTING.md) for more info on our guildelines.
+See [CONTRIBUTING.md](https://github.com/deeheber/weather-site/blob/main/CONTRIBUTING.md) for more info on our guidelines.
