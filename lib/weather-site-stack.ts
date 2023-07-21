@@ -6,7 +6,12 @@ import {
   StackProps,
 } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
-import { Bucket } from 'aws-cdk-lib/aws-s3'
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketAccessControl,
+  ObjectOwnership,
+} from 'aws-cdk-lib/aws-s3'
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda'
@@ -51,6 +56,10 @@ export class WeatherSiteStack extends Stack {
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      // https://github.com/aws/aws-cdk/issues/25983
+      // https://www.reddit.com/r/aws/comments/12tqqpw/aws_cdk_api_s3_putbucketpolicy_access_denied_and/
+      blockPublicAccess: BlockPublicAccess.BLOCK_ACLS,
+      accessControl: BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
     })
     // Upload CSS file to the bucket
     new BucketDeployment(this, 'UploadCssFiles', {
