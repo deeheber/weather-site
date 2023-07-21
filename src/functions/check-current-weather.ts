@@ -1,5 +1,3 @@
-import fetch from 'node-fetch'
-
 type FunctionInput = {
   SiteStatus: { Body: string }
 }
@@ -10,19 +8,40 @@ type FunctionResponse = {
 }
 
 export const handler = async (
-  event: FunctionInput
+  event: FunctionInput,
 ): Promise<FunctionResponse> => {
   console.log(event)
 
   try {
+    // Fetch secret (weather API key) from the secrets manager
+    const secretUrl =
+      'http://localhost:2773/secretsmanager/get?secretId=weather-site-api-key'
+    const secretResponse = await fetch(secretUrl, {
+      method: 'GET',
+      headers: {
+        'X-Aws-Parameters-Secrets-Token': process.env.AWS_SESSION_TOKEN!,
+      },
+    })
+
+    if (!secretResponse.ok) {
+      throw new Error(
+        `Error occured while requesting secret. Status: ${secretResponse.status}`,
+      )
+    }
+    const { SecretString } = (await secretResponse.json()) as {
+      SecretString: string
+    }
+
+    // Fetch weather data from the OpenWeather API
     const weatherType = process.env.WEATHER_TYPE!.toLowerCase()
 
     const response = await fetch(
-      `https://api.openweathermap.org/data/3.0/onecall?lat=${process.env.WEATHER_LOCATION_LAT}&lon=${process.env.WEATHER_LOCATION_LON}&exclude=minutely,hourly,daily,alerts&appid=${process.env.WEATHER_API_KEY}`
+      `https://api.openweathermap.org/data/3.0/onecall?lat=${process.env.WEATHER_LOCATION_LAT}&lon=${process.env.WEATHER_LOCATION_LON}&exclude=minutely,hourly,daily,alerts&appid=${SecretString}`,
     )
     // https://github.com/node-fetch/node-fetch/issues/1262
     const responseBody = (await response.json()) as any
 
+    // Generate response
     let currentWeather
     if (responseBody?.current?.weather.length > 0) {
       currentWeather = responseBody?.current?.weather[0].main.toLowerCase()
