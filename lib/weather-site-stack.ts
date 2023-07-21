@@ -10,7 +10,6 @@ import {
   BlockPublicAccess,
   Bucket,
   BucketAccessControl,
-  ObjectOwnership,
 } from 'aws-cdk-lib/aws-s3'
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
