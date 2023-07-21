@@ -18,6 +18,7 @@ import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import {
   Choice,
   Condition,
+  DefinitionBody,
   Fail,
   JsonPath,
   LogLevel,
@@ -234,15 +235,7 @@ export class WeatherSiteStack extends Stack {
         // TODO: Consider setting to ERROR if there's a need to save $$$
         level: LogLevel.ALL,
       },
-      definition,
-      /**
-       * aws-cdk-lib.aws_stepfunctions.StateMachineProps#definition is deprecated.
-  use definitionBody: DefinitionBody.fromChainable()
-  This API will be removed in the next major release.
-[WARNING] aws-cdk-lib.aws_stepfunctions.StateMachineProps#definition is deprecated.
-  use definitionBody: DefinitionBody.fromChainable()
-  This API will be removed in the next major release.
-       */
+      definitionBody: DefinitionBody.fromChainable(definition),
     })
 
     new CfnOutput(this, 'siteURL', {
