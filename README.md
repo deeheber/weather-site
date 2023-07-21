@@ -17,7 +17,6 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 <img width="1430" alt="Screenshot 2023-03-24 at 8 59 11 AM" src="https://user-images.githubusercontent.com/12616554/227594815-a8560813-2bff-4afd-b216-d24dc518c4cd.png">
 
-
 **The weather is not happening site looks like this**
 
 <img width="1430" alt="Screenshot 2023-03-24 at 8 58 11 AM" src="https://user-images.githubusercontent.com/12616554/227594838-a20aec0b-a4e2-4d09-919e-a3e1f2d08ff5.png">
@@ -51,15 +50,16 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 ### Steps
 
 1. Clone the repo
-2. Copy `.env.example` to `.env` and add your API key and other info
-3. Run `npm install`
-4. Run `export AWS_PROFILE=<your_aws_profile>`
+2. [Create a Secret](https://docs.aws.amazon.com/secretsmanager/latest/userguide/create_secret.html) in Secrets Manager titled `weather-site-api-key` with a plaintext secret value that is your OpenWeather API key. Save the secret ARN for step #2.
+3. Copy `.env.example` to `.env`. Fill in the missing `SECRETS_EXTENSION_ARN` using the commented URL in `.env.example` to grab the correct ARN for your region. Add your copied ARN from the secret you created in step #1 for `WEATHER_SECRET_ARN`.
+4. Run `npm install`
+5. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead
-5. Run `npm run cdk deploy`
+6. Run `npm run cdk deploy`
 
 ### Cleanup
 
-If you want to delete the resources created by this project, run `npm run cdk destroy`.
+If you want to delete the resources created by this project, run `npm run cdk destroy`. Delete the secret that you created in the Secrets Manager console.
 
 ### Tests
 

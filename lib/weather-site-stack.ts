@@ -13,7 +13,7 @@ import {
 } from 'aws-cdk-lib/aws-s3'
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
-import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda'
+import { Architecture, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import {
   Choice,
@@ -38,10 +38,15 @@ import {
   AwsCustomResourcePolicy,
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources'
-import * as scheduler from 'aws-cdk-lib/aws-scheduler'
-import * as iam from 'aws-cdk-lib/aws-iam'
+import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
 import { config } from 'dotenv'
 import * as path from 'path'
+import {
+  PolicyDocument,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam'
 config()
 
 export class WeatherSiteStack extends Stack {
@@ -103,12 +108,24 @@ export class WeatherSiteStack extends Stack {
         timeout: Duration.seconds(30),
         memorySize: 3008,
         environment: {
-          WEATHER_API_KEY: process.env.WEATHER_API_KEY!,
           WEATHER_LOCATION_LAT: process.env.WEATHER_LOCATION_LAT!,
           WEATHER_LOCATION_LON: process.env.WEATHER_LOCATION_LON!,
           WEATHER_TYPE: process.env.WEATHER_TYPE!,
         },
-      }
+        layers: [
+          LayerVersion.fromLayerVersionArn(
+            this,
+            'SecretsManagerLayer',
+            process.env.SECRETS_EXTENSION_ARN!,
+          ),
+        ],
+      },
+    )
+    checkCurrentWeatherFunction.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['secretsmanager:GetSecretValue'],
+        resources: [process.env.WEATHER_SECRET_ARN!],
+      }),
     )
 
     const updateSiteFunction = new NodejsFunction(this, 'updateSiteFunction', {
@@ -148,7 +165,7 @@ export class WeatherSiteStack extends Stack {
         comment: 'Get current weather using external API',
         resultPath: '$.CurrentWeather',
         resultSelector: { 'Status.$': '$.Payload.body' },
-      }
+      },
     )
 
     const siteIsUpToDate = new Pass(this, 'Site is up to date')
@@ -178,13 +195,13 @@ export class WeatherSiteStack extends Stack {
         table,
         expressionAttributeValues: {
           ':currentWeather': DynamoAttributeValue.fromString(
-            JsonPath.stringAt('$.CurrentWeather.Status')
+            JsonPath.stringAt('$.CurrentWeather.Status'),
           ),
         },
         updateExpression: 'SET Weather = :currentWeather',
         comment: 'Update site status in DynamoDB',
         resultPath: '$.DDBUpdateItemResult',
-      })
+      }),
     )
 
     const definition = getSiteStatus
@@ -194,11 +211,11 @@ export class WeatherSiteStack extends Stack {
           .when(
             Condition.stringEqualsJsonPath(
               '$.SiteStatus.Body',
-              '$.CurrentWeather.Status'
+              '$.CurrentWeather.Status',
             ),
-            siteIsUpToDate
+            siteIsUpToDate,
           )
-          .otherwise(updateSite)
+          .otherwise(updateSite),
       )
     // End of Tasks for Step Function Definition
 
@@ -218,6 +235,14 @@ export class WeatherSiteStack extends Stack {
         level: LogLevel.ALL,
       },
       definition,
+      /**
+       * aws-cdk-lib.aws_stepfunctions.StateMachineProps#definition is deprecated.
+  use definitionBody: DefinitionBody.fromChainable()
+  This API will be removed in the next major release.
+[WARNING] aws-cdk-lib.aws_stepfunctions.StateMachineProps#definition is deprecated.
+  use definitionBody: DefinitionBody.fromChainable()
+  This API will be removed in the next major release.
+       */
     })
 
     new CfnOutput(this, 'siteURL', {
@@ -225,28 +250,28 @@ export class WeatherSiteStack extends Stack {
     })
 
     // Resources for scheduler to periodically invoke the step function
-    const invokeStepFunctionPolicy = new iam.PolicyDocument({
+    const invokeStepFunctionPolicy = new PolicyDocument({
       statements: [
-        new iam.PolicyStatement({
+        new PolicyStatement({
           resources: [stepFunction.stateMachineArn],
           actions: ['states:StartExecution'],
         }),
       ],
     })
-    const schedulerToStepFunctionRole = new iam.Role(
+    const schedulerToStepFunctionRole = new Role(
       this,
       'schedulerToStepFunctionRole',
       {
-        assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
+        assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
         description: 'Role for scheduler to invoke step function',
         inlinePolicies: {
           InvokeSFPolicy: invokeStepFunctionPolicy,
         },
-      }
+      },
     )
     // TODO: Update to L2 construct when available
     // https://github.com/aws/aws-cdk/issues/23394
-    new scheduler.CfnSchedule(this, 'WeatherSiteScheduler', {
+    new CfnSchedule(this, 'WeatherSiteScheduler', {
       name: 'WeatherSiteScheduler',
       scheduleExpression: 'rate(10 minutes)',
       flexibleTimeWindow: {
