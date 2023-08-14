@@ -68,8 +68,9 @@ const weatherSiteStack = new WeatherSiteStack(app, 'WeatherSiteStack', {
 })
 
 if (alertEmail !== '') {
-  new AlertStack(app, 'AlertStack', {
+  const alertsStack = new AlertStack(app, 'AlertStack', {
     stepFunction: weatherSiteStack.stepFunction,
     alertEmail,
   })
+  alertsStack.addDependency(weatherSiteStack)
 }

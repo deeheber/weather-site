@@ -17,14 +17,10 @@ export class AlertStack extends Stack {
     const { alertEmail, stepFunction } = props
 
     // Create SNS Topic
-    const errorTopic = new Topic(
-      this,
-      `${stepFunction.stateMachineName}-error-topic`,
-      {
-        topicName: 'WeatherSiteTopic',
-        displayName: 'Weather Site Topic',
-      },
-    )
+    const errorTopic = new Topic(this, `WeatherSiteStateMachine-error-topic`, {
+      topicName: 'WeatherSiteTopic',
+      displayName: 'Weather Site Topic',
+    })
     errorTopic.addSubscription(
       new EmailSubscription(alertEmail, {
         json: false,
@@ -39,7 +35,7 @@ export class AlertStack extends Stack {
       period: Duration.hours(period),
     })
 
-    const alarmName = `${stepFunction.stateMachineName}-alarm`
+    const alarmName = `WeatherSiteStateMachine-alarm`
     const alarm = new Alarm(this, alarmName, {
       actionsEnabled: true,
       alarmName,
