@@ -55,11 +55,11 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 4. Run `npm install`
 5. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead
-6. Run `npm run cdk deploy`
+6. Run `npm run deploy`
 
 ### Cleanup
 
-If you want to delete the resources created by this project, run `npm run cdk destroy`. Delete the secret that you created in the Secrets Manager console.
+If you want to delete the resources created by this project, run `npm run destroy`. Delete the secret that you created in the Secrets Manager console.
 
 ### Tests
 
