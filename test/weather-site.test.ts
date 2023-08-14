@@ -5,7 +5,16 @@ import { WeatherSiteStack } from '../lib/weather-site-stack'
 
 test('Verify resources are created', () => {
   const app = new App()
-  const stack = new WeatherSiteStack(app, 'MyTestStack')
+  const stack = new WeatherSiteStack(app, 'MyTestStack', {
+    locationName: 'Test Location',
+    openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
+    schedules: 'rate(10 minutes)'.split(', '),
+    secretsExtensionArn: 'secret-extension-arn',
+    weatherLocationLat: '123',
+    weatherLocationLon: '456',
+    weatherSecretArn: 'weather-secret-arn',
+    weatherType: 'rain',
+  })
   const template = Template.fromStack(stack)
 
   template.resourceCountIs('AWS::S3::Bucket', 1)
@@ -35,7 +44,7 @@ test('Verify resources are created', () => {
     },
   })
   template.hasResourceProperties('AWS::Scheduler::Schedule', {
-    Name: 'WeatherSiteScheduler',
+    Name: 'WeatherSiteScheduler-0',
     ScheduleExpression: 'rate(10 minutes)',
   })
 })

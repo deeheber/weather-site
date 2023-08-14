@@ -40,22 +40,40 @@ import {
   PhysicalResourceId,
 } from 'aws-cdk-lib/custom-resources'
 import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
-import { config } from 'dotenv'
-import * as path from 'path'
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
-import { Alarm, ComparisonOperator } from 'aws-cdk-lib/aws-cloudwatch'
-import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions'
-import { Topic } from 'aws-cdk-lib/aws-sns'
-import { EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions'
-config()
+import * as path from 'path'
+
+interface WeatherSiteStackProps extends StackProps {
+  bucketName?: string
+  locationName: string
+  openWeatherUrl: string
+  schedules: string[]
+  secretsExtensionArn: string
+  weatherLocationLat: string
+  weatherLocationLon: string
+  weatherSecretArn: string
+  weatherType: string
+}
 
 export class WeatherSiteStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  public readonly stepFunction: StateMachine
+
+  constructor(scope: Construct, id: string, props: WeatherSiteStackProps) {
     super(scope, id, props)
+    const {
+      bucketName,
+      locationName,
+      openWeatherUrl,
+      schedules,
+      secretsExtensionArn,
+      weatherLocationLat,
+      weatherLocationLon,
+      weatherSecretArn,
+      weatherType,
+    } = props
 
     const bucket = new Bucket(this, 'WeatherSiteBucket', {
-      // TODO: Uncomment to use a custom bucket name
-      // bucketName: process.env.BUCKET_NAME,
+      bucketName,
       websiteIndexDocument: 'index.html',
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -108,15 +126,15 @@ export class WeatherSiteStack extends Stack {
         timeout: Duration.seconds(30),
         memorySize: 3008,
         environment: {
-          WEATHER_LOCATION_LAT: process.env.WEATHER_LOCATION_LAT!,
-          WEATHER_LOCATION_LON: process.env.WEATHER_LOCATION_LON!,
-          WEATHER_TYPE: process.env.WEATHER_TYPE!,
+          WEATHER_LOCATION_LAT: weatherLocationLat,
+          WEATHER_LOCATION_LON: weatherLocationLon,
+          WEATHER_TYPE: weatherType,
         },
         layers: [
           LayerVersion.fromLayerVersionArn(
             this,
             'SecretsManagerLayer',
-            process.env.SECRETS_EXTENSION_ARN!,
+            secretsExtensionArn,
           ),
         ],
       },
@@ -124,7 +142,7 @@ export class WeatherSiteStack extends Stack {
     checkCurrentWeatherFunction.addToRolePolicy(
       new PolicyStatement({
         actions: ['secretsmanager:GetSecretValue'],
-        resources: [process.env.WEATHER_SECRET_ARN!],
+        resources: [weatherSecretArn],
       }),
     )
 
@@ -138,9 +156,9 @@ export class WeatherSiteStack extends Stack {
       memorySize: 3008,
       environment: {
         BUCKET_NAME: bucket.bucketName,
-        LOCATION_NAME: process.env.LOCATION_NAME!,
-        OPEN_WEATHER_URL: process.env.OPEN_WEATHER_URL!,
-        WEATHER_TYPE: process.env.WEATHER_TYPE!,
+        LOCATION_NAME: locationName,
+        OPEN_WEATHER_URL: openWeatherUrl,
+        WEATHER_TYPE: weatherType,
       },
     })
     bucket.grantWrite(updateSiteFunction)
@@ -217,7 +235,7 @@ export class WeatherSiteStack extends Stack {
     })
 
     const stateMachineName = 'WeatherSiteStateMachine'
-    const stepFunction = new StateMachine(this, `${stateMachineName}`, {
+    this.stepFunction = new StateMachine(this, `${stateMachineName}`, {
       stateMachineName: 'WeatherSiteStateMachine',
       stateMachineType: StateMachineType.EXPRESS,
       logs: {
@@ -242,10 +260,9 @@ export class WeatherSiteStack extends Stack {
         description: 'Role for EB Schedules to invoke WeatherSiteStateMachine',
       },
     )
-    stepFunction.grantStartExecution(schedulerToStepFunctionRole)
+    this.stepFunction.grantStartExecution(schedulerToStepFunctionRole)
 
     // EventBridge Schedules to invoke the Step Function
-    const schedules = process.env.SCHEDULES!.split(', ')
     for (let i = 0; i < schedules.length; i++) {
       // TODO: Update to L2 construct when available
       // https://github.com/aws/aws-cdk/issues/23394
@@ -260,7 +277,7 @@ export class WeatherSiteStack extends Stack {
         scheduleExpressionTimezone: 'America/Los_Angeles',
         state: 'ENABLED',
         target: {
-          arn: stepFunction.stateMachineArn,
+          arn: this.stepFunction.stateMachineArn,
           roleArn: schedulerToStepFunctionRole.roleArn,
           retryPolicy: {
             maximumEventAgeInSeconds: 90,
@@ -268,41 +285,6 @@ export class WeatherSiteStack extends Stack {
           },
         },
       })
-    }
-
-    if (process.env.ALERT_EMAIL!) {
-      // Create SNS Topic
-      const errorTopic = new Topic(this, `${stateMachineName}-error-topic`, {
-        topicName: 'WeatherSiteTopic',
-        displayName: 'Weather Site Topic',
-      })
-      errorTopic.addSubscription(
-        new EmailSubscription(process.env.ALERT_EMAIL, {
-          json: false,
-        }),
-      )
-
-      // Create Cloudwatch Alarm
-      const threshold = 2
-      const evaluationPeriods = 1
-      const period = 1
-      const metric = stepFunction.metricFailed({
-        period: Duration.hours(period),
-      })
-
-      const alarmName = `${stateMachineName}-alarm`
-      const alarm = new Alarm(this, alarmName, {
-        actionsEnabled: true,
-        alarmName,
-        alarmDescription: `Alarm (${alarmName}) if the SUM of errors is greater than or equal to the threshold (${threshold}) for ${evaluationPeriods} evaluation period of ${period} minutes`,
-        metric,
-        threshold,
-        evaluationPeriods,
-        comparisonOperator:
-          ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
-      })
-
-      alarm.addAlarmAction(new SnsAction(errorTopic))
     }
   }
 }
