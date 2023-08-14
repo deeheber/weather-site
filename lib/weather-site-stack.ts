@@ -271,6 +271,8 @@ export class WeatherSiteStack extends Stack {
     // https://github.com/aws/aws-cdk/issues/23394
     new CfnSchedule(this, 'WeatherSiteScheduler', {
       name: 'WeatherSiteScheduler',
+      description: 'Scheduler to invoke WeatherSiteStateMachine every 10 min',
+      state: 'ENABLED',
       scheduleExpression: 'rate(10 minutes)',
       flexibleTimeWindow: {
         mode: 'OFF',
@@ -278,6 +280,10 @@ export class WeatherSiteStack extends Stack {
       target: {
         arn: stepFunction.stateMachineArn,
         roleArn: schedulerToStepFunctionRole.roleArn,
+        retryPolicy: {
+          maximumEventAgeInSeconds: 120,
+          maximumRetryAttempts: 2,
+        },
       },
     })
 
