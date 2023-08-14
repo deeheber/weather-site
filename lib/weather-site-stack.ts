@@ -42,12 +42,7 @@ import {
 import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
 import { config } from 'dotenv'
 import * as path from 'path'
-import {
-  PolicyDocument,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam'
+import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import { Alarm, ComparisonOperator } from 'aws-cdk-lib/aws-cloudwatch'
 import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions'
 import { Topic } from 'aws-cdk-lib/aws-sns'
@@ -174,16 +169,7 @@ export class WeatherSiteStack extends Stack {
     )
 
     const siteIsUpToDate = new Pass(this, 'Site is up to date')
-    /**
-     * I tried the s3:PutOjbect direct integration, but was unable to
-     *  remove the "" from around the body
-     * (needed for HTML to display in a browser properly).
-     *
-     * So I used the Lambda function to do the update where I
-     * could send a Buffer as the body of the PutObject command.
-     *
-     * Would much prefer the direct integration, suggestions welcome.
-     */
+
     const updateSite = new LambdaInvoke(this, 'Update site', {
       lambdaFunction: updateSiteFunction,
       payload: TaskInput.fromJsonPathAt('$'),
@@ -247,45 +233,42 @@ export class WeatherSiteStack extends Stack {
       value: bucket.bucketWebsiteUrl,
     })
 
-    // Resources for scheduler to periodically invoke the step function
-    const invokeStepFunctionPolicy = new PolicyDocument({
-      statements: [
-        new PolicyStatement({
-          resources: [stepFunction.stateMachineArn],
-          actions: ['states:StartExecution'],
-        }),
-      ],
-    })
+    // Permissions for EventBridge Schedules to invoke the Step Function
     const schedulerToStepFunctionRole = new Role(
       this,
       'schedulerToStepFunctionRole',
       {
         assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
-        description: 'Role for scheduler to invoke step function',
-        inlinePolicies: {
-          InvokeSFPolicy: invokeStepFunctionPolicy,
-        },
+        description: 'Role for EB Schedules to invoke WeatherSiteStateMachine',
       },
     )
-    // TODO: Update to L2 construct when available
-    // https://github.com/aws/aws-cdk/issues/23394
-    new CfnSchedule(this, 'WeatherSiteScheduler', {
-      name: 'WeatherSiteScheduler',
-      description: 'Scheduler to invoke WeatherSiteStateMachine every 10 min',
-      state: 'ENABLED',
-      scheduleExpression: 'rate(10 minutes)',
-      flexibleTimeWindow: {
-        mode: 'OFF',
-      },
-      target: {
-        arn: stepFunction.stateMachineArn,
-        roleArn: schedulerToStepFunctionRole.roleArn,
-        retryPolicy: {
-          maximumEventAgeInSeconds: 120,
-          maximumRetryAttempts: 2,
+    stepFunction.grantStartExecution(schedulerToStepFunctionRole)
+
+    // EventBridge Schedules to invoke the Step Function
+    const schedules = process.env.SCHEDULES!.split(', ')
+    for (let i = 0; i < schedules.length; i++) {
+      // TODO: Update to L2 construct when available
+      // https://github.com/aws/aws-cdk/issues/23394
+      const scheduleId = `WeatherSiteScheduler-${i}`
+      new CfnSchedule(this, scheduleId, {
+        description: 'Scheduler to invoke WeatherSiteStateMachine',
+        flexibleTimeWindow: {
+          mode: 'OFF',
         },
-      },
-    })
+        name: scheduleId,
+        scheduleExpression: schedules[i],
+        scheduleExpressionTimezone: 'America/Los_Angeles',
+        state: 'ENABLED',
+        target: {
+          arn: stepFunction.stateMachineArn,
+          roleArn: schedulerToStepFunctionRole.roleArn,
+          retryPolicy: {
+            maximumEventAgeInSeconds: 90,
+            maximumRetryAttempts: 2,
+          },
+        },
+      })
+    }
 
     if (process.env.ALERT_EMAIL!) {
       // Create SNS Topic
@@ -302,9 +285,9 @@ export class WeatherSiteStack extends Stack {
       // Create Cloudwatch Alarm
       const threshold = 2
       const evaluationPeriods = 1
-      const period = 25
+      const period = 1
       const metric = stepFunction.metricFailed({
-        period: Duration.minutes(period),
+        period: Duration.hours(period),
       })
 
       const alarmName = `${stateMachineName}-alarm`
