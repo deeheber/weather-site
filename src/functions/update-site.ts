@@ -12,7 +12,7 @@ type FunctionResponse = {
 }
 
 export const handler = async (
-  event: FunctionInput
+  event: FunctionInput,
 ): Promise<FunctionResponse> => {
   console.log(event)
 

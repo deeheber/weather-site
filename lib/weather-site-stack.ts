@@ -60,7 +60,7 @@ export class WeatherSiteStack extends Stack {
 
     const bucket = new Bucket(this, 'WeatherSiteBucket', {
       // TODO: Uncomment to use a custom bucket name
-      bucketName: process.env.BUCKET_NAME,
+      // bucketName: process.env.BUCKET_NAME,
       websiteIndexDocument: 'index.html',
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,
