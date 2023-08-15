@@ -1,18 +1,76 @@
 #!/usr/bin/env node
 import 'source-map-support/register'
 import { App } from 'aws-cdk-lib'
+import 'dotenv/config'
+
 import { WeatherSiteStack } from '../lib/weather-site-stack'
+import { AlertStack } from '../lib/alert-stack'
+
+// Env var validation
+const {
+  ALERT_EMAIL: alertEmail = '',
+  BUCKET_NAME: bucketName,
+  LOCATION_NAME: locationName = '',
+  OPEN_WEATHER_URL: openWeatherUrl = '',
+  SCHEDULES: schedules = 'rate(10 minutes)',
+  SECRETS_EXTENSION_ARN: secretsExtensionArn = '',
+  WEATHER_LOCATION_LAT: weatherLocationLat = '',
+  WEATHER_LOCATION_LON: weatherLocationLon = '',
+  WEATHER_SECRET_ARN: weatherSecretArn = '',
+  WEATHER_TYPE: weatherType = '',
+} = process.env
+
+if (
+  ![
+    locationName,
+    openWeatherUrl,
+    schedules,
+    secretsExtensionArn,
+    weatherLocationLat,
+    weatherLocationLon,
+    weatherSecretArn,
+    weatherType,
+  ].every((el) => !!el)
+) {
+  console.log(
+    JSON.stringify(
+      {
+        alertEmail,
+        bucketName,
+        locationName,
+        openWeatherUrl,
+        schedules,
+        secretsExtensionArn,
+        weatherLocationLat,
+        weatherLocationLon,
+        weatherSecretArn,
+        weatherType,
+      },
+      null,
+      2,
+    ),
+  )
+  throw new Error('Missing environment variables!')
+}
 
 const app = new App()
-new WeatherSiteStack(app, 'WeatherSiteStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+
+const weatherSiteStack = new WeatherSiteStack(app, 'WeatherSiteStack', {
+  bucketName,
+  locationName,
+  openWeatherUrl,
+  schedules: schedules.split(', '),
+  secretsExtensionArn,
+  weatherLocationLat,
+  weatherLocationLon,
+  weatherSecretArn,
+  weatherType,
 })
+
+if (alertEmail !== '') {
+  const alertsStack = new AlertStack(app, 'AlertStack', {
+    stepFunction: weatherSiteStack.stepFunction,
+    alertEmail,
+  })
+  alertsStack.addDependency(weatherSiteStack)
+}

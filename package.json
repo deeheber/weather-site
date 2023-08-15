@@ -11,8 +11,8 @@
     "cdk": "cdk",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "clean": "rm -rf dist",
-    "deploy": "npm run clean && npm run build && npm run cdk deploy -a WeatherSiteStack",
-    "destroy": "npm run cdk destroy -a WeatherSiteStack"
+    "deploy": "npm run clean && npm run build && npm run cdk deploy -- --all",
+    "destroy": "npm run cdk destroy -- --all"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
