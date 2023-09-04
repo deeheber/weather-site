@@ -6,15 +6,18 @@ import {
   StackProps,
 } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
+import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
+import { Architecture, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda'
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import {
   BlockPublicAccess,
   Bucket,
   BucketAccessControl,
 } from 'aws-cdk-lib/aws-s3'
-import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb'
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
-import { Architecture, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda'
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
+import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
+import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import {
   Choice,
   Condition,
@@ -28,19 +31,9 @@ import {
   TaskInput,
 } from 'aws-cdk-lib/aws-stepfunctions'
 import {
-  DynamoAttributeValue,
-  DynamoGetItem,
-  DynamoUpdateItem,
+  CallAwsService,
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
-import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
-import {
-  AwsCustomResource,
-  AwsCustomResourcePolicy,
-  PhysicalResourceId,
-} from 'aws-cdk-lib/custom-resources'
-import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
-import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import * as path from 'path'
 
 interface WeatherSiteStackProps extends StackProps {
@@ -90,28 +83,11 @@ export class WeatherSiteStack extends Stack {
       prune: false,
     })
 
-    const table = new Table(this, 'WeatherSiteTable', {
-      partitionKey: { name: 'PK', type: AttributeType.STRING },
-      billingMode: BillingMode.PAY_PER_REQUEST,
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-    // Add an item to the table to track the current weather
-    new AwsCustomResource(this, 'initDBResource', {
-      onCreate: {
-        service: 'DynamoDB',
-        action: 'putItem',
-        parameters: {
-          TableName: table.tableName,
-          Item: {
-            PK: { S: 'SiteStatus' },
-            Weather: { S: 'initial state' },
-          },
-        },
-        physicalResourceId: PhysicalResourceId.of('initDBResource'),
-      },
-      policy: AwsCustomResourcePolicy.fromSdkCalls({
-        resources: [table.tableArn],
-      }),
+    // SSM Parameter to store the current site status
+    const siteStatusParam = new StringParameter(this, 'SiteStatusParam', {
+      parameterName: 'SiteStatus',
+      stringValue: 'Initial value',
+      description: `Current status of the weather site for ${this.stackName}`,
     })
 
     const checkCurrentWeatherFunction = new NodejsFunction(
@@ -164,13 +140,16 @@ export class WeatherSiteStack extends Stack {
     bucket.grantWrite(updateSiteFunction)
 
     // Tasks for Step Function Definition
-    const getSiteStatus = new DynamoGetItem(this, 'Get site status', {
-      key: { PK: DynamoAttributeValue.fromString('SiteStatus') },
-      table,
-      comment: 'Check current status of site',
+    const getSiteStatus = new CallAwsService(this, 'Get site status', {
+      service: 'ssm',
+      action: 'getParameter',
+      parameters: {
+        Name: siteStatusParam.parameterName,
+      },
+      iamResources: [siteStatusParam.parameterArn],
       resultPath: '$.SiteStatus',
       resultSelector: {
-        'Body.$': '$.Item.Weather.S',
+        'Body.$': '$.Parameter.Value',
       },
     })
 
@@ -197,19 +176,16 @@ export class WeatherSiteStack extends Stack {
     })
     updateSite.addCatch(new Fail(this, 'Site update failure'))
     updateSite.next(
-      new DynamoUpdateItem(this, 'Update site status', {
-        key: {
-          PK: DynamoAttributeValue.fromString('SiteStatus'),
+      new CallAwsService(this, 'Update site status', {
+        service: 'ssm',
+        action: 'putParameter',
+        parameters: {
+          Name: siteStatusParam.parameterName,
+          Value: JsonPath.stringAt('$.CurrentWeather.Status'),
+          Overwrite: true,
         },
-        table,
-        expressionAttributeValues: {
-          ':currentWeather': DynamoAttributeValue.fromString(
-            JsonPath.stringAt('$.CurrentWeather.Status'),
-          ),
-        },
-        updateExpression: 'SET Weather = :currentWeather',
-        comment: 'Update site status in DynamoDB',
-        resultPath: '$.DDBUpdateItemResult',
+        iamResources: [siteStatusParam.parameterArn],
+        resultPath: '$.SsmPutResult',
       }),
     )
 

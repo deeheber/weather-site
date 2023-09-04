@@ -18,7 +18,7 @@ test('Verify resources are created', () => {
   const template = Template.fromStack(stack)
 
   template.resourceCountIs('AWS::S3::Bucket', 1)
-  template.resourceCountIs('AWS::DynamoDB::Table', 1)
+  template.resourceCountIs('AWS::SSM::Parameter', 1)
 
   template.hasResourceProperties('AWS::S3::Bucket', {
     WebsiteConfiguration: {
