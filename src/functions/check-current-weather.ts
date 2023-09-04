@@ -42,7 +42,7 @@ export const handler = async (
     const responseBody = (await response.json()) as any
 
     // Generate response
-    let currentWeather
+    let currentWeather = ''
     if (responseBody?.current?.weather.length > 0) {
       currentWeather = responseBody?.current?.weather[0].main.toLowerCase()
     } else {

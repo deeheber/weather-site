@@ -26,7 +26,7 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 1. [AWS](https://aws.amazon.com/)
    - [S3](https://aws.amazon.com/s3/)
    - [Step Functions](https://aws.amazon.com/step-functions/)
-   - [DynamoDB](https://aws.amazon.com/dynamodb/)
+   - [Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)
    - [Lambda](https://aws.amazon.com/lambda/)
    - [EventBridge Scheduler](https://aws.amazon.com/eventbridge/scheduler/)
    - [IAM](https://aws.amazon.com/iam/)
