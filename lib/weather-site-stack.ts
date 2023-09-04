@@ -87,6 +87,7 @@ export class WeatherSiteStack extends Stack {
     const siteStatusParam = new StringParameter(this, 'SiteStatusParam', {
       parameterName: 'SiteStatus',
       stringValue: 'Initial value',
+      description: `Current status of the weather site for ${this.stackName}`,
     })
 
     const checkCurrentWeatherFunction = new NodejsFunction(

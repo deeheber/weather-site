@@ -56,6 +56,7 @@ if (
 const app = new App()
 
 const weatherSiteStack = new WeatherSiteStack(app, 'WeatherSiteStack', {
+  description: 'Contains the resources for the weather site',
   bucketName,
   locationName,
   openWeatherUrl,
@@ -69,6 +70,7 @@ const weatherSiteStack = new WeatherSiteStack(app, 'WeatherSiteStack', {
 
 if (alertEmail !== '') {
   const alertsStack = new AlertStack(app, 'AlertStack', {
+    description: `Contains the resources for the alerts for ${weatherSiteStack.stackName}`,
     stepFunction: weatherSiteStack.stepFunction,
     alertEmail,
   })
