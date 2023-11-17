@@ -1,3 +1,4 @@
+/*global fetch*/
 type FunctionInput = {
   SiteStatus: { Body: string }
 }
@@ -46,10 +47,11 @@ export const handler = async (
     if (responseBody?.current?.weather.length > 0) {
       currentWeather = responseBody?.current?.weather[0].main.toLowerCase()
     } else {
-      console.log('No weather data found')
+      console.error('No weather data found')
       throw new Error('No weather data found')
     }
 
+    console.log(responseBody)
     console.log(`Current weather is ${currentWeather}`)
 
     return {
@@ -60,7 +62,7 @@ export const handler = async (
         : `no ${weatherType}`,
     }
   } catch (err) {
-    console.log('Error', err)
+    console.error('Error', err)
 
     if (err instanceof Error) {
       throw new Error(`${err.message}`)

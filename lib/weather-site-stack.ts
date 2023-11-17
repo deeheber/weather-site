@@ -7,7 +7,13 @@ import {
 } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
-import { Architecture, LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda'
+import {
+  Architecture,
+  LayerVersion,
+  LogFormat,
+  Runtime,
+  Tracing,
+} from 'aws-cdk-lib/aws-lambda'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 import {
@@ -95,9 +101,11 @@ export class WeatherSiteStack extends Stack {
       'checkCurrentWeatherFunction',
       {
         functionName: 'checkCurrentWeatherFunction',
-        runtime: Runtime.NODEJS_18_X,
+        runtime: Runtime.NODEJS_LATEST,
         entry: 'dist/src/functions/check-current-weather.js',
         logRetention: RetentionDays.ONE_WEEK,
+        logFormat: LogFormat.JSON,
+        tracing: Tracing.ACTIVE,
         architecture: Architecture.ARM_64,
         timeout: Duration.seconds(30),
         memorySize: 3008,
@@ -124,9 +132,11 @@ export class WeatherSiteStack extends Stack {
 
     const updateSiteFunction = new NodejsFunction(this, 'updateSiteFunction', {
       functionName: 'updateSiteFunction',
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_LATEST,
       entry: 'dist/src/functions/update-site.js',
       logRetention: RetentionDays.ONE_WEEK,
+      logFormat: LogFormat.JSON,
+      tracing: Tracing.ACTIVE,
       architecture: Architecture.ARM_64,
       timeout: Duration.seconds(30),
       memorySize: 3008,
@@ -214,6 +224,7 @@ export class WeatherSiteStack extends Stack {
     this.stepFunction = new StateMachine(this, `${stateMachineName}`, {
       stateMachineName: 'WeatherSiteStateMachine',
       stateMachineType: StateMachineType.EXPRESS,
+      tracingEnabled: true,
       logs: {
         destination: logGroup,
         includeExecutionData: true,
