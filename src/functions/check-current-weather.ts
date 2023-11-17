@@ -1,3 +1,4 @@
+/*global fetch*/
 type FunctionInput = {
   SiteStatus: { Body: string }
 }
