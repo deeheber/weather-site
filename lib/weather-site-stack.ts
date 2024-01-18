@@ -28,7 +28,9 @@ import {
   Choice,
   Condition,
   DefinitionBody,
+  Errors,
   Fail,
+  JitterType,
   JsonPath,
   LogLevel,
   Pass,
@@ -87,6 +89,7 @@ export class WeatherSiteStack extends Stack {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
       destinationBucket: bucket,
       prune: false,
+      logRetention: RetentionDays.ONE_WEEK,
     })
 
     // SSM Parameter to store the current site status
@@ -96,6 +99,14 @@ export class WeatherSiteStack extends Stack {
       description: `Current status of the weather site for ${this.stackName}`,
     })
 
+    const checkCurrentWeatherLogGroup = new LogGroup(
+      this,
+      'checkCurrentWeatherLogGroup',
+      {
+        logGroupName: '/aws/lambda/weatherSite-checkCurrentWeatherFunction',
+        retention: RetentionDays.ONE_WEEK,
+      },
+    )
     const checkCurrentWeatherFunction = new NodejsFunction(
       this,
       'checkCurrentWeatherFunction',
@@ -103,8 +114,8 @@ export class WeatherSiteStack extends Stack {
         functionName: 'checkCurrentWeatherFunction',
         runtime: Runtime.NODEJS_LATEST,
         entry: 'dist/src/functions/check-current-weather.js',
-        logRetention: RetentionDays.ONE_WEEK,
         logFormat: LogFormat.JSON,
+        logGroup: checkCurrentWeatherLogGroup,
         tracing: Tracing.ACTIVE,
         architecture: Architecture.ARM_64,
         timeout: Duration.seconds(30),
@@ -130,12 +141,16 @@ export class WeatherSiteStack extends Stack {
       }),
     )
 
+    const updateSiteLogGroup = new LogGroup(this, 'updateSiteLogGroup', {
+      logGroupName: '/aws/lambda/weatherSite-updateSiteFunction',
+      retention: RetentionDays.ONE_WEEK,
+    })
     const updateSiteFunction = new NodejsFunction(this, 'updateSiteFunction', {
       functionName: 'updateSiteFunction',
       runtime: Runtime.NODEJS_LATEST,
       entry: 'dist/src/functions/update-site.js',
-      logRetention: RetentionDays.ONE_WEEK,
       logFormat: LogFormat.JSON,
+      logGroup: updateSiteLogGroup,
       tracing: Tracing.ACTIVE,
       architecture: Architecture.ARM_64,
       timeout: Duration.seconds(30),
@@ -174,6 +189,13 @@ export class WeatherSiteStack extends Stack {
         resultSelector: { 'Status.$': '$.Payload.body' },
       },
     )
+    checkCurrentWeather.addRetry({
+      errors: [Errors.ALL],
+      maxAttempts: 3,
+      interval: Duration.seconds(2),
+      backoffRate: 2,
+      jitterStrategy: JitterType.FULL,
+    })
 
     const siteIsUpToDate = new Pass(this, 'Site is up to date')
 
@@ -183,6 +205,13 @@ export class WeatherSiteStack extends Stack {
       comment: 'Update site with new weather data ',
       resultPath: '$.BucketPutResult',
       resultSelector: { 'Body.$': '$.Payload.body' },
+    })
+    updateSite.addRetry({
+      errors: [Errors.ALL],
+      maxAttempts: 3,
+      interval: Duration.seconds(2),
+      backoffRate: 2,
+      jitterStrategy: JitterType.FULL,
     })
     updateSite.addCatch(new Fail(this, 'Site update failure'))
     updateSite.next(
