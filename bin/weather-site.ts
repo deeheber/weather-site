@@ -5,7 +5,8 @@ import 'dotenv/config'
 
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 import { AlertStack } from '../lib/alert-stack'
-
+// TODO remove bucketName and add domainName (optional)
+// TODO audit optional + non-optional props
 // Env var validation
 const {
   ALERT_EMAIL: alertEmail = '',

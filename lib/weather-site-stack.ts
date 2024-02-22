@@ -57,24 +57,35 @@ interface WeatherSiteStackProps extends StackProps {
 }
 
 export class WeatherSiteStack extends Stack {
-  public readonly stepFunction: StateMachine
+  public stepFunction: StateMachine
+  private bucket: Bucket
 
   constructor(scope: Construct, id: string, props: WeatherSiteStackProps) {
     super(scope, id, props)
-    const {
-      bucketName,
-      locationName,
-      openWeatherUrl,
-      schedules,
-      secretsExtensionArn,
-      weatherLocationLat,
-      weatherLocationLon,
-      weatherSecretArn,
-      weatherType,
-    } = props
 
-    const bucket = new Bucket(this, 'WeatherSiteBucket', {
-      bucketName,
+    // If props.domainName
+    // this.createHostedZone(props)
+    // If props.domainName
+    // this.createCertificate(props)
+    this.createBucket(props)
+    // this.createDistribution(props) OAI + s3Origin also needed
+    // If props.domainName
+    // this.createARecord(props)
+    this.createStepFunction(props)
+    this.addSchedules(props)
+  }
+
+  private createBucket(props: WeatherSiteStackProps) {
+    // TODO remove website hosting + edit ACL stuff
+    /**
+      new Bucket(this, 'WeatherSiteBucket', {
+        autoDeleteObjects: true,
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        removalPolicy: RemovalPolicy.DESTROY,
+      });
+     */
+    this.bucket = new Bucket(this, 'WeatherSiteBucket', {
+      bucketName: props.bucketName,
       websiteIndexDocument: 'index.html',
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -84,14 +95,22 @@ export class WeatherSiteStack extends Stack {
       blockPublicAccess: BlockPublicAccess.BLOCK_ACLS,
       accessControl: BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
     })
+    // TODO add this after the distribution is created
+    // should be in this.createDistribution method (doesn't exist yet)
     // Upload CSS file to the bucket
     new BucketDeployment(this, 'UploadCssFiles', {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
-      destinationBucket: bucket,
+      destinationBucket: this.bucket,
       prune: false,
       logRetention: RetentionDays.ONE_WEEK,
     })
+    // TODO remove this after the distribution is created
+    new CfnOutput(this, 'siteURL', {
+      value: this.bucket.bucketWebsiteUrl,
+    })
+  }
 
+  private createStepFunction(props: WeatherSiteStackProps) {
     // SSM Parameter to store the current site status
     const siteStatusParam = new StringParameter(this, 'SiteStatusParam', {
       parameterName: 'SiteStatus',
@@ -121,15 +140,15 @@ export class WeatherSiteStack extends Stack {
         timeout: Duration.seconds(30),
         memorySize: 3008,
         environment: {
-          WEATHER_LOCATION_LAT: weatherLocationLat,
-          WEATHER_LOCATION_LON: weatherLocationLon,
-          WEATHER_TYPE: weatherType,
+          WEATHER_LOCATION_LAT: props.weatherLocationLat,
+          WEATHER_LOCATION_LON: props.weatherLocationLon,
+          WEATHER_TYPE: props.weatherType,
         },
         layers: [
           LayerVersion.fromLayerVersionArn(
             this,
             'SecretsManagerLayer',
-            secretsExtensionArn,
+            props.secretsExtensionArn,
           ),
         ],
       },
@@ -137,7 +156,7 @@ export class WeatherSiteStack extends Stack {
     checkCurrentWeatherFunction.addToRolePolicy(
       new PolicyStatement({
         actions: ['secretsmanager:GetSecretValue'],
-        resources: [weatherSecretArn],
+        resources: [props.weatherSecretArn],
       }),
     )
 
@@ -156,13 +175,13 @@ export class WeatherSiteStack extends Stack {
       timeout: Duration.seconds(30),
       memorySize: 3008,
       environment: {
-        BUCKET_NAME: bucket.bucketName,
-        LOCATION_NAME: locationName,
-        OPEN_WEATHER_URL: openWeatherUrl,
-        WEATHER_TYPE: weatherType,
+        BUCKET_NAME: this.bucket.bucketName,
+        LOCATION_NAME: props.locationName,
+        OPEN_WEATHER_URL: props.openWeatherUrl,
+        WEATHER_TYPE: props.weatherType,
       },
     })
-    bucket.grantWrite(updateSiteFunction)
+    this.bucket.grantWrite(updateSiteFunction)
 
     // Tasks for Step Function Definition
     const getSiteStatus = new CallAwsService(this, 'Get site status', {
@@ -262,11 +281,9 @@ export class WeatherSiteStack extends Stack {
       },
       definitionBody: DefinitionBody.fromChainable(definition),
     })
+  }
 
-    new CfnOutput(this, 'siteURL', {
-      value: bucket.bucketWebsiteUrl,
-    })
-
+  private addSchedules(props: WeatherSiteStackProps) {
     // Permissions for EventBridge Schedules to invoke the Step Function
     const schedulerToStepFunctionRole = new Role(
       this,
@@ -279,7 +296,7 @@ export class WeatherSiteStack extends Stack {
     this.stepFunction.grantStartExecution(schedulerToStepFunctionRole)
 
     // EventBridge Schedules to invoke the Step Function
-    for (let i = 0; i < schedules.length; i++) {
+    for (let i = 0; i < props.schedules.length; i++) {
       // TODO: Update to L2 construct when available
       // https://github.com/aws/aws-cdk/issues/23394
       const scheduleId = `WeatherSiteScheduler-${i}`
@@ -289,7 +306,7 @@ export class WeatherSiteStack extends Stack {
           mode: 'OFF',
         },
         name: scheduleId,
-        scheduleExpression: schedules[i],
+        scheduleExpression: props.schedules[i],
         scheduleExpressionTimezone: 'America/Los_Angeles',
         state: 'ENABLED',
         target: {
