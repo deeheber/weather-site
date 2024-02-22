@@ -45,7 +45,6 @@ import {
 import * as path from 'path'
 
 interface WeatherSiteStackProps extends StackProps {
-  bucketName?: string
   locationName: string
   openWeatherUrl: string
   schedules: string[]
@@ -85,7 +84,6 @@ export class WeatherSiteStack extends Stack {
       });
      */
     this.bucket = new Bucket(this, 'WeatherSiteBucket', {
-      bucketName: props.bucketName,
       websiteIndexDocument: 'index.html',
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,

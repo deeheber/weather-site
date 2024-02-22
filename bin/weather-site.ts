@@ -5,12 +5,11 @@ import 'dotenv/config'
 
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 import { AlertStack } from '../lib/alert-stack'
-// TODO remove bucketName and add domainName (optional)
-// TODO audit optional + non-optional props
+
 // Env var validation
+// TODO add domainName (optional) env var
 const {
   ALERT_EMAIL: alertEmail = '',
-  BUCKET_NAME: bucketName,
   LOCATION_NAME: locationName = '',
   OPEN_WEATHER_URL: openWeatherUrl = '',
   SCHEDULES: schedules = 'rate(10 minutes)',
@@ -18,34 +17,28 @@ const {
   WEATHER_LOCATION_LAT: weatherLocationLat = '',
   WEATHER_LOCATION_LON: weatherLocationLon = '',
   WEATHER_SECRET_ARN: weatherSecretArn = '',
-  WEATHER_TYPE: weatherType = '',
+  WEATHER_TYPE: weatherType = 'snow',
 } = process.env
 
 if (
   ![
     locationName,
     openWeatherUrl,
-    schedules,
     secretsExtensionArn,
     weatherLocationLat,
     weatherLocationLon,
     weatherSecretArn,
-    weatherType,
   ].every((el) => !!el)
 ) {
   console.log(
     JSON.stringify(
       {
-        alertEmail,
-        bucketName,
         locationName,
         openWeatherUrl,
-        schedules,
         secretsExtensionArn,
         weatherLocationLat,
         weatherLocationLon,
         weatherSecretArn,
-        weatherType,
       },
       null,
       2,
@@ -58,7 +51,6 @@ const app = new App()
 
 const weatherSiteStack = new WeatherSiteStack(app, 'WeatherSiteStack', {
   description: 'Contains the resources for the weather site',
-  bucketName,
   locationName,
   openWeatherUrl,
   schedules: schedules.split(', '),
