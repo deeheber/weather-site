@@ -38,9 +38,8 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
 
 ## Step Function State machine
 
-TODO: update image to include CloudFront cache invalidation step
+![stepfunctions_graph](https://github.com/deeheber/weather-site/assets/12616554/4ee8dbec-c5fc-41a0-bfd6-4a758336bc36)
 
-<img width="620" alt="weather-site-workflow" src="https://user-images.githubusercontent.com/12616554/221385438-87a3509a-788c-41cf-8a76-ddac15bcc7fd.png">
 
 ## Instructions to run
 
@@ -65,6 +64,7 @@ TODO: update image to include CloudFront cache invalidation step
 
 - If your domain is not hosted in Route53, you'll also need to point your nameservers at Route53. [Directions here](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html)
 - Non Route53 hosted domain DNS validation is a bit tricky since we're also creating the hosted zone in the creation of this stack. Once the initial deploy starts and the hosted zone is created, I had to quickly updated my nameservers in my domain registrar to point at Route53 (nameservers found in the AWS console looking at the hosted zone - see prior link for more details) to prevent things from failing. This may or may not be your experience. Also note that certificate validation can take up to 30 min according to AWS, so be patient (mine took 20 min).
+- This will create the settings needed for both the `www` and non-www versions of your domain to point to the CloudFront distribution. I wanted to do a fancy redirect, but it appears AWS does not make that very easy to do (contributions welcome).
 - Certificates used for CloudFront have to be in the `us-east-1` region. I could've set this up with [cross region references](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html#cross-region-certificates), but decided to throw an error for now if a domain name is present and not deploying into `us-east-1`. Contributions are welcome to make this better!
 
 ### Cleanup
