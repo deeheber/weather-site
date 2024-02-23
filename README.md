@@ -38,6 +38,8 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 ## Step Function State machine
 
+TODO: update image to include CloudFront cache invalidation step
+
 <img width="620" alt="weather-site-workflow" src="https://user-images.githubusercontent.com/12616554/221385438-87a3509a-788c-41cf-8a76-ddac15bcc7fd.png">
 
 ## Instructions to run

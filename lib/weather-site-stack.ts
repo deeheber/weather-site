@@ -33,6 +33,7 @@ import {
   JitterType,
   JsonPath,
   LogLevel,
+  Parallel,
   Pass,
   StateMachine,
   StateMachineType,
@@ -294,21 +295,42 @@ export class WeatherSiteStack extends Stack {
       jitterStrategy: JitterType.FULL,
     })
     updateSite.addCatch(new Fail(this, 'Site update failure'))
-    // TODO add parallel CloudFront cache invalidation step
-    // this.distribution.distributionId
-    updateSite.next(
-      new CallAwsService(this, 'Update site status', {
-        service: 'ssm',
-        action: 'putParameter',
-        parameters: {
-          Name: siteStatusParam.parameterName,
-          Value: JsonPath.stringAt('$.CurrentWeather.Status'),
-          Overwrite: true,
-        },
-        iamResources: [siteStatusParam.parameterArn],
-        resultPath: '$.SsmPutResult',
-      }),
-    )
+
+    const finishUpdate = new Parallel(this, 'Finish update')
+      .branch(
+        new CallAwsService(this, 'Update site status parameter', {
+          service: 'ssm',
+          action: 'putParameter',
+          parameters: {
+            Name: siteStatusParam.parameterName,
+            Value: JsonPath.stringAt('$.CurrentWeather.Status'),
+            Overwrite: true,
+          },
+          iamResources: [siteStatusParam.parameterArn],
+          resultPath: '$.SsmPutResult',
+        }),
+      )
+      .branch(
+        new CallAwsService(this, 'Invalidate CloudFront cache', {
+          service: 'cloudfront',
+          action: 'createInvalidation',
+          parameters: {
+            DistributionId: this.distribution.distributionId,
+            InvalidationBatch: {
+              CallerReference: JsonPath.stringAt('$$.State.EnteredTime'),
+              Paths: {
+                Quantity: 1,
+                Items: ['/index.html'],
+              },
+            },
+          },
+          iamResources: [
+            `arn:aws:cloudfront::${Stack.of(this).account}:distribution/${this.distribution.distributionId}`,
+          ],
+          resultPath: '$.CfInvalidateResult',
+        }),
+      )
+    updateSite.next(finishUpdate)
 
     const definition = getSiteStatus
       .next(checkCurrentWeather)
