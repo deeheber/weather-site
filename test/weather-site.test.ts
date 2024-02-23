@@ -23,25 +23,25 @@ test('Verify resources are created', () => {
   template.resourceCountIs('AWS::CloudFront::Distribution', 1)
 
   template.hasResourceProperties('AWS::Lambda::Function', {
-    FunctionName: 'checkCurrentWeatherFunction',
-    Runtime: 'nodejs18.x',
+    FunctionName: 'MyTestStack-checkCurrentWeather',
+    Runtime: 'nodejs20.x',
     Architectures: ['arm64'],
   })
   template.hasResourceProperties('AWS::Lambda::Function', {
-    FunctionName: 'updateSiteFunction',
-    Runtime: 'nodejs18.x',
+    FunctionName: 'MyTestStack-updateSiteFunction',
+    Runtime: 'nodejs20.x',
     Architectures: ['arm64'],
   })
 
   template.hasResourceProperties('AWS::StepFunctions::StateMachine', {
-    StateMachineName: 'WeatherSiteStateMachine',
+    StateMachineName: 'MyTestStack-state-machine',
     StateMachineType: 'EXPRESS',
     LoggingConfiguration: {
       Level: 'ALL',
     },
   })
   template.hasResourceProperties('AWS::Scheduler::Schedule', {
-    Name: 'WeatherSiteScheduler-0',
+    Name: 'MyTestStack-schedule-0',
     ScheduleExpression: 'rate(10 minutes)',
   })
 })
