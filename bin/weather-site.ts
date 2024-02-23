@@ -18,6 +18,7 @@ const {
   OPEN_WEATHER_URL: openWeatherUrl = '',
   SCHEDULES: schedules = 'rate(10 minutes)',
   SECRETS_EXTENSION_ARN: secretsExtensionArn = '',
+  STACK_PREFIX: stackPrefix = '',
   WEATHER_LOCATION_LAT: weatherLocationLat = '',
   WEATHER_LOCATION_LON: weatherLocationLon = '',
   WEATHER_SECRET_ARN: weatherSecretArn = '',
@@ -69,8 +70,8 @@ if (domainName && region !== 'us-east-1') {
 
 const app = new App()
 
-const weatherSiteStack = new WeatherSiteStack(app, 'WeatherSiteStack', {
-  description: 'Contains the resources for the weather site',
+const weatherSiteStack = new WeatherSiteStack(app, `${stackPrefix}-weather`, {
+  description: `Resources for ${stackPrefix}-weather, an informative weather website`,
   env: { account, region },
   domainName,
   locationName,
@@ -84,10 +85,10 @@ const weatherSiteStack = new WeatherSiteStack(app, 'WeatherSiteStack', {
 })
 
 if (alertEmail !== '') {
-  const alertsStack = new AlertStack(app, 'AlertStack', {
-    description: `Contains the resources for the alerts for ${weatherSiteStack.stackName}`,
+  const alertStack = new AlertStack(app, `${stackPrefix}-alert`, {
+    description: `Alert resources for ${weatherSiteStack.id}`,
     stepFunction: weatherSiteStack.stepFunction,
     alertEmail,
   })
-  alertsStack.addDependency(weatherSiteStack)
+  alertStack.addDependency(weatherSiteStack)
 }

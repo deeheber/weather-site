@@ -66,7 +66,7 @@ interface WeatherSiteStackProps extends StackProps {
 }
 
 export class WeatherSiteStack extends Stack {
-  private id: string
+  public id: string
   private props: WeatherSiteStackProps
   private hostedZone: HostedZone
   private certificate: Certificate
@@ -156,7 +156,7 @@ export class WeatherSiteStack extends Stack {
     if (!this.props.domainName) {
       // Output generic automatic cloudfront URL if no custom domain
       new CfnOutput(this, `${this.id}-url`, {
-        description: 'WeatherSite Distribution URL',
+        description: 'Distribution URL',
         value: this.distribution.distributionDomainName,
       })
     }
@@ -164,28 +164,29 @@ export class WeatherSiteStack extends Stack {
 
   private createStepFunction() {
     // SSM Parameter to store the current site status
-    const siteStatusParam = new StringParameter(
-      this,
-      `${this.id}-status-param`,
-      {
-        stringValue: 'Initial value',
-        description: `Current status of the weather site for ${this.stackName}`,
-      },
-    )
+    const paramId = `${this.id}-status-param`
+    const siteStatusParam = new StringParameter(this, paramId, {
+      parameterName: paramId,
+      stringValue: 'Initial value',
+      description: `Current status of the weather site for ${this.stackName}`,
+    })
 
+    const checkWeatherLogGroupId = `${this.id}-checkCurrentWeatherLogGroup`
     const checkCurrentWeatherLogGroup = new LogGroup(
       this,
-      `${this.id}-checkCurrentWeatherLogGroup`,
+      checkWeatherLogGroupId,
       {
+        logGroupName: checkWeatherLogGroupId,
         retention: RetentionDays.ONE_WEEK,
         removalPolicy: RemovalPolicy.DESTROY,
       },
     )
+    const checkCurrentWeatherFuncId = `${this.id}-checkCurrentWeather`
     const checkCurrentWeatherFunction = new NodejsFunction(
       this,
-      `${this.id}-checkCurrentWeatherFunction`,
+      checkCurrentWeatherFuncId,
       {
-        functionName: `${this.id}-checkCurrentWeather`,
+        functionName: checkCurrentWeatherFuncId,
         runtime: Runtime.NODEJS_20_X,
         entry: 'dist/src/functions/check-current-weather.js',
         logFormat: LogFormat.JSON,
@@ -215,35 +216,30 @@ export class WeatherSiteStack extends Stack {
       }),
     )
 
-    const updateSiteLogGroup = new LogGroup(
-      this,
-      `${this.id}-updateSiteLogGroup`,
-      {
-        retention: RetentionDays.ONE_WEEK,
-        removalPolicy: RemovalPolicy.DESTROY,
+    const updateSiteLogGroupId = `${this.id}-updateSiteLogGroup`
+    const updateSiteLogGroup = new LogGroup(this, updateSiteLogGroupId, {
+      logGroupName: updateSiteLogGroupId,
+      retention: RetentionDays.ONE_WEEK,
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
+    const updateSiteFuncId = `${this.id}-updateSiteFunction`
+    const updateSiteFunction = new NodejsFunction(this, updateSiteFuncId, {
+      functionName: updateSiteFuncId,
+      runtime: Runtime.NODEJS_20_X,
+      entry: 'dist/src/functions/update-site.js',
+      logFormat: LogFormat.JSON,
+      logGroup: updateSiteLogGroup,
+      tracing: Tracing.ACTIVE,
+      architecture: Architecture.ARM_64,
+      timeout: Duration.seconds(30),
+      memorySize: 3008,
+      environment: {
+        BUCKET_NAME: this.bucket.bucketName,
+        LOCATION_NAME: this.props.locationName,
+        OPEN_WEATHER_URL: this.props.openWeatherUrl,
+        WEATHER_TYPE: this.props.weatherType,
       },
-    )
-    const updateSiteFunction = new NodejsFunction(
-      this,
-      `${this.id}-updateSiteFunction`,
-      {
-        functionName: `${this.id}-updateSite`,
-        runtime: Runtime.NODEJS_20_X,
-        entry: 'dist/src/functions/update-site.js',
-        logFormat: LogFormat.JSON,
-        logGroup: updateSiteLogGroup,
-        tracing: Tracing.ACTIVE,
-        architecture: Architecture.ARM_64,
-        timeout: Duration.seconds(30),
-        memorySize: 3008,
-        environment: {
-          BUCKET_NAME: this.bucket.bucketName,
-          LOCATION_NAME: this.props.locationName,
-          OPEN_WEATHER_URL: this.props.openWeatherUrl,
-          WEATHER_TYPE: this.props.weatherType,
-        },
-      },
-    )
+    })
     this.bucket.grantWrite(updateSiteFunction)
 
     // Tasks for Step Function Definition
@@ -350,9 +346,11 @@ export class WeatherSiteStack extends Stack {
     const stateMachineId = `${this.id}-state-machine`
     this.stepFunction = new StateMachine(this, stateMachineId, {
       stateMachineType: StateMachineType.EXPRESS,
+      stateMachineName: stateMachineId,
       tracingEnabled: true,
       logs: {
-        destination: new LogGroup(this, 'WeatherSiteLogGroup', {
+        destination: new LogGroup(this, `${this.id}-sf-log`, {
+          logGroupName: `${this.id}-sf-log`,
           retention: RetentionDays.ONE_WEEK,
           removalPolicy: RemovalPolicy.DESTROY,
         }),
@@ -371,7 +369,7 @@ export class WeatherSiteStack extends Stack {
       `${this.id}-schedulerRole`,
       {
         assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
-        description: 'Role for EB Schedules to invoke WeatherSiteStateMachine',
+        description: `EventBridge Scheduler to invoke Step Function for ${this.id}`,
       },
     )
     this.stepFunction.grantStartExecution(schedulerToStepFunctionRole)
@@ -382,7 +380,8 @@ export class WeatherSiteStack extends Stack {
       // https://github.com/aws/aws-cdk/issues/23394
       const scheduleId = `${this.id}-schedule-${i}`
       new CfnSchedule(this, scheduleId, {
-        description: 'Scheduler to invoke WeatherSiteStack Step Function',
+        name: scheduleId,
+        description: `Invoke Step Function for ${this.id}`,
         flexibleTimeWindow: {
           mode: 'OFF',
         },
