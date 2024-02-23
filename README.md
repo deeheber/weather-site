@@ -11,6 +11,7 @@ This is a workflow that:
 2. Hits the [open weather map API](https://openweathermap.org/) to get the current weather conditions
 3. If #1 and #2 are different 👉🏻 update the website with the current weather conditions
 
+TODO: update the domain without www ???
 My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 **The weather is happening site looks like this**
