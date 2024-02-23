@@ -91,7 +91,6 @@ export class WeatherSiteStack extends Stack {
   }
 
   private createHostedZone() {
-    // TODO: Might need PublicHostedZone ???
     this.hostedZone = new HostedZone(this, `${this.id}-hosted-zone`, {
       zoneName: this.props.domainName,
     })
@@ -100,6 +99,7 @@ export class WeatherSiteStack extends Stack {
   private createCertificate() {
     this.certificate = new Certificate(this, `${this.id}-cert`, {
       domainName: this.props.domainName,
+      subjectAlternativeNames: [`www.${this.props.domainName}`],
       validation: CertificateValidation.fromDns(this.hostedZone),
     })
   }
@@ -133,7 +133,9 @@ export class WeatherSiteStack extends Stack {
         },
       ],
       defaultRootObject: 'index.html',
-      domainNames: this.props.domainName ? [this.props.domainName] : undefined,
+      domainNames: this.props.domainName
+        ? [this.props.domainName, `www.${this.props.domainName}`]
+        : undefined,
       certificate: this.props.domainName ? this.certificate : undefined,
     })
 
@@ -141,6 +143,12 @@ export class WeatherSiteStack extends Stack {
       new ARecord(this, `${this.id}-a-record`, {
         zone: this.hostedZone,
         recordName: this.props.domainName,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
+      })
+
+      new ARecord(this, `${this.id}-a-record-www`, {
+        zone: this.hostedZone,
+        recordName: `www.${this.props.domainName}`,
         target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
       })
     }

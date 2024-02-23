@@ -11,8 +11,7 @@ This is a workflow that:
 2. Hits the [open weather map API](https://openweathermap.org/) to get the current weather conditions
 3. If #1 and #2 are different 👉🏻 update the website with the current weather conditions
 
-TODO: update the domain without www ???
-My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
+My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
 
 **The weather is happening site looks like this**
 
@@ -59,12 +58,13 @@ TODO: update image to include CloudFront cache invalidation step
 4. Run `npm install`
 5. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead
-6. Run `npm run deploy`
+6. Run `npm run deploy` **see note below about custom domains before running this**
 7. If not using a custom domain, the generated CloudFront URL will output to the console. This is where your website is.
 
 ### Custom Domain
 
 - If your domain is not hosted in Route53, you'll also need to point your nameservers at Route53. [Directions here](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html)
+- Non Route53 hosted domain DNS validation is a bit tricky since we're also creating the hosted zone in the creation of this stack. Once the initial deploy starts and the hosted zone is created, I had to quickly updated my nameservers in my domain registrar to point at Route53 (nameservers found in the AWS console looking at the hosted zone - see prior link for more details) to prevent things from failing. This may or may not be your experience. Also note that certificate validation can take up to 30 min according to AWS, so be patient (mine took 20 min).
 - Certificates used for CloudFront have to be in the `us-east-1` region. I could've set this up with [cross region references](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html#cross-region-certificates), but decided to throw an error for now if a domain name is present and not deploying into `us-east-1`. Contributions are welcome to make this better!
 
 ### Cleanup
