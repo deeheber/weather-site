@@ -25,6 +25,7 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 1. [AWS](https://aws.amazon.com/)
    - [S3](https://aws.amazon.com/s3/)
+   - [CloudFront](https://aws.amazon.com/cloudfront/)
    - [Step Functions](https://aws.amazon.com/step-functions/)
    - [Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)
    - [Lambda](https://aws.amazon.com/lambda/)
@@ -51,11 +52,17 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 1. Clone the repo
 2. [Create a Secret](https://docs.aws.amazon.com/secretsmanager/latest/userguide/create_secret.html) in Secrets Manager titled `weather-site-api-key` with a plaintext secret value that is your OpenWeather API key. Save the secret ARN for step #2.
-3. Copy `.env.example` to `.env`. Fill in the missing `SECRETS_EXTENSION_ARN` using the commented URL in `.env.example` to grab the correct ARN for your region. Add your copied ARN from the secret you created in step #1 for `WEATHER_SECRET_ARN`. Uncomment and add an email address to `ALERT_EMAIL`, if you'd like to receive an email notification if the state machine has two failed executions within 1 hour. Update any other values if you don't want the default values.
+3. Copy `.env.example` to `.env`. Fill in the missing `SECRETS_EXTENSION_ARN` using the commented URL in `.env.example` to grab the correct ARN for your region. Add your copied ARN from the secret you created in step #1 for `WEATHER_SECRET_ARN`. Uncomment and add an email address to `ALERT_EMAIL`, if you'd like to receive an email notification if the state machine has two failed executions within 1 hour (totally optional). Update any other values if you don't want the default values.
 4. Run `npm install`
 5. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead
 6. Run `npm run deploy`
+7. If not using a custom domain, the generated CloudFront URL will output to the console. This is where your website is.
+
+### Custom Domain
+
+- If your domain is not hosted in Route53, you'll also need to point your nameservers at Route53. [Directions here](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html)
+- Certificates used for CloudFront have to be in the `us-east-1` region. I could've set this up with [cross region references](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html#cross-region-certificates), but decided to throw an error for now if a domain name is present and not deploying into `us-east-1`. Contributions are welcome to make this better!
 
 ### Cleanup
 
