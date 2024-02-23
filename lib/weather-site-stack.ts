@@ -16,11 +16,7 @@ import {
 } from 'aws-cdk-lib/aws-lambda'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
-import {
-  BlockPublicAccess,
-  Bucket,
-  BucketAccessControl,
-} from 'aws-cdk-lib/aws-s3'
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
 import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
@@ -33,6 +29,7 @@ import {
   JitterType,
   JsonPath,
   LogLevel,
+  Parallel,
   Pass,
   StateMachine,
   StateMachineType,
@@ -43,9 +40,21 @@ import {
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
 import * as path from 'path'
+import {
+  Distribution,
+  OriginAccessIdentity,
+  ViewerProtocolPolicy,
+} from 'aws-cdk-lib/aws-cloudfront'
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
+import {
+  Certificate,
+  CertificateValidation,
+} from 'aws-cdk-lib/aws-certificatemanager'
 
 interface WeatherSiteStackProps extends StackProps {
-  bucketName?: string
+  domainName: string
   locationName: string
   openWeatherUrl: string
   schedules: string[]
@@ -57,62 +66,136 @@ interface WeatherSiteStackProps extends StackProps {
 }
 
 export class WeatherSiteStack extends Stack {
-  public readonly stepFunction: StateMachine
+  public id: string
+  private props: WeatherSiteStackProps
+  private hostedZone: HostedZone
+  private certificate: Certificate
+  private distribution: Distribution
+  public stepFunction: StateMachine
+  private bucket: Bucket
 
   constructor(scope: Construct, id: string, props: WeatherSiteStackProps) {
     super(scope, id, props)
-    const {
-      bucketName,
-      locationName,
-      openWeatherUrl,
-      schedules,
-      secretsExtensionArn,
-      weatherLocationLat,
-      weatherLocationLon,
-      weatherSecretArn,
-      weatherType,
-    } = props
+    this.id = id
+    this.props = props
 
-    const bucket = new Bucket(this, 'WeatherSiteBucket', {
-      bucketName,
-      websiteIndexDocument: 'index.html',
-      publicReadAccess: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      // https://github.com/aws/aws-cdk/issues/25983
-      // https://www.reddit.com/r/aws/comments/12tqqpw/aws_cdk_api_s3_putbucketpolicy_access_denied_and/
-      blockPublicAccess: BlockPublicAccess.BLOCK_ACLS,
-      accessControl: BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
+    if (this.props.domainName) {
+      this.createHostedZone()
+      this.createCertificate()
+    }
+
+    this.createBucket()
+    this.createDistribution()
+    this.createStepFunction()
+    this.addScheduler()
+  }
+
+  private createHostedZone() {
+    this.hostedZone = new HostedZone(this, `${this.id}-hosted-zone`, {
+      zoneName: this.props.domainName,
     })
-    // Upload CSS file to the bucket
-    new BucketDeployment(this, 'UploadCssFiles', {
+  }
+
+  private createCertificate() {
+    this.certificate = new Certificate(this, `${this.id}-cert`, {
+      domainName: this.props.domainName,
+      subjectAlternativeNames: [`www.${this.props.domainName}`],
+      validation: CertificateValidation.fromDns(this.hostedZone),
+    })
+  }
+
+  private createBucket() {
+    this.bucket = new Bucket(this, `${this.id}-bucket`, {
+      autoDeleteObjects: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
+  }
+
+  private createDistribution() {
+    const oai = new OriginAccessIdentity(this, `${this.id}-oai`, {
+      comment: `Origin Access Identity for ${this.id}`,
+    })
+    this.bucket.grantRead(oai)
+
+    this.distribution = new Distribution(this, `${this.id}-distribution`, {
+      defaultBehavior: {
+        origin: new S3Origin(this.bucket, {
+          originAccessIdentity: oai,
+        }),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      errorResponses: [
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        },
+      ],
+      defaultRootObject: 'index.html',
+      domainNames: this.props.domainName
+        ? [this.props.domainName, `www.${this.props.domainName}`]
+        : undefined,
+      certificate: this.props.domainName ? this.certificate : undefined,
+    })
+
+    if (this.props.domainName) {
+      new ARecord(this, `${this.id}-a-record`, {
+        zone: this.hostedZone,
+        recordName: this.props.domainName,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
+      })
+
+      new ARecord(this, `${this.id}-a-record-www`, {
+        zone: this.hostedZone,
+        recordName: `www.${this.props.domainName}`,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
+      })
+    }
+
+    // Upload CSS file to bucket
+    new BucketDeployment(this, `${this.id}-file-upload`, {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
-      destinationBucket: bucket,
+      destinationBucket: this.bucket,
       prune: false,
       logRetention: RetentionDays.ONE_WEEK,
     })
 
+    if (!this.props.domainName) {
+      // Output generic automatic cloudfront URL if no custom domain
+      new CfnOutput(this, `${this.id}-url`, {
+        description: 'Distribution URL',
+        value: this.distribution.distributionDomainName,
+      })
+    }
+  }
+
+  private createStepFunction() {
     // SSM Parameter to store the current site status
-    const siteStatusParam = new StringParameter(this, 'SiteStatusParam', {
-      parameterName: 'SiteStatus',
+    const paramId = `${this.id}-status-param`
+    const siteStatusParam = new StringParameter(this, paramId, {
+      parameterName: paramId,
       stringValue: 'Initial value',
       description: `Current status of the weather site for ${this.stackName}`,
     })
 
+    const checkWeatherLogGroupId = `${this.id}-checkCurrentWeatherLogGroup`
     const checkCurrentWeatherLogGroup = new LogGroup(
       this,
-      'checkCurrentWeatherLogGroup',
+      checkWeatherLogGroupId,
       {
-        logGroupName: '/aws/lambda/weatherSite-checkCurrentWeatherFunction',
+        logGroupName: checkWeatherLogGroupId,
         retention: RetentionDays.ONE_WEEK,
+        removalPolicy: RemovalPolicy.DESTROY,
       },
     )
+    const checkCurrentWeatherFuncId = `${this.id}-checkCurrentWeather`
     const checkCurrentWeatherFunction = new NodejsFunction(
       this,
-      'checkCurrentWeatherFunction',
+      checkCurrentWeatherFuncId,
       {
-        functionName: 'checkCurrentWeatherFunction',
-        runtime: Runtime.NODEJS_LATEST,
+        functionName: checkCurrentWeatherFuncId,
+        runtime: Runtime.NODEJS_20_X,
         entry: 'dist/src/functions/check-current-weather.js',
         logFormat: LogFormat.JSON,
         logGroup: checkCurrentWeatherLogGroup,
@@ -121,15 +204,15 @@ export class WeatherSiteStack extends Stack {
         timeout: Duration.seconds(30),
         memorySize: 3008,
         environment: {
-          WEATHER_LOCATION_LAT: weatherLocationLat,
-          WEATHER_LOCATION_LON: weatherLocationLon,
-          WEATHER_TYPE: weatherType,
+          WEATHER_LOCATION_LAT: this.props.weatherLocationLat,
+          WEATHER_LOCATION_LON: this.props.weatherLocationLon,
+          WEATHER_TYPE: this.props.weatherType,
         },
         layers: [
           LayerVersion.fromLayerVersionArn(
             this,
             'SecretsManagerLayer',
-            secretsExtensionArn,
+            this.props.secretsExtensionArn,
           ),
         ],
       },
@@ -137,17 +220,20 @@ export class WeatherSiteStack extends Stack {
     checkCurrentWeatherFunction.addToRolePolicy(
       new PolicyStatement({
         actions: ['secretsmanager:GetSecretValue'],
-        resources: [weatherSecretArn],
+        resources: [this.props.weatherSecretArn],
       }),
     )
 
-    const updateSiteLogGroup = new LogGroup(this, 'updateSiteLogGroup', {
-      logGroupName: '/aws/lambda/weatherSite-updateSiteFunction',
+    const updateSiteLogGroupId = `${this.id}-updateSiteLogGroup`
+    const updateSiteLogGroup = new LogGroup(this, updateSiteLogGroupId, {
+      logGroupName: updateSiteLogGroupId,
       retention: RetentionDays.ONE_WEEK,
+      removalPolicy: RemovalPolicy.DESTROY,
     })
-    const updateSiteFunction = new NodejsFunction(this, 'updateSiteFunction', {
-      functionName: 'updateSiteFunction',
-      runtime: Runtime.NODEJS_LATEST,
+    const updateSiteFuncId = `${this.id}-updateSiteFunction`
+    const updateSiteFunction = new NodejsFunction(this, updateSiteFuncId, {
+      functionName: updateSiteFuncId,
+      runtime: Runtime.NODEJS_20_X,
       entry: 'dist/src/functions/update-site.js',
       logFormat: LogFormat.JSON,
       logGroup: updateSiteLogGroup,
@@ -156,13 +242,13 @@ export class WeatherSiteStack extends Stack {
       timeout: Duration.seconds(30),
       memorySize: 3008,
       environment: {
-        BUCKET_NAME: bucket.bucketName,
-        LOCATION_NAME: locationName,
-        OPEN_WEATHER_URL: openWeatherUrl,
-        WEATHER_TYPE: weatherType,
+        BUCKET_NAME: this.bucket.bucketName,
+        LOCATION_NAME: this.props.locationName,
+        OPEN_WEATHER_URL: this.props.openWeatherUrl,
+        WEATHER_TYPE: this.props.weatherType,
       },
     })
-    bucket.grantWrite(updateSiteFunction)
+    this.bucket.grantWrite(updateSiteFunction)
 
     // Tasks for Step Function Definition
     const getSiteStatus = new CallAwsService(this, 'Get site status', {
@@ -214,19 +300,42 @@ export class WeatherSiteStack extends Stack {
       jitterStrategy: JitterType.FULL,
     })
     updateSite.addCatch(new Fail(this, 'Site update failure'))
-    updateSite.next(
-      new CallAwsService(this, 'Update site status', {
-        service: 'ssm',
-        action: 'putParameter',
-        parameters: {
-          Name: siteStatusParam.parameterName,
-          Value: JsonPath.stringAt('$.CurrentWeather.Status'),
-          Overwrite: true,
-        },
-        iamResources: [siteStatusParam.parameterArn],
-        resultPath: '$.SsmPutResult',
-      }),
-    )
+
+    const finishUpdate = new Parallel(this, 'Finish update')
+      .branch(
+        new CallAwsService(this, 'Update site status parameter', {
+          service: 'ssm',
+          action: 'putParameter',
+          parameters: {
+            Name: siteStatusParam.parameterName,
+            Value: JsonPath.stringAt('$.CurrentWeather.Status'),
+            Overwrite: true,
+          },
+          iamResources: [siteStatusParam.parameterArn],
+          resultPath: '$.SsmPutResult',
+        }),
+      )
+      .branch(
+        new CallAwsService(this, 'Invalidate CloudFront cache', {
+          service: 'cloudfront',
+          action: 'createInvalidation',
+          parameters: {
+            DistributionId: this.distribution.distributionId,
+            InvalidationBatch: {
+              CallerReference: JsonPath.stringAt('$$.State.EnteredTime'),
+              Paths: {
+                Quantity: 1,
+                Items: ['/index.html'],
+              },
+            },
+          },
+          iamResources: [
+            `arn:aws:cloudfront::${Stack.of(this).account}:distribution/${this.distribution.distributionId}`,
+          ],
+          resultPath: '$.CfInvalidateResult',
+        }),
+      )
+    updateSite.next(finishUpdate)
 
     const definition = getSiteStatus
       .next(checkCurrentWeather)
@@ -242,54 +351,49 @@ export class WeatherSiteStack extends Stack {
           .otherwise(updateSite),
       )
     // End of Tasks for Step Function Definition
-
-    const logGroup = new LogGroup(this, 'WeatherSiteLogGroup', {
-      logGroupName: 'WeatherSiteLogGroup',
-      retention: RetentionDays.ONE_WEEK,
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-
-    const stateMachineName = 'WeatherSiteStateMachine'
-    this.stepFunction = new StateMachine(this, `${stateMachineName}`, {
-      stateMachineName: 'WeatherSiteStateMachine',
+    const stateMachineId = `${this.id}-state-machine`
+    this.stepFunction = new StateMachine(this, stateMachineId, {
       stateMachineType: StateMachineType.EXPRESS,
+      stateMachineName: stateMachineId,
       tracingEnabled: true,
       logs: {
-        destination: logGroup,
+        destination: new LogGroup(this, `${this.id}-sf-log`, {
+          logGroupName: `${this.id}-sf-log`,
+          retention: RetentionDays.ONE_WEEK,
+          removalPolicy: RemovalPolicy.DESTROY,
+        }),
         includeExecutionData: true,
         // TODO: Consider setting to ERROR if there's a need to save $$$
         level: LogLevel.ALL,
       },
       definitionBody: DefinitionBody.fromChainable(definition),
     })
+  }
 
-    new CfnOutput(this, 'siteURL', {
-      value: bucket.bucketWebsiteUrl,
-    })
-
-    // Permissions for EventBridge Schedules to invoke the Step Function
+  private addScheduler() {
+    // Permissions for EventBridge Scheduler to invoke the Step Function
     const schedulerToStepFunctionRole = new Role(
       this,
-      'schedulerToStepFunctionRole',
+      `${this.id}-schedulerRole`,
       {
         assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
-        description: 'Role for EB Schedules to invoke WeatherSiteStateMachine',
+        description: `EventBridge Scheduler to invoke Step Function for ${this.id}`,
       },
     )
     this.stepFunction.grantStartExecution(schedulerToStepFunctionRole)
 
     // EventBridge Schedules to invoke the Step Function
-    for (let i = 0; i < schedules.length; i++) {
+    for (let i = 0; i < this.props.schedules.length; i++) {
       // TODO: Update to L2 construct when available
       // https://github.com/aws/aws-cdk/issues/23394
-      const scheduleId = `WeatherSiteScheduler-${i}`
+      const scheduleId = `${this.id}-schedule-${i}`
       new CfnSchedule(this, scheduleId, {
-        description: 'Scheduler to invoke WeatherSiteStateMachine',
+        name: scheduleId,
+        description: `Invoke Step Function for ${this.id}`,
         flexibleTimeWindow: {
           mode: 'OFF',
         },
-        name: scheduleId,
-        scheduleExpression: schedules[i],
+        scheduleExpression: this.props.schedules[i],
         scheduleExpressionTimezone: 'America/Los_Angeles',
         state: 'ENABLED',
         target: {

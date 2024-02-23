@@ -11,7 +11,7 @@ This is a workflow that:
 2. Hits the [open weather map API](https://openweathermap.org/) to get the current weather conditions
 3. If #1 and #2 are different 👉🏻 update the website with the current weather conditions
 
-My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
+My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
 
 **The weather is happening site looks like this**
 
@@ -25,6 +25,7 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 1. [AWS](https://aws.amazon.com/)
    - [S3](https://aws.amazon.com/s3/)
+   - [CloudFront](https://aws.amazon.com/cloudfront/)
    - [Step Functions](https://aws.amazon.com/step-functions/)
    - [Systems Manager Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)
    - [Lambda](https://aws.amazon.com/lambda/)
@@ -37,7 +38,8 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 ## Step Function State machine
 
-<img width="620" alt="weather-site-workflow" src="https://user-images.githubusercontent.com/12616554/221385438-87a3509a-788c-41cf-8a76-ddac15bcc7fd.png">
+![stepfunctions_graph](https://github.com/deeheber/weather-site/assets/12616554/4ee8dbec-c5fc-41a0-bfd6-4a758336bc36)
+
 
 ## Instructions to run
 
@@ -51,11 +53,19 @@ My deployment of this site is [here](http://www.isitsnowinginhillsboro.com/).
 
 1. Clone the repo
 2. [Create a Secret](https://docs.aws.amazon.com/secretsmanager/latest/userguide/create_secret.html) in Secrets Manager titled `weather-site-api-key` with a plaintext secret value that is your OpenWeather API key. Save the secret ARN for step #2.
-3. Copy `.env.example` to `.env`. Fill in the missing `SECRETS_EXTENSION_ARN` using the commented URL in `.env.example` to grab the correct ARN for your region. Add your copied ARN from the secret you created in step #1 for `WEATHER_SECRET_ARN`. Uncomment and add an email address to `ALERT_EMAIL`, if you'd like to receive an email notification if the state machine has two failed executions within 1 hour. Update any other values if you don't want the default values.
+3. Copy `.env.example` to `.env`. Fill in the missing `SECRETS_EXTENSION_ARN` using the commented URL in `.env.example` to grab the correct ARN for your region. Add your copied ARN from the secret you created in step #1 for `WEATHER_SECRET_ARN`. Uncomment and add an email address to `ALERT_EMAIL`, if you'd like to receive an email notification if the state machine has two failed executions within 1 hour (totally optional). Update any other values if you don't want the default values.
 4. Run `npm install`
 5. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead
-6. Run `npm run deploy`
+6. Run `npm run deploy` **see note below about custom domains before running this**
+7. If not using a custom domain, the generated CloudFront URL will output to the console. This is where your website is.
+
+### Custom Domain
+
+- If your domain is not hosted in Route53, you'll also need to point your nameservers at Route53. [Directions here](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html)
+- Non Route53 hosted domain DNS validation is a bit tricky since we're also creating the hosted zone in the creation of this stack. Once the initial deploy starts and the hosted zone is created, I had to quickly updated my nameservers in my domain registrar to point at Route53 (nameservers found in the AWS console looking at the hosted zone - see prior link for more details) to prevent things from failing. This may or may not be your experience. Also note that certificate validation can take up to 30 min according to AWS, so be patient (mine took 20 min).
+- This will create the settings needed for both the `www` and non-www versions of your domain to point to the CloudFront distribution. I wanted to do a fancy redirect, but it appears AWS does not make that very easy to do (contributions welcome).
+- Certificates used for CloudFront have to be in the `us-east-1` region. I could've set this up with [cross region references](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html#cross-region-certificates), but decided to throw an error for now if a domain name is present and not deploying into `us-east-1`. Contributions are welcome to make this better!
 
 ### Cleanup
 

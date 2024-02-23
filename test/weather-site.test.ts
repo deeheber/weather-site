@@ -6,6 +6,7 @@ import { WeatherSiteStack } from '../lib/weather-site-stack'
 test('Verify resources are created', () => {
   const app = new App()
   const stack = new WeatherSiteStack(app, 'MyTestStack', {
+    domainName: '',
     locationName: 'Test Location',
     openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
     schedules: 'rate(10 minutes)'.split(', '),
@@ -19,32 +20,28 @@ test('Verify resources are created', () => {
 
   template.resourceCountIs('AWS::S3::Bucket', 1)
   template.resourceCountIs('AWS::SSM::Parameter', 1)
+  template.resourceCountIs('AWS::CloudFront::Distribution', 1)
 
-  template.hasResourceProperties('AWS::S3::Bucket', {
-    WebsiteConfiguration: {
-      IndexDocument: 'index.html',
-    },
-  })
   template.hasResourceProperties('AWS::Lambda::Function', {
-    FunctionName: 'checkCurrentWeatherFunction',
-    Runtime: 'nodejs18.x',
+    FunctionName: 'MyTestStack-checkCurrentWeather',
+    Runtime: 'nodejs20.x',
     Architectures: ['arm64'],
   })
   template.hasResourceProperties('AWS::Lambda::Function', {
-    FunctionName: 'updateSiteFunction',
-    Runtime: 'nodejs18.x',
+    FunctionName: 'MyTestStack-updateSiteFunction',
+    Runtime: 'nodejs20.x',
     Architectures: ['arm64'],
   })
 
   template.hasResourceProperties('AWS::StepFunctions::StateMachine', {
-    StateMachineName: 'WeatherSiteStateMachine',
+    StateMachineName: 'MyTestStack-state-machine',
     StateMachineType: 'EXPRESS',
     LoggingConfiguration: {
       Level: 'ALL',
     },
   })
   template.hasResourceProperties('AWS::Scheduler::Schedule', {
-    Name: 'WeatherSiteScheduler-0',
+    Name: 'MyTestStack-schedule-0',
     ScheduleExpression: 'rate(10 minutes)',
   })
 })

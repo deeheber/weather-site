@@ -12,12 +12,16 @@ interface AlertStackProps extends StackProps {
 }
 
 export class AlertStack extends Stack {
+  public id: string
+
   constructor(scope: Construct, id: string, props: AlertStackProps) {
     super(scope, id, props)
+
+    this.id = id
     const { alertEmail, stepFunction } = props
 
     // Create SNS Topic
-    const errorTopic = new Topic(this, `WeatherSiteStateMachine-error-topic`, {
+    const errorTopic = new Topic(this, `${this.id}-error-topic`, {
       topicName: 'WeatherSiteTopic',
       displayName: 'Weather Site Topic',
     })
@@ -35,7 +39,7 @@ export class AlertStack extends Stack {
       period: Duration.hours(period),
     })
 
-    const alarmName = `WeatherSiteStateMachine-alarm`
+    const alarmName = `${this.id}-alarm`
     const alarm = new Alarm(this, alarmName, {
       actionsEnabled: true,
       alarmName,
