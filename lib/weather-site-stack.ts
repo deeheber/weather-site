@@ -16,11 +16,7 @@ import {
 } from 'aws-cdk-lib/aws-lambda'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
-import {
-  BlockPublicAccess,
-  Bucket,
-  BucketAccessControl,
-} from 'aws-cdk-lib/aws-s3'
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
 import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
@@ -45,10 +41,8 @@ import {
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
 import * as path from 'path'
 import {
-  AllowedMethods,
   Distribution,
   OriginAccessIdentity,
-  OriginRequestPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront'
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
