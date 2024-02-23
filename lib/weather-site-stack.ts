@@ -92,20 +92,20 @@ export class WeatherSiteStack extends Stack {
 
   private createHostedZone() {
     // TODO: Might need PublicHostedZone ???
-    this.hostedZone = new HostedZone(this, 'WeatherSiteHostedZone', {
+    this.hostedZone = new HostedZone(this, `${this.id}-hosted-zone`, {
       zoneName: this.props.domainName,
     })
   }
 
   private createCertificate() {
-    this.certificate = new Certificate(this, 'WeatherSiteCert', {
+    this.certificate = new Certificate(this, `${this.id}-cert`, {
       domainName: this.props.domainName,
       validation: CertificateValidation.fromDns(this.hostedZone),
     })
   }
 
   private createBucket() {
-    this.bucket = new Bucket(this, 'WeatherSiteBucket', {
+    this.bucket = new Bucket(this, `${this.id}-bucket`, {
       autoDeleteObjects: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -113,14 +113,12 @@ export class WeatherSiteStack extends Stack {
   }
 
   private createDistribution() {
-    const oai = new OriginAccessIdentity(this, 'WeatherSite-OAI', {
+    const oai = new OriginAccessIdentity(this, `${this.id}-oai`, {
       comment: `Origin Access Identity for ${this.id}`,
     })
     this.bucket.grantRead(oai)
 
-    const distributionId = `${this.id}-distribution`
-
-    this.distribution = new Distribution(this, distributionId, {
+    this.distribution = new Distribution(this, `${this.id}-distribution`, {
       defaultBehavior: {
         origin: new S3Origin(this.bucket, {
           originAccessIdentity: oai,
@@ -140,7 +138,7 @@ export class WeatherSiteStack extends Stack {
     })
 
     if (this.props.domainName) {
-      new ARecord(this, 'WeatherSite-A-Record', {
+      new ARecord(this, `${this.id}-a-record`, {
         zone: this.hostedZone,
         recordName: this.props.domainName,
         target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
@@ -148,7 +146,7 @@ export class WeatherSiteStack extends Stack {
     }
 
     // Upload CSS file to bucket
-    new BucketDeployment(this, 'UploadCssFiles', {
+    new BucketDeployment(this, `${this.id}-file-upload`, {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
       destinationBucket: this.bucket,
       prune: false,
@@ -157,7 +155,7 @@ export class WeatherSiteStack extends Stack {
 
     if (!this.props.domainName) {
       // Output generic automatic cloudfront URL if no custom domain
-      new CfnOutput(this, 'WebsiteURL', {
+      new CfnOutput(this, `${this.id}-url`, {
         description: 'WeatherSite Distribution URL',
         value: this.distribution.distributionDomainName,
       })
@@ -166,27 +164,29 @@ export class WeatherSiteStack extends Stack {
 
   private createStepFunction() {
     // SSM Parameter to store the current site status
-    const siteStatusParam = new StringParameter(this, 'SiteStatusParam', {
-      parameterName: 'SiteStatus',
-      stringValue: 'Initial value',
-      description: `Current status of the weather site for ${this.stackName}`,
-    })
+    const siteStatusParam = new StringParameter(
+      this,
+      `${this.id}-status-param`,
+      {
+        stringValue: 'Initial value',
+        description: `Current status of the weather site for ${this.stackName}`,
+      },
+    )
 
     const checkCurrentWeatherLogGroup = new LogGroup(
       this,
-      'checkCurrentWeatherLogGroup',
+      `${this.id}-checkCurrentWeatherLogGroup`,
       {
-        logGroupName: '/aws/lambda/weatherSite-checkCurrentWeatherFunction',
         retention: RetentionDays.ONE_WEEK,
         removalPolicy: RemovalPolicy.DESTROY,
       },
     )
     const checkCurrentWeatherFunction = new NodejsFunction(
       this,
-      'checkCurrentWeatherFunction',
+      `${this.id}-checkCurrentWeatherFunction`,
       {
-        functionName: 'checkCurrentWeatherFunction',
-        runtime: Runtime.NODEJS_LATEST,
+        functionName: `${this.id}-checkCurrentWeather`,
+        runtime: Runtime.NODEJS_20_X,
         entry: 'dist/src/functions/check-current-weather.js',
         logFormat: LogFormat.JSON,
         logGroup: checkCurrentWeatherLogGroup,
@@ -215,28 +215,35 @@ export class WeatherSiteStack extends Stack {
       }),
     )
 
-    const updateSiteLogGroup = new LogGroup(this, 'updateSiteLogGroup', {
-      logGroupName: '/aws/lambda/weatherSite-updateSiteFunction',
-      retention: RetentionDays.ONE_WEEK,
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-    const updateSiteFunction = new NodejsFunction(this, 'updateSiteFunction', {
-      functionName: 'updateSiteFunction',
-      runtime: Runtime.NODEJS_LATEST,
-      entry: 'dist/src/functions/update-site.js',
-      logFormat: LogFormat.JSON,
-      logGroup: updateSiteLogGroup,
-      tracing: Tracing.ACTIVE,
-      architecture: Architecture.ARM_64,
-      timeout: Duration.seconds(30),
-      memorySize: 3008,
-      environment: {
-        BUCKET_NAME: this.bucket.bucketName,
-        LOCATION_NAME: this.props.locationName,
-        OPEN_WEATHER_URL: this.props.openWeatherUrl,
-        WEATHER_TYPE: this.props.weatherType,
+    const updateSiteLogGroup = new LogGroup(
+      this,
+      `${this.id}-updateSiteLogGroup`,
+      {
+        retention: RetentionDays.ONE_WEEK,
+        removalPolicy: RemovalPolicy.DESTROY,
       },
-    })
+    )
+    const updateSiteFunction = new NodejsFunction(
+      this,
+      `${this.id}-updateSiteFunction`,
+      {
+        functionName: `${this.id}-updateSite`,
+        runtime: Runtime.NODEJS_20_X,
+        entry: 'dist/src/functions/update-site.js',
+        logFormat: LogFormat.JSON,
+        logGroup: updateSiteLogGroup,
+        tracing: Tracing.ACTIVE,
+        architecture: Architecture.ARM_64,
+        timeout: Duration.seconds(30),
+        memorySize: 3008,
+        environment: {
+          BUCKET_NAME: this.bucket.bucketName,
+          LOCATION_NAME: this.props.locationName,
+          OPEN_WEATHER_URL: this.props.openWeatherUrl,
+          WEATHER_TYPE: this.props.weatherType,
+        },
+      },
+    )
     this.bucket.grantWrite(updateSiteFunction)
 
     // Tasks for Step Function Definition
@@ -340,15 +347,12 @@ export class WeatherSiteStack extends Stack {
           .otherwise(updateSite),
       )
     // End of Tasks for Step Function Definition
-
-    const stateMachineName = 'WeatherSiteStateMachine'
-    this.stepFunction = new StateMachine(this, `${stateMachineName}`, {
-      stateMachineName: 'WeatherSiteStateMachine',
+    const stateMachineId = `${this.id}-state-machine`
+    this.stepFunction = new StateMachine(this, stateMachineId, {
       stateMachineType: StateMachineType.EXPRESS,
       tracingEnabled: true,
       logs: {
         destination: new LogGroup(this, 'WeatherSiteLogGroup', {
-          logGroupName: `/aws/${this.id}/${stateMachineName}`,
           retention: RetentionDays.ONE_WEEK,
           removalPolicy: RemovalPolicy.DESTROY,
         }),
@@ -364,7 +368,7 @@ export class WeatherSiteStack extends Stack {
     // Permissions for EventBridge Scheduler to invoke the Step Function
     const schedulerToStepFunctionRole = new Role(
       this,
-      'schedulerToStepFunctionRole',
+      `${this.id}-schedulerRole`,
       {
         assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
         description: 'Role for EB Schedules to invoke WeatherSiteStateMachine',
@@ -376,13 +380,12 @@ export class WeatherSiteStack extends Stack {
     for (let i = 0; i < this.props.schedules.length; i++) {
       // TODO: Update to L2 construct when available
       // https://github.com/aws/aws-cdk/issues/23394
-      const scheduleId = `WeatherSiteScheduler-${i}`
+      const scheduleId = `${this.id}-schedule-${i}`
       new CfnSchedule(this, scheduleId, {
-        description: 'Scheduler to invoke WeatherSiteStateMachine',
+        description: 'Scheduler to invoke WeatherSiteStack Step Function',
         flexibleTimeWindow: {
           mode: 'OFF',
         },
-        name: scheduleId,
         scheduleExpression: this.props.schedules[i],
         scheduleExpressionTimezone: 'America/Los_Angeles',
         state: 'ENABLED',
