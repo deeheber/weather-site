@@ -42,10 +42,14 @@ import {
 import * as path from 'path'
 import {
   Distribution,
+  Function,
+  FunctionCode,
+  FunctionRuntime,
+  FunctionEventType,
   OriginAccessIdentity,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront'
-import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import {
@@ -70,6 +74,7 @@ export class WeatherSiteStack extends Stack {
   private props: WeatherSiteStackProps
   private hostedZone: HostedZone
   private certificate: Certificate
+  private redirectCertificate: Certificate
   private distribution: Distribution
   public stepFunction: StateMachine
   private bucket: Bucket
@@ -81,7 +86,8 @@ export class WeatherSiteStack extends Stack {
 
     if (this.props.domainName) {
       this.createHostedZone()
-      this.createCertificate()
+      this.createCertificates()
+      this.createRedirect()
     }
 
     this.createBucket()
@@ -96,11 +102,70 @@ export class WeatherSiteStack extends Stack {
     })
   }
 
-  private createCertificate() {
+  private createCertificates() {
     this.certificate = new Certificate(this, `${this.id}-cert`, {
       domainName: this.props.domainName,
-      subjectAlternativeNames: [`www.${this.props.domainName}`],
       validation: CertificateValidation.fromDns(this.hostedZone),
+    })
+
+    this.redirectCertificate = new Certificate(this, `${this.id}-cert-www`, {
+      domainName: `www.${this.props.domainName}`,
+      validation: CertificateValidation.fromDns(this.hostedZone),
+    })
+  }
+
+  private createRedirect() {
+    /**
+     * Redirect from www to non-www
+     * AWS doesn't provide a nicer way to do this 👎🏻
+     * Thanks to https://paramvirsingh.com/post/article/redirect-www-to-naked-domain-aws-cloudfront for this idea!
+     *
+     * www -> CloudFront Dist 1 -> CloudFront function redirect -> non-www -> CloudFront Dist 2
+     */
+    const redirectFunction = new Function(
+      this,
+      `${this.id}-redirect-function`,
+      {
+        code: FunctionCode.fromInline(`function handler(event) {
+          console.log(event.request.headers);
+          console.log(event.request);
+          var response = {
+              statusCode: 302,
+              statusDescription: 'Found',
+              headers: {
+                  "location": { "value": 'https://${this.props.domainName}'+event.request.uri }    
+              }
+            }
+          return response;
+      }`),
+        runtime: FunctionRuntime.JS_2_0,
+      },
+    )
+
+    const redirectDistribution = new Distribution(
+      this,
+      `${this.id}-redirect-dist`,
+      {
+        defaultBehavior: {
+          origin: new HttpOrigin(this.props.domainName),
+          functionAssociations: [
+            {
+              function: redirectFunction,
+              eventType: FunctionEventType.VIEWER_REQUEST,
+            },
+          ],
+        },
+        domainNames: [`www.${this.props.domainName}`],
+        certificate: this.redirectCertificate,
+      },
+    )
+
+    new ARecord(this, `${this.id}-a-record-www`, {
+      zone: this.hostedZone,
+      recordName: `www.${this.props.domainName}`,
+      target: RecordTarget.fromAlias(
+        new CloudFrontTarget(redirectDistribution),
+      ),
     })
   }
 
@@ -133,9 +198,7 @@ export class WeatherSiteStack extends Stack {
         },
       ],
       defaultRootObject: 'index.html',
-      domainNames: this.props.domainName
-        ? [this.props.domainName, `www.${this.props.domainName}`]
-        : undefined,
+      domainNames: this.props.domainName ? [this.props.domainName] : undefined,
       certificate: this.props.domainName ? this.certificate : undefined,
     })
 
@@ -143,12 +206,6 @@ export class WeatherSiteStack extends Stack {
       new ARecord(this, `${this.id}-a-record`, {
         zone: this.hostedZone,
         recordName: this.props.domainName,
-        target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
-      })
-
-      new ARecord(this, `${this.id}-a-record-www`, {
-        zone: this.hostedZone,
-        recordName: `www.${this.props.domainName}`,
         target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
       })
     }
@@ -161,11 +218,15 @@ export class WeatherSiteStack extends Stack {
       logRetention: RetentionDays.ONE_WEEK,
     })
 
-    if (!this.props.domainName) {
-      // Output generic automatic cloudfront URL if no custom domain
-      new CfnOutput(this, `${this.id}-url`, {
-        description: 'Distribution URL',
-        value: this.distribution.distributionDomainName,
+    new CfnOutput(this, `${this.id}-url`, {
+      description: 'Distribution URL',
+      value: this.distribution.distributionDomainName,
+    })
+
+    if (this.props.domainName) {
+      new CfnOutput(this, `${this.id}-custom-url`, {
+        description: 'Custom Domain URL',
+        value: `https://${this.props.domainName}`,
       })
     }
   }
