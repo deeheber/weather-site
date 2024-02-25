@@ -45,3 +45,5 @@ test('Verify resources are created', () => {
     ScheduleExpression: 'rate(10 minutes)',
   })
 })
+
+// TODO test for stack with custom domain
