@@ -34,9 +34,9 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
    - [EventBridge Scheduler](https://aws.amazon.com/eventbridge/scheduler/)
    - [IAM](https://aws.amazon.com/iam/)
    - [CDK](https://aws.amazon.com/cdk/)
-3. [Node.js](https://nodejs.org/en/) - specific version is in `.nvmrc` file
-4. [TypeScript](https://www.typescriptlang.org/)
-5. [Open Weather API](https://openweathermap.org/api/one-call-3)
+2. [Node.js](https://nodejs.org/en/) - specific version is in `.nvmrc` file
+3. [TypeScript](https://www.typescriptlang.org/)
+4. [Open Weather API](https://openweathermap.org/api/one-call-3)
 
 ## Step Function State machine
 
