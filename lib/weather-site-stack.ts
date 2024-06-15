@@ -10,7 +10,7 @@ import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import {
   Architecture,
   LayerVersion,
-  LogFormat,
+  LoggingFormat,
   Runtime,
   Tracing,
 } from 'aws-cdk-lib/aws-lambda'
@@ -258,7 +258,7 @@ export class WeatherSiteStack extends Stack {
         functionName: checkCurrentWeatherFuncId,
         runtime: Runtime.NODEJS_20_X,
         entry: 'dist/src/functions/check-current-weather.js',
-        logFormat: LogFormat.JSON,
+        loggingFormat: LoggingFormat.JSON,
         logGroup: checkCurrentWeatherLogGroup,
         tracing: Tracing.ACTIVE,
         architecture: Architecture.ARM_64,
@@ -268,6 +268,7 @@ export class WeatherSiteStack extends Stack {
           WEATHER_LOCATION_LAT: this.props.weatherLocationLat,
           WEATHER_LOCATION_LON: this.props.weatherLocationLon,
           WEATHER_TYPE: this.props.weatherType,
+          PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL: 'warn',
         },
         layers: [
           LayerVersion.fromLayerVersionArn(
@@ -296,7 +297,7 @@ export class WeatherSiteStack extends Stack {
       functionName: updateSiteFuncId,
       runtime: Runtime.NODEJS_20_X,
       entry: 'dist/src/functions/update-site.js',
-      logFormat: LogFormat.JSON,
+      loggingFormat: LoggingFormat.JSON,
       logGroup: updateSiteLogGroup,
       tracing: Tracing.ACTIVE,
       architecture: Architecture.ARM_64,
@@ -307,6 +308,7 @@ export class WeatherSiteStack extends Stack {
         LOCATION_NAME: this.props.locationName,
         OPEN_WEATHER_URL: this.props.openWeatherUrl,
         WEATHER_TYPE: this.props.weatherType,
+        PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL: 'warn',
       },
     })
     this.bucket.grantWrite(updateSiteFunction)
@@ -445,8 +447,8 @@ export class WeatherSiteStack extends Stack {
 
     // EventBridge Schedules to invoke the Step Function
     for (let i = 0; i < this.props.schedules.length; i++) {
-      // TODO: Update to L2 construct when available
-      // https://github.com/aws/aws-cdk/issues/23394
+      // TODO: Update to L2 construct when out of alpha
+      // https://github.com/deeheber/weather-site/issues/3
       const scheduleId = `${this.id}-schedule-${i}`
       new CfnSchedule(this, scheduleId, {
         name: scheduleId,
