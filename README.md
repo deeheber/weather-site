@@ -47,7 +47,7 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
 
 ### Prerequisites
 
-1. Install Node.js
+1. Install Node.js. See `.nvmrc` for the recommended version
 2. Ensure you have an AWS account, install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), and [configure your credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
 3. Get an API key from [Open Weather Map](https://openweathermap.org/api/one-call-3)
 
