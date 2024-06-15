@@ -449,8 +449,6 @@ export class WeatherSiteStack extends Stack {
     for (let i = 0; i < this.props.schedules.length; i++) {
       // TODO: Update to L2 construct when out of alpha
       // https://github.com/deeheber/weather-site/issues/3
-      // Issue: https://github.com/aws/aws-cdk/issues/23394
-      // Docs: https://docs.aws.amazon.com/cdk/api/v2/docs/aws-scheduler-alpha-readme.html
       const scheduleId = `${this.id}-schedule-${i}`
       new CfnSchedule(this, scheduleId, {
         name: scheduleId,
