@@ -14,6 +14,7 @@ type FunctionResponse = {
 export const handler = async (
   event: FunctionInput,
 ): Promise<FunctionResponse> => {
+  console.log('EVENT')
   console.log(event)
 
   const weatherType = process.env.WEATHER_TYPE!

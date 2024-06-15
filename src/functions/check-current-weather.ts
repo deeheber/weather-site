@@ -11,6 +11,7 @@ type FunctionResponse = {
 export const handler = async (
   event: FunctionInput,
 ): Promise<FunctionResponse> => {
+  console.log('EVENT')
   console.log(event)
 
   try {
@@ -51,6 +52,7 @@ export const handler = async (
       throw new Error('No weather data found')
     }
 
+    console.log('RESPONSE BODY')
     console.log(responseBody)
     console.log(`Current weather is ${currentWeather}`)
 

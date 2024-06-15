@@ -44,6 +44,8 @@ test('Verify resources are created', () => {
     Name: 'MyTestStack-schedule-0',
     ScheduleExpression: 'rate(10 minutes)',
   })
+
+  expect(template.toJSON()).toMatchSnapshot()
 })
 
 test('Verify resources are created with custom domain', () => {
@@ -102,4 +104,6 @@ test('Verify resources are created with custom domain', () => {
     Name: 'CustomDomainStack-schedule-1',
     ScheduleExpression: 'cron(0/10 * * 1,2,3,4,5,10,11,12 ? *)',
   })
+
+  expect(template.toJSON()).toMatchSnapshot()
 })
