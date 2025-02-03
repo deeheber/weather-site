@@ -24,12 +24,12 @@ test('Verify resources are created', () => {
 
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'MyTestStack-checkCurrentWeather',
-    Runtime: 'nodejs20.x',
+    Runtime: 'nodejs22.x',
     Architectures: ['arm64'],
   })
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'MyTestStack-updateSiteFunction',
-    Runtime: 'nodejs20.x',
+    Runtime: 'nodejs22.x',
     Architectures: ['arm64'],
   })
 
@@ -80,12 +80,12 @@ test('Verify resources are created with custom domain', () => {
   })
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'CustomDomainStack-checkCurrentWeather',
-    Runtime: 'nodejs20.x',
+    Runtime: 'nodejs22.x',
     Architectures: ['arm64'],
   })
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'CustomDomainStack-updateSiteFunction',
-    Runtime: 'nodejs20.x',
+    Runtime: 'nodejs22.x',
     Architectures: ['arm64'],
   })
 

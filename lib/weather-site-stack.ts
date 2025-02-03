@@ -48,8 +48,13 @@ import {
   FunctionEventType,
   OriginAccessIdentity,
   ViewerProtocolPolicy,
+  CfnOriginAccessControl,
 } from 'aws-cdk-lib/aws-cloudfront'
-import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import {
+  HttpOrigin,
+  S3BucketOrigin,
+  S3StaticWebsiteOrigin,
+} from 'aws-cdk-lib/aws-cloudfront-origins'
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import {
@@ -178,16 +183,9 @@ export class WeatherSiteStack extends Stack {
   }
 
   private createDistribution() {
-    const oai = new OriginAccessIdentity(this, `${this.id}-oai`, {
-      comment: `Origin Access Identity for ${this.id}`,
-    })
-    this.bucket.grantRead(oai)
-
     this.distribution = new Distribution(this, `${this.id}-distribution`, {
       defaultBehavior: {
-        origin: new S3Origin(this.bucket, {
-          originAccessIdentity: oai,
-        }),
+        origin: S3BucketOrigin.withOriginAccessControl(this.bucket),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       errorResponses: [
@@ -256,7 +254,7 @@ export class WeatherSiteStack extends Stack {
       checkCurrentWeatherFuncId,
       {
         functionName: checkCurrentWeatherFuncId,
-        runtime: Runtime.NODEJS_20_X,
+        runtime: Runtime.NODEJS_22_X,
         entry: 'dist/src/functions/check-current-weather.js',
         loggingFormat: LoggingFormat.JSON,
         logGroup: checkCurrentWeatherLogGroup,
@@ -295,7 +293,7 @@ export class WeatherSiteStack extends Stack {
     const updateSiteFuncId = `${this.id}-updateSiteFunction`
     const updateSiteFunction = new NodejsFunction(this, updateSiteFuncId, {
       functionName: updateSiteFuncId,
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_22_X,
       entry: 'dist/src/functions/update-site.js',
       loggingFormat: LoggingFormat.JSON,
       logGroup: updateSiteLogGroup,
