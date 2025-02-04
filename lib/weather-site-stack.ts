@@ -46,15 +46,9 @@ import {
   FunctionCode,
   FunctionRuntime,
   FunctionEventType,
-  OriginAccessIdentity,
   ViewerProtocolPolicy,
-  CfnOriginAccessControl,
 } from 'aws-cdk-lib/aws-cloudfront'
-import {
-  HttpOrigin,
-  S3BucketOrigin,
-  S3StaticWebsiteOrigin,
-} from 'aws-cdk-lib/aws-cloudfront-origins'
+import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import {
@@ -460,6 +454,8 @@ export class WeatherSiteStack extends Stack {
         target: {
           arn: this.stepFunction.stateMachineArn,
           roleArn: schedulerToStepFunctionRole.roleArn,
+          // To aid in a future feature
+          // input: JSON.stringify({ weatherType: this.props.weatherType }),
           retryPolicy: {
             maximumEventAgeInSeconds: 90,
             maximumRetryAttempts: 2,
