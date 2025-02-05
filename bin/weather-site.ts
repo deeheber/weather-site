@@ -19,7 +19,7 @@ const {
   OPEN_WEATHER_URL: openWeatherUrl = '',
   SCHEDULES: schedules = 'rate(10 minutes)',
   SECRETS_EXTENSION_ARN: secretsExtensionArn = '',
-  STACK_PREFIX: stackPrefix = '',
+  STACK_PREFIX: stackPrefix = 'myStack',
   WEATHER_LOCATION_LAT: weatherLocationLat = '',
   WEATHER_LOCATION_LON: weatherLocationLon = '',
   WEATHER_SECRET_ARN: weatherSecretArn = '',
