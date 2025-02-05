@@ -1,0 +1,61 @@
+name: ci
+run-name: ${{ github.actor }} has run the ci trigger
+
+on:
+  pull_request:
+    branches:
+      - main
+  # option to run manually in the GitHub UI
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: build
+        run: npm run build
+
+      - name: run eslint check
+        run: npm run lint:ci
+
+      - name: run prettier format check
+        run: npm run format:ci
+
+      - name: test
+        run: npm test
+
+      - name: configure AWS credentials from OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # 15 minutes aka shortest time allowed
+          role-duration-seconds: 900
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
+      - name: cdk synth
+        run: npm run synth:quiet
+        env:
+          LOCATION_NAME: Pittsburgh, Pennsylvania
+          OPEN_WEATHER_URL: https://openweathermap.org/city/5206379
+          SECRETS_EXTENSION_ARN: arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension-Arm64:11
+          WEATHER_SECRET_ARN: arn:aws:secretsmanager:us-east-1:640581278975:secret:weather-site-api-key-IN8ArC
+          WEATHER_LOCATION_LAT: 40.4406
+          WEATHER_LOCATION_LON: -79.9959
+          WEATHER_TYPE: rain

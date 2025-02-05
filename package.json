@@ -11,7 +11,11 @@
     "deploy": "npm run clean && npm run build && npm run cdk deploy -- --all",
     "destroy": "npm run cdk destroy -- --all",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "format:ci": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "lint": "eslint --fix \"**/*.{ts,mjs,tsx,json,md}\" --ignore-pattern .gitignore --no-error-on-unmatched-pattern",
+    "lint:ci": "eslint \"**/*.{ts,mjs,tsx,json,md}\" --ignore-pattern .gitignore",
+    "synth": "npm run cdk synth",
+    "synth:quiet": "npm run cdk synth -- -q",
     "test": "npm run build && jest",
     "watch": "tsc -w"
   },
