@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import 'source-map-support/register'
-import { App } from 'aws-cdk-lib'
 import 'dotenv/config'
 
-import { WeatherSiteStack } from '../lib/weather-site-stack'
+import { App } from 'aws-cdk-lib'
+
 import { AlertStack } from '../lib/alert-stack'
+import { WeatherSiteStack } from '../lib/weather-site-stack'
 
 // Env var validation
 const {

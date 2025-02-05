@@ -41,7 +41,7 @@ export const handler = async (
       `https://api.openweathermap.org/data/3.0/onecall?lat=${process.env.WEATHER_LOCATION_LAT}&lon=${process.env.WEATHER_LOCATION_LON}&exclude=minutely,hourly,daily,alerts&appid=${SecretString}`,
     )
     // https://github.com/node-fetch/node-fetch/issues/1262
-    const responseBody = (await response.json()) as any
+    const responseBody = await response.json()
 
     // Generate response
     let currentWeather = ''
