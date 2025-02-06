@@ -5,7 +5,19 @@ import {
   Stack,
   StackProps,
 } from 'aws-cdk-lib'
-import { Construct } from 'constructs'
+import {
+  Certificate,
+  CertificateValidation,
+} from 'aws-cdk-lib/aws-certificatemanager'
+import {
+  Distribution,
+  Function,
+  FunctionCode,
+  FunctionEventType,
+  FunctionRuntime,
+  ViewerProtocolPolicy,
+} from 'aws-cdk-lib/aws-cloudfront'
+import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import {
   Architecture,
@@ -14,8 +26,10 @@ import {
   Runtime,
   Tracing,
 } from 'aws-cdk-lib/aws-lambda'
-import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
 import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
@@ -39,22 +53,8 @@ import {
   CallAwsService,
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
+import { Construct } from 'constructs'
 import * as path from 'path'
-import {
-  Distribution,
-  Function,
-  FunctionCode,
-  FunctionRuntime,
-  FunctionEventType,
-  ViewerProtocolPolicy,
-} from 'aws-cdk-lib/aws-cloudfront'
-import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
-import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
-import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
-import {
-  Certificate,
-  CertificateValidation,
-} from 'aws-cdk-lib/aws-certificatemanager'
 
 interface WeatherSiteStackProps extends StackProps {
   domainName: string

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import 'source-map-support/register'
-import { App } from 'aws-cdk-lib'
 import 'dotenv/config'
 
-import { WeatherSiteStack } from '../lib/weather-site-stack'
+import { App } from 'aws-cdk-lib'
+
 import { AlertStack } from '../lib/alert-stack'
+import { WeatherSiteStack } from '../lib/weather-site-stack'
 
 // Env var validation
 const {
@@ -18,7 +19,7 @@ const {
   OPEN_WEATHER_URL: openWeatherUrl = '',
   SCHEDULES: schedules = 'rate(10 minutes)',
   SECRETS_EXTENSION_ARN: secretsExtensionArn = '',
-  STACK_PREFIX: stackPrefix = '',
+  STACK_PREFIX: stackPrefix = 'myStack',
   WEATHER_LOCATION_LAT: weatherLocationLat = '',
   WEATHER_LOCATION_LON: weatherLocationLon = '',
   WEATHER_SECRET_ARN: weatherSecretArn = '',
