@@ -1,30 +1,38 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
+import tseslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-})
+import globals from 'globals'
 
 export default [
-  ...compat.extends('plugin:@typescript-eslint/recommended', 'prettier'),
   {
+    files: ['**/*.ts'],
+    ignores: [
+      '**/*.js',
+      '**/*.d.ts',
+      '**/node_modules/',
+      'cdk.out/**/*',
+      'dist/**/*',
+    ],
     plugins: {
       'simple-import-sort': simpleImportSort,
+      '@typescript-eslint': tseslint,
     },
     rules: {
+      ...js.configs.recommended.rules,
+      ...tseslint.configs.recommended.rules,
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+      'no-array-constructor': 'error',
+      'no-unused-vars': 'error',
+      'no-unused-expressions': 'error',
+      'no-console': 'warn',
     },
     languageOptions: {
+      globals: {
+        ...globals.jest,
+        ...globals.node,
+      },
       parser: tsParser,
     },
   },
