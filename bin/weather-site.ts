@@ -39,6 +39,7 @@ if (
     weatherSecretArn,
   ].every((el) => !!el)
 ) {
+  // eslint-disable-next-line no-console
   console.log(
     JSON.stringify(
       {
