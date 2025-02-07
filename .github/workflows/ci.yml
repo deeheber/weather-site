@@ -31,12 +31,12 @@ jobs:
 
       - name: build
         run: npm run build
+      
+      - name: run prettier format check
+        run: npm run format:ci
 
       - name: run eslint check
         run: npm run lint:ci
-
-      - name: run prettier format check
-        run: npm run format:ci
 
       - name: test
         run: npm test
