@@ -267,14 +267,6 @@ export class WeatherSiteStack extends Stack {
       'weather-site-api-key',
     )
     weatherApiKey.grantRead(checkCurrentWeatherFunction)
-    // checkCurrentWeatherFunction.addToRolePolicy(
-    //   new PolicyStatement({
-    //     actions: ['secretsmanager:GetSecretValue'],
-    //     resources: [
-    //       `arn:aws:secretsmanager:${region}:${account}:secret:weather-site-api-key-*`,
-    //     ],
-    //   }),
-    // )
 
     const updateSiteLogGroupId = `${this.id}-updateSiteLogGroup`
     const updateSiteLogGroup = new LogGroup(this, updateSiteLogGroupId, {
