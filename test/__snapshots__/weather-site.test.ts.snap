@@ -50,10 +50,10 @@ exports[`Verify resources are created 1`] = `
         "value": "nodejs20.x",
       },
       "cn-north-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "cn-northwest-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "eu-central-1": {
         "value": "nodejs20.x",
@@ -104,10 +104,10 @@ exports[`Verify resources are created 1`] = `
         "value": "nodejs20.x",
       },
       "us-gov-east-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "us-gov-west-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "us-iso-east-1": {
         "value": "nodejs18.x",
@@ -155,7 +155,7 @@ exports[`Verify resources are created 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c6358465bf49dfae556bb430bf9c81fa578c221b82c308e3707901b1dd654762.zip",
+          "S3Key": "4fe0aba5e672b596d0f72505a9eec502f98d46906bb30fae2511fbdc1df4956f.zip",
         },
         "Environment": {
           "Variables": {
@@ -631,11 +631,10 @@ exports[`Verify resources are created 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "ac9a787473bd577abe726714a933a385fd9ade614b95e915dd68eb9f1a6594f5.zip",
+          "S3Key": "cacc12c296f5a7ce6c07c4f7e37057902079364470cdf9fc0ee320f5e3aabc90.zip",
         },
         "Environment": {
           "Variables": {
-            "PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL": "warn",
             "WEATHER_LOCATION_LAT": "123",
             "WEATHER_LOCATION_LON": "456",
             "WEATHER_TYPE": "rain",
@@ -643,9 +642,6 @@ exports[`Verify resources are created 1`] = `
         },
         "FunctionName": "MyTestStack-checkCurrentWeather",
         "Handler": "index.handler",
-        "Layers": [
-          "secret-extension-arn",
-        ],
         "LoggingConfig": {
           "LogFormat": "JSON",
           "LogGroup": {
@@ -720,9 +716,31 @@ exports[`Verify resources are created 1`] = `
               "Resource": "*",
             },
             {
-              "Action": "secretsmanager:GetSecretValue",
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+              ],
               "Effect": "Allow",
-              "Resource": "weather-secret-arn",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":secretsmanager:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":secret:weather-site-api-key-??????",
+                  ],
+                ],
+              },
             },
           ],
           "Version": "2012-10-17",
@@ -797,7 +815,7 @@ exports[`Verify resources are created 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "d3a6ffb61845b6de3a902f7d70528e6b52293cac69a22956f7f950d97143dee0.zip",
+          "S3Key": "12157b27d30ab71eb24ae65825f672ba5cc2c09dbb1703cd7adfcff3aeaca136.zip",
         },
         "Description": "/opt/awscli/aws",
       },
@@ -1426,10 +1444,10 @@ exports[`Verify resources are created with custom domain 1`] = `
         "value": "nodejs20.x",
       },
       "cn-north-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "cn-northwest-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "eu-central-1": {
         "value": "nodejs20.x",
@@ -1480,10 +1498,10 @@ exports[`Verify resources are created with custom domain 1`] = `
         "value": "nodejs20.x",
       },
       "us-gov-east-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "us-gov-west-1": {
-        "value": "nodejs18.x",
+        "value": "nodejs20.x",
       },
       "us-iso-east-1": {
         "value": "nodejs18.x",
@@ -1535,7 +1553,7 @@ exports[`Verify resources are created with custom domain 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c6358465bf49dfae556bb430bf9c81fa578c221b82c308e3707901b1dd654762.zip",
+          "S3Key": "4fe0aba5e672b596d0f72505a9eec502f98d46906bb30fae2511fbdc1df4956f.zip",
         },
         "Environment": {
           "Variables": {
@@ -1954,11 +1972,10 @@ exports[`Verify resources are created with custom domain 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "ac9a787473bd577abe726714a933a385fd9ade614b95e915dd68eb9f1a6594f5.zip",
+          "S3Key": "cacc12c296f5a7ce6c07c4f7e37057902079364470cdf9fc0ee320f5e3aabc90.zip",
         },
         "Environment": {
           "Variables": {
-            "PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL": "warn",
             "WEATHER_LOCATION_LAT": "111",
             "WEATHER_LOCATION_LON": "222",
             "WEATHER_TYPE": "rain",
@@ -1966,9 +1983,6 @@ exports[`Verify resources are created with custom domain 1`] = `
         },
         "FunctionName": "CustomDomainStack-checkCurrentWeather",
         "Handler": "index.handler",
-        "Layers": [
-          "secret-extension-arn",
-        ],
         "LoggingConfig": {
           "LogFormat": "JSON",
           "LogGroup": {
@@ -2012,9 +2026,31 @@ exports[`Verify resources are created with custom domain 1`] = `
               "Resource": "*",
             },
             {
-              "Action": "secretsmanager:GetSecretValue",
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+              ],
               "Effect": "Allow",
-              "Resource": "weather-secret-arn",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":secretsmanager:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":secret:weather-site-api-key-??????",
+                  ],
+                ],
+              },
             },
           ],
           "Version": "2012-10-17",
@@ -2130,7 +2166,7 @@ exports[`Verify resources are created with custom domain 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "d3a6ffb61845b6de3a902f7d70528e6b52293cac69a22956f7f950d97143dee0.zip",
+          "S3Key": "12157b27d30ab71eb24ae65825f672ba5cc2c09dbb1703cd7adfcff3aeaca136.zip",
         },
         "Description": "/opt/awscli/aws",
       },

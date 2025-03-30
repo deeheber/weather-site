@@ -31,7 +31,7 @@ jobs:
 
       - name: build
         run: npm run build
-      
+
       - name: run prettier format check
         run: npm run format:ci
 
@@ -54,8 +54,6 @@ jobs:
         env:
           LOCATION_NAME: Pittsburgh, Pennsylvania
           OPEN_WEATHER_URL: https://openweathermap.org/city/5206379
-          SECRETS_EXTENSION_ARN: arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension-Arm64:11
-          WEATHER_SECRET_ARN: arn:aws:secretsmanager:us-east-1:640581278975:secret:weather-site-api-key-IN8ArC
           WEATHER_LOCATION_LAT: 40.4406
           WEATHER_LOCATION_LON: -79.9959
           WEATHER_TYPE: rain

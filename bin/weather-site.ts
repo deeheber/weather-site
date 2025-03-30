@@ -18,11 +18,9 @@ const {
   LOCATION_NAME: locationName = '',
   OPEN_WEATHER_URL: openWeatherUrl = '',
   SCHEDULES: schedules = 'rate(10 minutes)',
-  SECRETS_EXTENSION_ARN: secretsExtensionArn = '',
   STACK_PREFIX: stackPrefix = 'myStack',
   WEATHER_LOCATION_LAT: weatherLocationLat = '',
   WEATHER_LOCATION_LON: weatherLocationLon = '',
-  WEATHER_SECRET_ARN: weatherSecretArn = '',
   WEATHER_TYPE: weatherType = 'snow',
 } = process.env
 
@@ -30,14 +28,9 @@ const account = CDK_DEFAULT_ACCOUNT || AWS_DEFAULT_ACCOUNT_ID
 const region = CDK_DEFAULT_REGION || AWS_DEFAULT_REGION
 
 if (
-  ![
-    locationName,
-    openWeatherUrl,
-    secretsExtensionArn,
-    weatherLocationLat,
-    weatherLocationLon,
-    weatherSecretArn,
-  ].every((el) => !!el)
+  ![locationName, openWeatherUrl, weatherLocationLat, weatherLocationLon].every(
+    (el) => !!el,
+  )
 ) {
   // eslint-disable-next-line no-console
   console.log(
@@ -45,10 +38,8 @@ if (
       {
         locationName,
         openWeatherUrl,
-        secretsExtensionArn,
         weatherLocationLat,
         weatherLocationLon,
-        weatherSecretArn,
       },
       null,
       2,
@@ -79,10 +70,8 @@ const weatherSiteStack = new WeatherSiteStack(app, `${stackPrefix}-weather`, {
   locationName,
   openWeatherUrl,
   schedules: schedules.split(', '),
-  secretsExtensionArn,
   weatherLocationLat,
   weatherLocationLon,
-  weatherSecretArn,
   weatherType,
 })
 
