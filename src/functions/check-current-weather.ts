@@ -1,3 +1,8 @@
+import {
+  GetSecretValueCommand,
+  SecretsManagerClient,
+} from '@aws-sdk/client-secrets-manager'
+
 /*global fetch*/
 type FunctionInput = {
   SiteStatus: { Body: string }
@@ -8,6 +13,8 @@ type FunctionResponse = {
   body: string
 }
 
+const secretsManagerClient = new SecretsManagerClient({})
+
 export const handler = async (
   event: FunctionInput,
 ): Promise<FunctionResponse> => {
@@ -15,24 +22,11 @@ export const handler = async (
   console.log(event)
 
   try {
-    // Fetch secret (weather API key) from the secrets manager
-    const secretUrl =
-      'http://localhost:2773/secretsmanager/get?secretId=weather-site-api-key'
-    const secretResponse = await fetch(secretUrl, {
-      method: 'GET',
-      headers: {
-        'X-Aws-Parameters-Secrets-Token': process.env.AWS_SESSION_TOKEN!,
-      },
-    })
-
-    if (!secretResponse.ok) {
-      throw new Error(
-        `Error occurred while requesting secret. Status: ${secretResponse.status}`,
-      )
-    }
-    const { SecretString } = (await secretResponse.json()) as {
-      SecretString: string
-    }
+    const { SecretString } = await secretsManagerClient.send(
+      new GetSecretValueCommand({
+        SecretId: 'weather-site-api-key',
+      }),
+    )
 
     // Fetch weather data from the OpenWeather API
     const weatherType = process.env.WEATHER_TYPE!.toLowerCase()

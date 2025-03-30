@@ -53,8 +53,8 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
 ### Steps
 
 1. Clone the repo
-2. [Create a Secret](https://docs.aws.amazon.com/secretsmanager/latest/userguide/create_secret.html) in Secrets Manager titled `weather-site-api-key` with a plaintext secret value that is your OpenWeather API key. Save the secret ARN for step #2.
-3. Copy `.env.example` to `.env`. Fill in the missing `SECRETS_EXTENSION_ARN` using the commented URL in `.env.example` to grab the correct ARN for your region. Add your copied ARN from the secret you created in step #1 for `WEATHER_SECRET_ARN`. Uncomment and add an email address to `ALERT_EMAIL`, if you'd like to receive an email notification if the state machine has two failed executions within 1 hour (totally optional). Update any other values if you don't want the default values.
+2. [Create a Secret](https://docs.aws.amazon.com/secretsmanager/latest/userguide/create_secret.html) in Secrets Manager titled `weather-site-api-key` with a plaintext secret value that is your OpenWeather API key.
+3. Copy `.env.example` to `.env`. Uncomment and add an email address to `ALERT_EMAIL`, if you'd like to receive an email notification if the state machine has two failed executions within 1 hour (totally optional). Update any other values if you don't want the default values.
 4. Run `npm install`
 5. Run `export AWS_PROFILE=<your_aws_profile>`
    - Optional if you have a default profile or use `--profile` instead

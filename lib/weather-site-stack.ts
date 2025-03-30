@@ -18,10 +18,9 @@ import {
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront'
 import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
-import { PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
+import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import {
   Architecture,
-  LayerVersion,
   LoggingFormat,
   Runtime,
   Tracing,
@@ -33,6 +32,7 @@ import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
 import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import {
   Choice,
@@ -61,10 +61,8 @@ interface WeatherSiteStackProps extends StackProps {
   locationName: string
   openWeatherUrl: string
   schedules: string[]
-  secretsExtensionArn: string
   weatherLocationLat: string
   weatherLocationLon: string
-  weatherSecretArn: string
   weatherType: string
 }
 
@@ -260,23 +258,23 @@ export class WeatherSiteStack extends Stack {
           WEATHER_LOCATION_LAT: this.props.weatherLocationLat,
           WEATHER_LOCATION_LON: this.props.weatherLocationLon,
           WEATHER_TYPE: this.props.weatherType,
-          PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL: 'warn',
         },
-        layers: [
-          LayerVersion.fromLayerVersionArn(
-            this,
-            'SecretsManagerLayer',
-            this.props.secretsExtensionArn,
-          ),
-        ],
       },
     )
-    checkCurrentWeatherFunction.addToRolePolicy(
-      new PolicyStatement({
-        actions: ['secretsmanager:GetSecretValue'],
-        resources: [this.props.weatherSecretArn],
-      }),
+    const weatherApiKey = Secret.fromSecretNameV2(
+      this,
+      `${this.id}-weather-api-key`,
+      'weather-site-api-key',
     )
+    weatherApiKey.grantRead(checkCurrentWeatherFunction)
+    // checkCurrentWeatherFunction.addToRolePolicy(
+    //   new PolicyStatement({
+    //     actions: ['secretsmanager:GetSecretValue'],
+    //     resources: [
+    //       `arn:aws:secretsmanager:${region}:${account}:secret:weather-site-api-key-*`,
+    //     ],
+    //   }),
+    // )
 
     const updateSiteLogGroupId = `${this.id}-updateSiteLogGroup`
     const updateSiteLogGroup = new LogGroup(this, updateSiteLogGroupId, {

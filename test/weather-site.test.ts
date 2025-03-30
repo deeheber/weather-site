@@ -10,10 +10,8 @@ test('Verify resources are created', () => {
     locationName: 'Test Location',
     openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
     schedules: 'rate(10 minutes)'.split(', '),
-    secretsExtensionArn: 'secret-extension-arn',
     weatherLocationLat: '123',
     weatherLocationLon: '456',
-    weatherSecretArn: 'weather-secret-arn',
     weatherType: 'rain',
   })
   const template = Template.fromStack(stack)
@@ -58,10 +56,8 @@ test('Verify resources are created with custom domain', () => {
       'cron(0/30 * * 6-9 ? *), cron(0/10 * * 1,2,3,4,5,10,11,12 ? *)'.split(
         ', ',
       ),
-    secretsExtensionArn: 'secret-extension-arn',
     weatherLocationLat: '111',
     weatherLocationLon: '222',
-    weatherSecretArn: 'weather-secret-arn',
     weatherType: 'rain',
   })
   const template = Template.fromStack(stack)
