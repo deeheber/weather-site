@@ -27,7 +27,7 @@ export const handler = async (
 
     if (!secretResponse.ok) {
       throw new Error(
-        `Error occured while requesting secret. Status: ${secretResponse.status}`,
+        `Error occurred while requesting secret. Status: ${secretResponse.status}`,
       )
     }
     const { SecretString } = (await secretResponse.json()) as {
@@ -70,6 +70,6 @@ export const handler = async (
       throw new Error(`${err.message}`)
     }
 
-    throw new Error('Unknown error ocurred')
+    throw new Error('Unknown error occurred')
   }
 }
