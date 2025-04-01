@@ -936,53 +936,53 @@ exports[`Verify resources are created 1`] = `
           "Fn::Join": [
             "",
             [
-              "{"StartAt":"Get site status","States":{"Get site status":{"Next":"Check current weather","Type":"Task","ResultPath":"$.SiteStatus","ResultSelector":{"Body.$":"$.Parameter.Value"},"Resource":"arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":states:::aws-sdk:ssm:getParameter","Parameters":{"Name":"",
+              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Check current weather","Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "MyTestStackstatusparamD08CEFD4",
               },
-              ""}},"Check current weather":{"Next":"Is site up to date?","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Comment":"Get current weather using external API","ResultPath":"$.CurrentWeather","ResultSelector":{"Status.$":"$.Payload.body"},"Resource":"arn:",
+              ""},"Output":{},"Assign":{"SiteStatus":"{% $states.result.Parameter.Value %}"},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke","Parameters":{"FunctionName":"",
+              ":states:::aws-sdk:ssm:getParameter"},"Check current weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Comment":"Get current weather using external API","Arguments":{"FunctionName":"",
               {
                 "Fn::GetAtt": [
                   "MyTestStackcheckCurrentWeatherAEBF3941",
                   "Arn",
                 ],
               },
-              "","Payload.$":"$"}},"Is site up to date?":{"Type":"Choice","Choices":[{"Variable":"$.SiteStatus.Body","StringEqualsPath":"$.CurrentWeather.Status","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","ResultPath":"$.BucketPutResult","ResultSelector":{"Body.$":"$.Payload.body"},"Resource":"arn:",
+              "","Payload":"{% $states.input %}"},"Output":{},"Assign":{"CurrentWeather":"{% $states.result.Payload.body %}"},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke","Parameters":{"FunctionName":"",
+              ":states:::lambda:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
               {
                 "Fn::GetAtt": [
                   "MyTestStackupdateSiteFunction705B529B",
                   "Arn",
                 ],
               },
-              "","Payload.$":"$"}},"Finish update":{"Type":"Parallel","End":true,"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"End":true,"Type":"Task","ResultPath":"$.SsmPutResult","Resource":"arn:",
+              "","Payload":{"CurrentWeather":"{% $CurrentWeather %}"}},"Output":{},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:ssm:putParameter","Parameters":{"Name":"",
+              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","End":true,"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "MyTestStackstatusparamD08CEFD4",
               },
-              "","Value.$":"$.CurrentWeather.Status","Overwrite":true}}}},{"StartAt":"Invalidate CloudFront cache","States":{"Invalidate CloudFront cache":{"End":true,"Type":"Task","ResultPath":"$.CfInvalidateResult","Resource":"arn:",
+              "","Value":"{% $CurrentWeather %}","Overwrite":true},"Output":{},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:cloudfront:createInvalidation","Parameters":{"DistributionId":"",
+              ":states:::aws-sdk:ssm:putParameter"}}},{"StartAt":"Invalidate CloudFront cache","States":{"Invalidate CloudFront cache":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"DistributionId":"",
               {
                 "Ref": "MyTestStackdistribution38E1EA5D",
               },
-              "","InvalidationBatch":{"CallerReference.$":"$$.State.EnteredTime","Paths":{"Quantity":1,"Items":["/index.html"]}}}}}}]},"Site update failure":{"Type":"Fail"},"Site is up to date":{"Type":"Pass","End":true}}}",
+              "","InvalidationBatch":{"CallerReference":"{% $states.context.State.EnteredTime %}","Paths":{"Quantity":1,"Items":["/index.html"]}}},"Output":{},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site update failure":{"Type":"Fail"},"Site is up to date":{"Type":"Pass","End":true}}}",
             ],
           ],
         },
@@ -1221,7 +1221,7 @@ exports[`Verify resources are created 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "cdd07c35aff0b32719a8d4170c59692a261a9c6a070ef947f480b133c02b93ff.zip",
+          "S3Key": "71a288359e2225f79baaca64526d4a6eced3d6dfcb3bdc729685c0f79a22e53d.zip",
         },
         "Environment": {
           "Variables": {
@@ -2413,53 +2413,53 @@ exports[`Verify resources are created with custom domain 1`] = `
           "Fn::Join": [
             "",
             [
-              "{"StartAt":"Get site status","States":{"Get site status":{"Next":"Check current weather","Type":"Task","ResultPath":"$.SiteStatus","ResultSelector":{"Body.$":"$.Parameter.Value"},"Resource":"arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":states:::aws-sdk:ssm:getParameter","Parameters":{"Name":"",
+              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Check current weather","Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "CustomDomainStackstatusparamBB851C7A",
               },
-              ""}},"Check current weather":{"Next":"Is site up to date?","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Comment":"Get current weather using external API","ResultPath":"$.CurrentWeather","ResultSelector":{"Status.$":"$.Payload.body"},"Resource":"arn:",
+              ""},"Output":{},"Assign":{"SiteStatus":"{% $states.result.Parameter.Value %}"},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke","Parameters":{"FunctionName":"",
+              ":states:::aws-sdk:ssm:getParameter"},"Check current weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Comment":"Get current weather using external API","Arguments":{"FunctionName":"",
               {
                 "Fn::GetAtt": [
                   "CustomDomainStackcheckCurrentWeather0F9D526B",
                   "Arn",
                 ],
               },
-              "","Payload.$":"$"}},"Is site up to date?":{"Type":"Choice","Choices":[{"Variable":"$.SiteStatus.Body","StringEqualsPath":"$.CurrentWeather.Status","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","ResultPath":"$.BucketPutResult","ResultSelector":{"Body.$":"$.Payload.body"},"Resource":"arn:",
+              "","Payload":"{% $states.input %}"},"Output":{},"Assign":{"CurrentWeather":"{% $states.result.Payload.body %}"},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke","Parameters":{"FunctionName":"",
+              ":states:::lambda:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
               {
                 "Fn::GetAtt": [
                   "CustomDomainStackupdateSiteFunctionD4DB1009",
                   "Arn",
                 ],
               },
-              "","Payload.$":"$"}},"Finish update":{"Type":"Parallel","End":true,"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"End":true,"Type":"Task","ResultPath":"$.SsmPutResult","Resource":"arn:",
+              "","Payload":{"CurrentWeather":"{% $CurrentWeather %}"}},"Output":{},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:ssm:putParameter","Parameters":{"Name":"",
+              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","End":true,"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "CustomDomainStackstatusparamBB851C7A",
               },
-              "","Value.$":"$.CurrentWeather.Status","Overwrite":true}}}},{"StartAt":"Invalidate CloudFront cache","States":{"Invalidate CloudFront cache":{"End":true,"Type":"Task","ResultPath":"$.CfInvalidateResult","Resource":"arn:",
+              "","Value":"{% $CurrentWeather %}","Overwrite":true},"Output":{},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:cloudfront:createInvalidation","Parameters":{"DistributionId":"",
+              ":states:::aws-sdk:ssm:putParameter"}}},{"StartAt":"Invalidate CloudFront cache","States":{"Invalidate CloudFront cache":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"DistributionId":"",
               {
                 "Ref": "CustomDomainStackdistribution0931BA2E",
               },
-              "","InvalidationBatch":{"CallerReference.$":"$$.State.EnteredTime","Paths":{"Quantity":1,"Items":["/index.html"]}}}}}}]},"Site update failure":{"Type":"Fail"},"Site is up to date":{"Type":"Pass","End":true}}}",
+              "","InvalidationBatch":{"CallerReference":"{% $states.context.State.EnteredTime %}","Paths":{"Quantity":1,"Items":["/index.html"]}}},"Output":{},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site update failure":{"Type":"Fail"},"Site is up to date":{"Type":"Pass","End":true}}}",
             ],
           ],
         },
@@ -2698,7 +2698,7 @@ exports[`Verify resources are created with custom domain 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "cdd07c35aff0b32719a8d4170c59692a261a9c6a070ef947f480b133c02b93ff.zip",
+          "S3Key": "71a288359e2225f79baaca64526d4a6eced3d6dfcb3bdc729685c0f79a22e53d.zip",
         },
         "Environment": {
           "Variables": {

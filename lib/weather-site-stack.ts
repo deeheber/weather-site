@@ -374,7 +374,6 @@ export class WeatherSiteStack extends Stack {
           parameters: {
             DistributionId: this.distribution.distributionId,
             InvalidationBatch: {
-              // TODO update
               CallerReference: '{% $states.context.State.EnteredTime %}',
               Paths: {
                 Quantity: 1,
