@@ -2,8 +2,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { Buffer } from 'buffer'
 
 type FunctionInput = {
-  SiteStatus: { Body: string }
-  CurrentWeather: { Status: string }
+  CurrentWeather: string
 }
 
 type FunctionResponse = {
@@ -30,7 +29,7 @@ export const handler = async (
   }
 
   // Should be something like 'no snow' or 'snow', 'no rain' or 'rain' etc.
-  const status = event.CurrentWeather.Status
+  const status = event.CurrentWeather
   const answerText = status.startsWith('no') ? 'NO.' : 'YES!!!'
   const backgroundColor = status.startsWith('no') ? 'green' : 'red'
 

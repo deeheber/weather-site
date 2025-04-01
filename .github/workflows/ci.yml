@@ -8,6 +8,10 @@ on:
   # option to run manually in the GitHub UI
   workflow_dispatch:
 
+concurrency:
+  group: weather-site-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest

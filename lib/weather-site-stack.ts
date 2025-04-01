@@ -41,10 +41,10 @@ import {
   Errors,
   Fail,
   JitterType,
-  JsonPath,
   LogLevel,
   Parallel,
   Pass,
+  QueryLanguage,
   StateMachine,
   StateMachineType,
   TaskInput,
@@ -297,27 +297,30 @@ export class WeatherSiteStack extends Stack {
 
     // Tasks for Step Function Definition
     const getSiteStatus = new CallAwsService(this, 'Get site status', {
+      queryLanguage: QueryLanguage.JSONATA,
       service: 'ssm',
       action: 'getParameter',
       parameters: {
         Name: siteStatusParam.parameterName,
       },
       iamResources: [siteStatusParam.parameterArn],
-      resultPath: '$.SiteStatus',
-      resultSelector: {
-        'Body.$': '$.Parameter.Value',
+      assign: {
+        SiteStatus: '{% $states.result.Parameter.Value %}',
       },
+      outputs: {},
     })
 
     const checkCurrentWeather = new LambdaInvoke(
       this,
       'Check current weather',
       {
+        queryLanguage: QueryLanguage.JSONATA,
         lambdaFunction: checkCurrentWeatherFunction,
-        payload: TaskInput.fromJsonPathAt('$'),
         comment: 'Get current weather using external API',
-        resultPath: '$.CurrentWeather',
-        resultSelector: { 'Status.$': '$.Payload.body' },
+        assign: {
+          CurrentWeather: '{% $states.result.Payload.body %}',
+        },
+        outputs: {},
       },
     )
     checkCurrentWeather.addRetry({
@@ -331,11 +334,13 @@ export class WeatherSiteStack extends Stack {
     const siteIsUpToDate = new Pass(this, 'Site is up to date')
 
     const updateSite = new LambdaInvoke(this, 'Update site', {
+      queryLanguage: QueryLanguage.JSONATA,
       lambdaFunction: updateSiteFunction,
-      payload: TaskInput.fromJsonPathAt('$'),
+      payload: TaskInput.fromObject({
+        CurrentWeather: '{% $CurrentWeather %}',
+      }),
       comment: 'Update site with new weather data ',
-      resultPath: '$.BucketPutResult',
-      resultSelector: { 'Body.$': '$.Payload.body' },
+      outputs: {},
     })
     updateSite.addRetry({
       errors: [Errors.ALL],
@@ -349,25 +354,27 @@ export class WeatherSiteStack extends Stack {
     const finishUpdate = new Parallel(this, 'Finish update')
       .branch(
         new CallAwsService(this, 'Update site status parameter', {
+          queryLanguage: QueryLanguage.JSONATA,
           service: 'ssm',
           action: 'putParameter',
           parameters: {
             Name: siteStatusParam.parameterName,
-            Value: JsonPath.stringAt('$.CurrentWeather.Status'),
+            Value: '{% $CurrentWeather %}',
             Overwrite: true,
           },
           iamResources: [siteStatusParam.parameterArn],
-          resultPath: '$.SsmPutResult',
+          outputs: {},
         }),
       )
       .branch(
         new CallAwsService(this, 'Invalidate CloudFront cache', {
+          queryLanguage: QueryLanguage.JSONATA,
           service: 'cloudfront',
           action: 'createInvalidation',
           parameters: {
             DistributionId: this.distribution.distributionId,
             InvalidationBatch: {
-              CallerReference: JsonPath.stringAt('$$.State.EnteredTime'),
+              CallerReference: '{% $states.context.State.EnteredTime %}',
               Paths: {
                 Quantity: 1,
                 Items: ['/index.html'],
@@ -377,24 +384,21 @@ export class WeatherSiteStack extends Stack {
           iamResources: [
             `arn:aws:cloudfront::${Stack.of(this).account}:distribution/${this.distribution.distributionId}`,
           ],
-          resultPath: '$.CfInvalidateResult',
+          outputs: {},
         }),
       )
     updateSite.next(finishUpdate)
 
-    const definition = getSiteStatus
-      .next(checkCurrentWeather)
-      .next(
-        new Choice(this, 'Is site up to date?')
-          .when(
-            Condition.stringEqualsJsonPath(
-              '$.SiteStatus.Body',
-              '$.CurrentWeather.Status',
-            ),
-            siteIsUpToDate,
-          )
-          .otherwise(updateSite),
-      )
+    const definition = getSiteStatus.next(checkCurrentWeather).next(
+      new Choice(this, 'Is site up to date?', {
+        queryLanguage: QueryLanguage.JSONATA,
+      })
+        .when(
+          Condition.jsonata('{% $CurrentWeather = $SiteStatus %}'),
+          siteIsUpToDate,
+        )
+        .otherwise(updateSite),
+    )
     // End of Tasks for Step Function Definition
     const stateMachineId = `${this.id}-state-machine`
     this.stepFunction = new StateMachine(this, stateMachineId, {
@@ -441,6 +445,7 @@ export class WeatherSiteStack extends Stack {
         scheduleExpression: this.props.schedules[i],
         scheduleExpressionTimezone: 'America/Los_Angeles',
         state: 'ENABLED',
+        // state: 'DISABLED',
         target: {
           arn: this.stepFunction.stateMachineArn,
           roleArn: schedulerToStepFunctionRole.roleArn,
