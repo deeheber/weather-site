@@ -4,9 +4,6 @@ import {
 } from '@aws-sdk/client-secrets-manager'
 
 /*global fetch*/
-type FunctionInput = {
-  SiteStatus: { Body: string }
-}
 
 type FunctionResponse = {
   statusCode: number
@@ -15,9 +12,7 @@ type FunctionResponse = {
 
 const secretsManagerClient = new SecretsManagerClient({})
 
-export const handler = async (
-  event: FunctionInput,
-): Promise<FunctionResponse> => {
+export const handler = async (event: unknown): Promise<FunctionResponse> => {
   console.log('EVENT')
   console.log(event)
 
