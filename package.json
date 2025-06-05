@@ -15,7 +15,7 @@
     "lint": "eslint --fix",
     "lint:ci": "eslint --quiet",
     "synth": "npm run build && npm run cdk synth",
-    "synth:quiet": "npm run cdk synth -- -q",
+    "synth:quiet": "npm run build && npm run cdk synth -- -q",
     "test": "npm run build && jest",
     "watch": "tsc -w"
   },
