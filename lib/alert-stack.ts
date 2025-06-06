@@ -21,9 +21,10 @@ export class AlertStack extends Stack {
     const { alertEmail, stepFunction } = props
 
     // Create SNS Topic
-    const errorTopic = new Topic(this, `${this.id}-error-topic`, {
-      topicName: 'WeatherSiteTopic',
-      displayName: 'Weather Site Topic',
+    const topicName = `${this.id}-error-topic`
+    const errorTopic = new Topic(this, topicName, {
+      topicName,
+      displayName: `Weather Site Topic for ${this.id}`,
     })
     errorTopic.addSubscription(
       new EmailSubscription(alertEmail, {

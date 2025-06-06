@@ -4,6 +4,7 @@ import {
   RemovalPolicy,
   Stack,
   StackProps,
+  TimeZone,
 } from 'aws-cdk-lib'
 import {
   Certificate,
@@ -18,7 +19,6 @@ import {
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront'
 import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
-import { Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
 import {
   Architecture,
   LoggingFormat,
@@ -31,7 +31,8 @@ import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
-import { CfnSchedule } from 'aws-cdk-lib/aws-scheduler'
+import { Schedule, ScheduleExpression } from 'aws-cdk-lib/aws-scheduler'
+import { StepFunctionsStartExecution } from 'aws-cdk-lib/aws-scheduler-targets'
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import {
@@ -420,42 +421,22 @@ export class WeatherSiteStack extends Stack {
   }
 
   private addScheduler() {
-    // Permissions for EventBridge Scheduler to invoke the Step Function
-    const schedulerToStepFunctionRole = new Role(
-      this,
-      `${this.id}-schedulerRole`,
-      {
-        assumedBy: new ServicePrincipal('scheduler.amazonaws.com'),
-        description: `EventBridge Scheduler to invoke Step Function for ${this.id}`,
-      },
-    )
-    this.stepFunction.grantStartExecution(schedulerToStepFunctionRole)
+    const target = new StepFunctionsStartExecution(this.stepFunction, {
+      maxEventAge: Duration.seconds(90),
+      retryAttempts: 2,
+    })
 
     // EventBridge Schedules to invoke the Step Function
     for (let i = 0; i < this.props.schedules.length; i++) {
-      // TODO: Update to L2 construct when out of alpha
-      // https://github.com/deeheber/weather-site/issues/3
       const scheduleId = `${this.id}-schedule-${i}`
-      new CfnSchedule(this, scheduleId, {
-        name: scheduleId,
+      new Schedule(this, scheduleId, {
+        scheduleName: scheduleId,
+        schedule: ScheduleExpression.expression(
+          this.props.schedules[i],
+          TimeZone.AMERICA_LOS_ANGELES,
+        ),
+        target,
         description: `Invoke Step Function for ${this.id}`,
-        flexibleTimeWindow: {
-          mode: 'OFF',
-        },
-        scheduleExpression: this.props.schedules[i],
-        scheduleExpressionTimezone: 'America/Los_Angeles',
-        state: 'ENABLED',
-        // state: 'DISABLED',
-        target: {
-          arn: this.stepFunction.stateMachineArn,
-          roleArn: schedulerToStepFunctionRole.roleArn,
-          // To aid in a future feature
-          // input: JSON.stringify({ weatherType: this.props.weatherType }),
-          retryPolicy: {
-            maximumEventAgeInSeconds: 90,
-            maximumRetryAttempts: 2,
-          },
-        },
       })
     }
   }
