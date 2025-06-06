@@ -3,8 +3,6 @@ import {
   SecretsManagerClient,
 } from '@aws-sdk/client-secrets-manager'
 
-/*global fetch*/
-
 type FunctionResponse = {
   statusCode: number
   body: string
