@@ -40,6 +40,8 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
 
 ## Step Function State machine
 
+### TODO: Update screenshot
+
 ![stepfunctions_graph](https://github.com/deeheber/weather-site/assets/12616554/4ee8dbec-c5fc-41a0-bfd6-4a758336bc36)
 
 ## Instructions to run
