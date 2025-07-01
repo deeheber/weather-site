@@ -11,6 +11,7 @@
     "deploy": "npm run clean && npm run build && npm run cdk deploy -- --all",
     "deploy:ci": "npm run clean && npm run build && npm run cdk deploy -- --all --require-approval never",
     "destroy": "npm run cdk destroy -- --all",
+    "diff": "npm run cdk diff -- --all",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:ci": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "lint": "eslint --fix",
