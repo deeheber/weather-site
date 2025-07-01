@@ -19,6 +19,7 @@ test('Verify resources are created', () => {
   template.resourceCountIs('AWS::S3::Bucket', 1)
   template.resourceCountIs('AWS::SSM::Parameter', 1)
   template.resourceCountIs('AWS::CloudFront::Distribution', 1)
+  template.resourceCountIs('AWS::Events::Connection', 1)
 
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'MyTestStack-updateSiteFunction',
@@ -33,6 +34,7 @@ test('Verify resources are created', () => {
       Level: 'ALL',
     },
   })
+
   template.hasResourceProperties('AWS::Scheduler::Schedule', {
     Name: 'MyTestStack-schedule-0',
     ScheduleExpression: 'rate(10 minutes)',
@@ -69,6 +71,7 @@ test('Verify resources are created with custom domain', () => {
   template.resourceCountIs('AWS::CloudFront::Distribution', 2)
   template.resourceCountIs('AWS::Route53::RecordSet', 2)
   template.resourceCountIs('AWS::CloudFront::Function', 1)
+  template.resourceCountIs('AWS::Events::Connection', 1)
 
   template.hasResourceProperties('AWS::CertificateManager::Certificate', {
     DomainName: 'mydomain.com',
