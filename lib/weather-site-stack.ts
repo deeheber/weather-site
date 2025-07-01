@@ -296,8 +296,6 @@ export class WeatherSiteStack extends Stack {
       outputs: {},
     })
 
-    // TODO: remove src/function/check-current-weather.ts
-    // And other deps like @aws-sdk/client-secrets-manager
     const checkCurrentWeather = new HttpInvoke(this, 'Get Weather', {
       queryLanguage: QueryLanguage.JSONATA,
       apiRoot: `https://api.openweathermap.org`,
