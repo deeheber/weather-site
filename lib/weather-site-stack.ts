@@ -388,7 +388,7 @@ export class WeatherSiteStack extends Stack {
         }),
       )
     finishUpdate.addCatch(siteUpdateFailure)
-    updateSite.next(finishUpdate).next(siteIsUpToDate)
+    // End of Tasks for Step Function Definition
 
     const definition = getSiteStatus.next(checkCurrentWeather).next(
       new Choice(this, 'Is site up to date?', {
@@ -398,9 +398,9 @@ export class WeatherSiteStack extends Stack {
           Condition.jsonata('{% $CurrentWeather = $SiteStatus %}'),
           siteIsUpToDate,
         )
-        .otherwise(updateSite),
+        .otherwise(updateSite.next(finishUpdate).next(siteIsUpToDate)),
     )
-    // End of Tasks for Step Function Definition
+
     const stateMachineId = `${this.id}-state-machine`
     this.stepFunction = new StateMachine(this, stateMachineId, {
       stateMachineType: StateMachineType.EXPRESS,
