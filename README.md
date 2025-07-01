@@ -42,7 +42,6 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/).
 
 <img width="1081" alt="Screenshot 2025-07-01 at 09 24 30" src="https://github.com/user-attachments/assets/aa445da5-5fd0-4abe-8b76-c7db24f2feb9" />
 
-
 ## Instructions to run
 
 ### Prerequisites
