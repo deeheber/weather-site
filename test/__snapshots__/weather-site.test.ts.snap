@@ -624,141 +624,28 @@ exports[`Verify resources are created 1`] = `
       },
       "Type": "AWS::S3::BucketPolicy",
     },
-    "MyTestStackcheckCurrentWeatherAEBF3941": {
-      "DependsOn": [
-        "MyTestStackcheckCurrentWeatherServiceRoleDefaultPolicy5076807B",
-        "MyTestStackcheckCurrentWeatherServiceRole58537CAF",
-      ],
+    "MyTestStackconnectionConnectionD672CD19": {
       "Properties": {
-        "Architectures": [
-          "arm64",
-        ],
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+        "AuthParameters": {
+          "ApiKeyAuthParameters": {
+            "ApiKeyName": "weather-site-authorization",
+            "ApiKeyValue": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
           },
-          "S3Key": "cacc12c296f5a7ce6c07c4f7e37057902079364470cdf9fc0ee320f5e3aabc90.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "WEATHER_LOCATION_LAT": "123",
-            "WEATHER_LOCATION_LON": "456",
-            "WEATHER_TYPE": "rain",
-          },
-        },
-        "FunctionName": "MyTestStack-checkCurrentWeather",
-        "Handler": "index.handler",
-        "LoggingConfig": {
-          "LogFormat": "JSON",
-          "LogGroup": {
-            "Ref": "MyTestStackcheckCurrentWeatherLogGroup63BE5A3C",
-          },
-        },
-        "MemorySize": 3008,
-        "Role": {
-          "Fn::GetAtt": [
-            "MyTestStackcheckCurrentWeatherServiceRole58537CAF",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 30,
-        "TracingConfig": {
-          "Mode": "Active",
-        },
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "MyTestStackcheckCurrentWeatherLogGroup63BE5A3C": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "LogGroupName": "MyTestStack-checkCurrentWeatherLogGroup",
-        "RetentionInDays": 7,
-      },
-      "Type": "AWS::Logs::LogGroup",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "MyTestStackcheckCurrentWeatherServiceRole58537CAF": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
+          "InvocationHttpParameters": {
+            "QueryStringParameters": [
+              {
+                "IsValueSecret": true,
+                "Key": "appid",
+                "Value": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
               },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
             ],
           },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "MyTestStackcheckCurrentWeatherServiceRoleDefaultPolicy5076807B": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "secretsmanager:GetSecretValue",
-                "secretsmanager:DescribeSecret",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":secretsmanager:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":secret:weather-site-api-key-??????",
-                  ],
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
         },
-        "PolicyName": "MyTestStackcheckCurrentWeatherServiceRoleDefaultPolicy5076807B",
-        "Roles": [
-          {
-            "Ref": "MyTestStackcheckCurrentWeatherServiceRole58537CAF",
-          },
-        ],
+        "AuthorizationType": "API_KEY",
+        "Description": "Connection to OpenWeatherMap API for MyTestStack",
+        "Name": "MyTestStack",
       },
-      "Type": "AWS::IAM::Policy",
+      "Type": "AWS::Events::Connection",
     },
     "MyTestStackdistribution38E1EA5D": {
       "Properties": {
@@ -821,7 +708,7 @@ exports[`Verify resources are created 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "b8ab94266984268614c3fb2824a1c3a55395746c48b28c003b08bc1d08688f3e.zip",
+          "S3Key": "1b2c92f2cd21c170884393633bd4c732676df6290562199b6e3ca5e2a1be7d18.zip",
         },
         "Description": "/opt/awscli/aws",
       },
@@ -867,6 +754,7 @@ exports[`Verify resources are created 1`] = `
           "Arn": {
             "Ref": "MyTestStackstatemachineF5D307B4",
           },
+          "Input": "{"WEATHER_TYPE":"snow","WEATHER_LOCATION_LAT":"123","WEATHER_LOCATION_LON":"456"}",
           "RetryPolicy": {
             "MaximumEventAgeInSeconds": 90,
             "MaximumRetryAttempts": 2,
@@ -901,7 +789,7 @@ exports[`Verify resources are created 1`] = `
           "Fn::Join": [
             "",
             [
-              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Check current weather","Type":"Task","Arguments":{"Name":"",
+              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Get Weather","Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "MyTestStackstatusparamD08CEFD4",
               },
@@ -909,18 +797,18 @@ exports[`Verify resources are created 1`] = `
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:ssm:getParameter"},"Check current weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Comment":"Get current weather using external API","Arguments":{"FunctionName":"",
+              ":states:::aws-sdk:ssm:getParameter"},"Get Weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Arguments":{"ApiEndpoint":"https://api.openweathermap.org/data/3.0/onecall","Authentication":{"ConnectionArn":"",
               {
                 "Fn::GetAtt": [
-                  "MyTestStackcheckCurrentWeatherAEBF3941",
+                  "MyTestStackconnectionConnectionD672CD19",
                   "Arn",
                 ],
               },
-              "","Payload":"{% $states.input %}"},"Output":{},"Assign":{"CurrentWeather":"{% $states.result.Payload.body %}"},"Resource":"arn:",
+              ""},"Method":"GET","Headers":{"Content-Type":"application/json"},"QueryParameters":{"units":"imperial","exclude":"minutely,hourly,daily,alerts","lat":"{% $states.context.Execution.Input.WEATHER_LOCATION_LAT %}","lon":"{% $states.context.Execution.Input.WEATHER_LOCATION_LON %}"}},"Output":{},"Assign":{"CurrentWeather":"{% $contains($lowercase($states.result.ResponseBody.current.weather[0].main), $states.context.Execution.Input.WEATHER_TYPE) ?  $states.context.Execution.Input.WEATHER_TYPE : \\"no \\" & $states.context.Execution.Input.WEATHER_TYPE %}"},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
+              ":states:::http:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
               {
                 "Fn::GetAtt": [
                   "MyTestStackupdateSiteFunction705B529B",
@@ -931,7 +819,7 @@ exports[`Verify resources are created 1`] = `
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","End":true,"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
+              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","Next":"Site is up to date","Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "MyTestStackstatusparamD08CEFD4",
               },
@@ -947,7 +835,7 @@ exports[`Verify resources are created 1`] = `
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site update failure":{"Type":"Fail"},"Site is up to date":{"Type":"Pass","End":true}}}",
+              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site is up to date":{"Type":"Pass","QueryLanguage":"JSONata","Comment":"The final state","Output":{"SiteStatus":"{% $CurrentWeather %}"},"End":true},"Site update failure":{"Type":"Fail"}}}",
             ],
           ],
         },
@@ -1031,30 +919,37 @@ exports[`Verify resources are created 1`] = `
               },
             },
             {
-              "Action": "lambda:InvokeFunction",
+              "Action": "events:RetrieveConnectionCredentials",
               "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "MyTestStackcheckCurrentWeatherAEBF3941",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "MyTestStackcheckCurrentWeatherAEBF3941",
-                          "Arn",
-                        ],
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "MyTestStackconnectionConnectionD672CD19",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
               ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "MyTestStackconnectionConnectionD672CD19",
+                  "SecretArn",
+                ],
+              },
+            },
+            {
+              "Action": "states:InvokeHTTPEndpoint",
+              "Condition": {
+                "StringLike": {
+                  "states:HTTPEndpoint": "https://api.openweathermap.org*",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "*",
             },
             {
               "Action": "lambda:InvokeFunction",
@@ -1195,8 +1090,7 @@ exports[`Verify resources are created 1`] = `
             },
             "LOCATION_NAME": "Test Location",
             "OPEN_WEATHER_URL": "https://api.openweathermap.org/data/2.5/onecall",
-            "PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL": "warn",
-            "WEATHER_TYPE": "rain",
+            "WEATHER_TYPE": "snow",
           },
         },
         "FunctionName": "MyTestStack-updateSiteFunction",
@@ -1997,141 +1891,28 @@ exports[`Verify resources are created with custom domain 1`] = `
       },
       "Type": "AWS::CertificateManager::Certificate",
     },
-    "CustomDomainStackcheckCurrentWeather0F9D526B": {
-      "DependsOn": [
-        "CustomDomainStackcheckCurrentWeatherServiceRoleDefaultPolicyEF9D42EB",
-        "CustomDomainStackcheckCurrentWeatherServiceRoleF08EA946",
-      ],
+    "CustomDomainStackconnectionConnection90A16DD9": {
       "Properties": {
-        "Architectures": [
-          "arm64",
-        ],
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+        "AuthParameters": {
+          "ApiKeyAuthParameters": {
+            "ApiKeyName": "weather-site-authorization",
+            "ApiKeyValue": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
           },
-          "S3Key": "cacc12c296f5a7ce6c07c4f7e37057902079364470cdf9fc0ee320f5e3aabc90.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "WEATHER_LOCATION_LAT": "111",
-            "WEATHER_LOCATION_LON": "222",
-            "WEATHER_TYPE": "rain",
-          },
-        },
-        "FunctionName": "CustomDomainStack-checkCurrentWeather",
-        "Handler": "index.handler",
-        "LoggingConfig": {
-          "LogFormat": "JSON",
-          "LogGroup": {
-            "Ref": "CustomDomainStackcheckCurrentWeatherLogGroup03BC782E",
-          },
-        },
-        "MemorySize": 3008,
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomDomainStackcheckCurrentWeatherServiceRoleF08EA946",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 30,
-        "TracingConfig": {
-          "Mode": "Active",
-        },
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "CustomDomainStackcheckCurrentWeatherLogGroup03BC782E": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "LogGroupName": "CustomDomainStack-checkCurrentWeatherLogGroup",
-        "RetentionInDays": 7,
-      },
-      "Type": "AWS::Logs::LogGroup",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomDomainStackcheckCurrentWeatherServiceRoleDefaultPolicyEF9D42EB": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "secretsmanager:GetSecretValue",
-                "secretsmanager:DescribeSecret",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":secretsmanager:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":secret:weather-site-api-key-??????",
-                  ],
-                ],
+          "InvocationHttpParameters": {
+            "QueryStringParameters": [
+              {
+                "IsValueSecret": true,
+                "Key": "appid",
+                "Value": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
               },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "CustomDomainStackcheckCurrentWeatherServiceRoleDefaultPolicyEF9D42EB",
-        "Roles": [
-          {
-            "Ref": "CustomDomainStackcheckCurrentWeatherServiceRoleF08EA946",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "CustomDomainStackcheckCurrentWeatherServiceRoleF08EA946": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
             ],
           },
-        ],
+        },
+        "AuthorizationType": "API_KEY",
+        "Description": "Connection to OpenWeatherMap API for CustomDomainStack",
+        "Name": "CustomDomainStack",
       },
-      "Type": "AWS::IAM::Role",
+      "Type": "AWS::Events::Connection",
     },
     "CustomDomainStackdistribution0931BA2E": {
       "Properties": {
@@ -2204,7 +1985,7 @@ exports[`Verify resources are created with custom domain 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "b8ab94266984268614c3fb2824a1c3a55395746c48b28c003b08bc1d08688f3e.zip",
+          "S3Key": "1b2c92f2cd21c170884393633bd4c732676df6290562199b6e3ca5e2a1be7d18.zip",
         },
         "Description": "/opt/awscli/aws",
       },
@@ -2348,6 +2129,7 @@ exports[`Verify resources are created with custom domain 1`] = `
           "Arn": {
             "Ref": "CustomDomainStackstatemachine0BC70ECA",
           },
+          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
           "RetryPolicy": {
             "MaximumEventAgeInSeconds": 90,
             "MaximumRetryAttempts": 2,
@@ -2376,6 +2158,7 @@ exports[`Verify resources are created with custom domain 1`] = `
           "Arn": {
             "Ref": "CustomDomainStackstatemachine0BC70ECA",
           },
+          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
           "RetryPolicy": {
             "MaximumEventAgeInSeconds": 90,
             "MaximumRetryAttempts": 2,
@@ -2410,7 +2193,7 @@ exports[`Verify resources are created with custom domain 1`] = `
           "Fn::Join": [
             "",
             [
-              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Check current weather","Type":"Task","Arguments":{"Name":"",
+              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Get Weather","Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "CustomDomainStackstatusparamBB851C7A",
               },
@@ -2418,18 +2201,18 @@ exports[`Verify resources are created with custom domain 1`] = `
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:ssm:getParameter"},"Check current weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Comment":"Get current weather using external API","Arguments":{"FunctionName":"",
+              ":states:::aws-sdk:ssm:getParameter"},"Get Weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Arguments":{"ApiEndpoint":"https://api.openweathermap.org/data/3.0/onecall","Authentication":{"ConnectionArn":"",
               {
                 "Fn::GetAtt": [
-                  "CustomDomainStackcheckCurrentWeather0F9D526B",
+                  "CustomDomainStackconnectionConnection90A16DD9",
                   "Arn",
                 ],
               },
-              "","Payload":"{% $states.input %}"},"Output":{},"Assign":{"CurrentWeather":"{% $states.result.Payload.body %}"},"Resource":"arn:",
+              ""},"Method":"GET","Headers":{"Content-Type":"application/json"},"QueryParameters":{"units":"imperial","exclude":"minutely,hourly,daily,alerts","lat":"{% $states.context.Execution.Input.WEATHER_LOCATION_LAT %}","lon":"{% $states.context.Execution.Input.WEATHER_LOCATION_LON %}"}},"Output":{},"Assign":{"CurrentWeather":"{% $contains($lowercase($states.result.ResponseBody.current.weather[0].main), $states.context.Execution.Input.WEATHER_TYPE) ?  $states.context.Execution.Input.WEATHER_TYPE : \\"no \\" & $states.context.Execution.Input.WEATHER_TYPE %}"},"Resource":"arn:",
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
+              ":states:::http:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
               {
                 "Fn::GetAtt": [
                   "CustomDomainStackupdateSiteFunctionD4DB1009",
@@ -2440,7 +2223,7 @@ exports[`Verify resources are created with custom domain 1`] = `
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","End":true,"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
+              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","Next":"Site is up to date","Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
               {
                 "Ref": "CustomDomainStackstatusparamBB851C7A",
               },
@@ -2456,7 +2239,7 @@ exports[`Verify resources are created with custom domain 1`] = `
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site update failure":{"Type":"Fail"},"Site is up to date":{"Type":"Pass","End":true}}}",
+              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site is up to date":{"Type":"Pass","QueryLanguage":"JSONata","Comment":"The final state","Output":{"SiteStatus":"{% $CurrentWeather %}"},"End":true},"Site update failure":{"Type":"Fail"}}}",
             ],
           ],
         },
@@ -2540,30 +2323,37 @@ exports[`Verify resources are created with custom domain 1`] = `
               },
             },
             {
-              "Action": "lambda:InvokeFunction",
+              "Action": "events:RetrieveConnectionCredentials",
               "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "CustomDomainStackcheckCurrentWeather0F9D526B",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "CustomDomainStackcheckCurrentWeather0F9D526B",
-                          "Arn",
-                        ],
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "CustomDomainStackconnectionConnection90A16DD9",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
               ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "CustomDomainStackconnectionConnection90A16DD9",
+                  "SecretArn",
+                ],
+              },
+            },
+            {
+              "Action": "states:InvokeHTTPEndpoint",
+              "Condition": {
+                "StringLike": {
+                  "states:HTTPEndpoint": "https://api.openweathermap.org*",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "*",
             },
             {
               "Action": "lambda:InvokeFunction",
@@ -2704,7 +2494,6 @@ exports[`Verify resources are created with custom domain 1`] = `
             },
             "LOCATION_NAME": "New York, NY USA",
             "OPEN_WEATHER_URL": "https://api.openweathermap.org/data/2.5/onecall",
-            "PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL": "warn",
             "WEATHER_TYPE": "rain",
           },
         },

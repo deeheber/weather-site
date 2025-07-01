@@ -56,8 +56,11 @@ jobs:
       - name: cdk synth
         run: npm run synth:quiet
         env:
+          ALERT_EMAIL: test@test.com
           LOCATION_NAME: Pittsburgh, Pennsylvania
           OPEN_WEATHER_URL: https://openweathermap.org/city/5206379
+          SCHEDULES: 'rate(60 minutes)'
+          STACK_PREFIX: pitt-rain
           WEATHER_LOCATION_LAT: 40.4406
           WEATHER_LOCATION_LON: -79.9959
           WEATHER_TYPE: rain

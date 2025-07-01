@@ -2,6 +2,7 @@ import {
   CfnOutput,
   Duration,
   RemovalPolicy,
+  SecretValue,
   Stack,
   StackProps,
   TimeZone,
@@ -20,6 +21,11 @@ import {
 } from 'aws-cdk-lib/aws-cloudfront'
 import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import {
+  Authorization,
+  Connection,
+  HttpParameter,
+} from 'aws-cdk-lib/aws-events'
+import {
   Architecture,
   LoggingFormat,
   Runtime,
@@ -31,9 +37,12 @@ import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
-import { Schedule, ScheduleExpression } from 'aws-cdk-lib/aws-scheduler'
+import {
+  Schedule,
+  ScheduleExpression,
+  ScheduleTargetInput,
+} from 'aws-cdk-lib/aws-scheduler'
 import { StepFunctionsStartExecution } from 'aws-cdk-lib/aws-scheduler-targets'
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import {
   Choice,
@@ -52,6 +61,7 @@ import {
 } from 'aws-cdk-lib/aws-stepfunctions'
 import {
   CallAwsService,
+  HttpInvoke,
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
 import { Construct } from 'constructs'
@@ -231,43 +241,19 @@ export class WeatherSiteStack extends Stack {
       description: `Current status of the weather site for ${this.stackName}`,
     })
 
-    const checkWeatherLogGroupId = `${this.id}-checkCurrentWeatherLogGroup`
-    const checkCurrentWeatherLogGroup = new LogGroup(
-      this,
-      checkWeatherLogGroupId,
-      {
-        logGroupName: checkWeatherLogGroupId,
-        retention: RetentionDays.ONE_WEEK,
-        removalPolicy: RemovalPolicy.DESTROY,
+    const connection = new Connection(this, `${this.id}-connection`, {
+      description: `Connection to OpenWeatherMap API for ${this.id}`,
+      connectionName: `${this.id}`,
+      authorization: Authorization.apiKey(
+        'weather-site-authorization',
+        SecretValue.secretsManager('weather-site-api-key'),
+      ),
+      queryStringParameters: {
+        appid: HttpParameter.fromSecret(
+          SecretValue.secretsManager('weather-site-api-key'),
+        ),
       },
-    )
-    const checkCurrentWeatherFuncId = `${this.id}-checkCurrentWeather`
-    const checkCurrentWeatherFunction = new NodejsFunction(
-      this,
-      checkCurrentWeatherFuncId,
-      {
-        functionName: checkCurrentWeatherFuncId,
-        runtime: Runtime.NODEJS_22_X,
-        entry: 'dist/src/functions/check-current-weather.js',
-        loggingFormat: LoggingFormat.JSON,
-        logGroup: checkCurrentWeatherLogGroup,
-        tracing: Tracing.ACTIVE,
-        architecture: Architecture.ARM_64,
-        timeout: Duration.seconds(30),
-        memorySize: 3008,
-        environment: {
-          WEATHER_LOCATION_LAT: this.props.weatherLocationLat,
-          WEATHER_LOCATION_LON: this.props.weatherLocationLon,
-          WEATHER_TYPE: this.props.weatherType,
-        },
-      },
-    )
-    const weatherApiKey = Secret.fromSecretNameV2(
-      this,
-      `${this.id}-weather-api-key`,
-      'weather-site-api-key',
-    )
-    weatherApiKey.grantRead(checkCurrentWeatherFunction)
+    })
 
     const updateSiteLogGroupId = `${this.id}-updateSiteLogGroup`
     const updateSiteLogGroup = new LogGroup(this, updateSiteLogGroupId, {
@@ -291,7 +277,6 @@ export class WeatherSiteStack extends Stack {
         LOCATION_NAME: this.props.locationName,
         OPEN_WEATHER_URL: this.props.openWeatherUrl,
         WEATHER_TYPE: this.props.weatherType,
-        PARAMETERS_SECRETS_EXTENSION_LOG_LEVEL: 'warn',
       },
     })
     this.bucket.grantWrite(updateSiteFunction)
@@ -311,19 +296,25 @@ export class WeatherSiteStack extends Stack {
       outputs: {},
     })
 
-    const checkCurrentWeather = new LambdaInvoke(
-      this,
-      'Check current weather',
-      {
-        queryLanguage: QueryLanguage.JSONATA,
-        lambdaFunction: checkCurrentWeatherFunction,
-        comment: 'Get current weather using external API',
-        assign: {
-          CurrentWeather: '{% $states.result.Payload.body %}',
-        },
-        outputs: {},
+    const checkCurrentWeather = new HttpInvoke(this, 'Get Weather', {
+      queryLanguage: QueryLanguage.JSONATA,
+      apiRoot: `https://api.openweathermap.org`,
+      apiEndpoint: TaskInput.fromText('data/3.0/onecall'),
+      connection,
+      headers: TaskInput.fromObject({ 'Content-Type': 'application/json' }),
+      method: TaskInput.fromText('GET'),
+      queryStringParameters: TaskInput.fromObject({
+        units: 'imperial',
+        exclude: 'minutely,hourly,daily,alerts',
+        lat: '{% $states.context.Execution.Input.WEATHER_LOCATION_LAT %}',
+        lon: '{% $states.context.Execution.Input.WEATHER_LOCATION_LON %}',
+      }),
+      outputs: {},
+      assign: {
+        CurrentWeather:
+          '{% $contains($lowercase($states.result.ResponseBody.current.weather[0].main), $states.context.Execution.Input.WEATHER_TYPE) ?  $states.context.Execution.Input.WEATHER_TYPE : "no " & $states.context.Execution.Input.WEATHER_TYPE %}',
       },
-    )
+    })
     checkCurrentWeather.addRetry({
       errors: [Errors.ALL],
       maxAttempts: 3,
@@ -332,7 +323,15 @@ export class WeatherSiteStack extends Stack {
       jitterStrategy: JitterType.FULL,
     })
 
-    const siteIsUpToDate = new Pass(this, 'Site is up to date')
+    const siteIsUpToDate = new Pass(this, 'Site is up to date', {
+      queryLanguage: QueryLanguage.JSONATA,
+      comment: 'The final state',
+      outputs: {
+        SiteStatus: '{% $CurrentWeather %}',
+      },
+    })
+
+    const siteUpdateFailure = new Fail(this, 'Site update failure')
 
     const updateSite = new LambdaInvoke(this, 'Update site', {
       queryLanguage: QueryLanguage.JSONATA,
@@ -350,7 +349,7 @@ export class WeatherSiteStack extends Stack {
       backoffRate: 2,
       jitterStrategy: JitterType.FULL,
     })
-    updateSite.addCatch(new Fail(this, 'Site update failure'))
+    updateSite.addCatch(siteUpdateFailure)
 
     const finishUpdate = new Parallel(this, 'Finish update')
       .branch(
@@ -388,7 +387,8 @@ export class WeatherSiteStack extends Stack {
           outputs: {},
         }),
       )
-    updateSite.next(finishUpdate)
+    finishUpdate.addCatch(siteUpdateFailure)
+    // End of Tasks for Step Function Definition
 
     const definition = getSiteStatus.next(checkCurrentWeather).next(
       new Choice(this, 'Is site up to date?', {
@@ -398,9 +398,9 @@ export class WeatherSiteStack extends Stack {
           Condition.jsonata('{% $CurrentWeather = $SiteStatus %}'),
           siteIsUpToDate,
         )
-        .otherwise(updateSite),
+        .otherwise(updateSite.next(finishUpdate).next(siteIsUpToDate)),
     )
-    // End of Tasks for Step Function Definition
+
     const stateMachineId = `${this.id}-state-machine`
     this.stepFunction = new StateMachine(this, stateMachineId, {
       stateMachineType: StateMachineType.EXPRESS,
@@ -422,6 +422,11 @@ export class WeatherSiteStack extends Stack {
 
   private addScheduler() {
     const target = new StepFunctionsStartExecution(this.stepFunction, {
+      input: ScheduleTargetInput.fromObject({
+        WEATHER_TYPE: this.props.weatherType.toLowerCase(),
+        WEATHER_LOCATION_LAT: this.props.weatherLocationLat,
+        WEATHER_LOCATION_LON: this.props.weatherLocationLon,
+      }),
       maxEventAge: Duration.seconds(90),
       retryAttempts: 2,
     })
