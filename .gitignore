@@ -3,9 +3,19 @@
 *.d.ts
 node_modules
 dist
-.env
-.DS_Store
 
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# Ignore all files and directories starting with dot
+.*
+# Exceptions
+!/.vscode/*
+!/.github/*
+!.gitignore
+!.env.example
+!.nvmrc
+!.prettierrc
+!.prettierignore
+!.npmignore
