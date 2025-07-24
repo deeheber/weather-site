@@ -15,18 +15,18 @@ import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { Construct } from 'constructs'
 
-interface CertificateStackProps extends StackProps {
+interface DomainStackProps extends StackProps {
   domainName: string
 }
 
-export class CertificateStack extends Stack {
+export class DomainStack extends Stack {
   public id: string
   public certificate: Certificate
   private domainName: string
-  private hostedZone: HostedZone
+  public hostedZone: HostedZone
   private redirectCertificate: Certificate
 
-  constructor(scope: Construct, id: string, props: CertificateStackProps) {
+  constructor(scope: Construct, id: string, props: DomainStackProps) {
     super(scope, id, props)
     this.id = id
     this.domainName = props.domainName

@@ -5,6 +5,7 @@ import 'dotenv/config'
 import { App } from 'aws-cdk-lib'
 
 import { AlertStack } from '../lib/alert-stack'
+import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 
 // Env var validation
@@ -14,7 +15,7 @@ const {
   CDK_DEFAULT_ACCOUNT,
   CDK_DEFAULT_REGION,
   ALERT_EMAIL: alertEmail = '',
-  DOMAIN_NAME: domainName = '',
+  DOMAIN_NAME: domainName = undefined,
   LOCATION_NAME: locationName = '',
   OPEN_WEATHER_URL: openWeatherUrl = '',
   SCHEDULES: schedules = 'rate(10 minutes)',
@@ -48,25 +49,30 @@ if (
   throw new Error('Missing environment variables!')
 }
 
-/**
- * The domain certificate must be hosted in us-east-1
- *
- * Could set this up using cross region references
- * https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html#cross-region-certificates
- *
- * But for now deciding to throw an error instead to keep this simple.
- * Contributions welcome for handling this better!
- */
-if (domainName && region !== 'us-east-1') {
-  throw new Error('Domain names can only be used in us-east-1')
-}
-
 const app = new App()
+
+/**
+ * For https with a custom domain in CloudFront
+ * The ACM certificate must be issued in the us-east-1 region
+ * https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cnames-and-https-requirements.html#https-requirements-aws-region
+ */
+let domainStack
+if (domainName) {
+  domainStack = new DomainStack(app, `${stackPrefix}-domain`, {
+    description: ` Resources needed to have a custom domain for on ${stackPrefix}-weather`,
+    crossRegionReferences: true,
+    env: { account, region: 'us-east-1' },
+    domainName,
+  })
+}
 
 const weatherSiteStack = new WeatherSiteStack(app, `${stackPrefix}-weather`, {
   description: `Resources for ${stackPrefix}-weather, an informative weather website`,
   env: { account, region },
+  crossRegionReferences: region === 'us-east-1' ? undefined : true,
+  certificate: domainStack?.certificate,
   domainName,
+  hostedZone: domainStack?.hostedZone,
   locationName,
   openWeatherUrl,
   schedules: schedules.split(', '),
