@@ -19,3 +19,4 @@ cdk.out
 !.prettierrc
 !.prettierignore
 !.npmignore
+!.kiro
