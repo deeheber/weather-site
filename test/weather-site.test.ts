@@ -1,51 +1,93 @@
 import { App } from 'aws-cdk-lib'
 import { Template } from 'aws-cdk-lib/assertions'
 
+import { AlertStack } from '../lib/alert-stack'
 import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 
-test('Verify resources are created for non-custom domain site', () => {
-  const app = new App()
-  const stack = new WeatherSiteStack(app, 'MyTestStack', {
-    locationName: 'Test Location',
-    openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
-    schedules: 'rate(10 minutes)'.split(', '),
-    weatherLocationLat: '123',
-    weatherLocationLon: '456',
-    weatherType: 'snow',
-  })
-  const template = Template.fromStack(stack)
+describe('Non-custom domain resources', () => {
+  test('Verify weather stack resources', () => {
+    const app = new App()
+    const stack = new WeatherSiteStack(app, 'MyTestStack', {
+      locationName: 'Test Location',
+      openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
+      schedules: 'rate(10 minutes)'.split(', '),
+      weatherLocationLat: '123',
+      weatherLocationLon: '456',
+      weatherType: 'snow',
+    })
+    const template = Template.fromStack(stack)
 
-  template.resourceCountIs('AWS::S3::Bucket', 1)
-  template.resourceCountIs('AWS::SSM::Parameter', 1)
-  template.resourceCountIs('AWS::CloudFront::Distribution', 1)
-  template.resourceCountIs('AWS::Events::Connection', 1)
+    template.resourceCountIs('AWS::S3::Bucket', 1)
+    template.resourceCountIs('AWS::SSM::Parameter', 1)
+    template.resourceCountIs('AWS::CloudFront::Distribution', 1)
+    template.resourceCountIs('AWS::Events::Connection', 1)
 
-  template.hasResourceProperties('AWS::Lambda::Function', {
-    FunctionName: 'MyTestStack-updateSiteFunction',
-    Runtime: 'nodejs22.x',
-    Architectures: ['arm64'],
-  })
-  template.hasResourceProperties('AWS::StepFunctions::StateMachine', {
-    StateMachineName: 'MyTestStack-state-machine',
-    StateMachineType: 'EXPRESS',
-    LoggingConfiguration: {
-      Level: 'ALL',
-    },
-  })
-  template.hasResourceProperties('AWS::Scheduler::Schedule', {
-    Name: 'MyTestStack-schedule-0',
-    ScheduleExpression: 'rate(10 minutes)',
-    Target: {
-      Input: JSON.stringify({
-        WEATHER_TYPE: 'snow',
-        WEATHER_LOCATION_LAT: '123',
-        WEATHER_LOCATION_LON: '456',
-      }),
-    },
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      FunctionName: 'MyTestStack-updateSiteFunction',
+      Runtime: 'nodejs22.x',
+      Architectures: ['arm64'],
+    })
+    template.hasResourceProperties('AWS::StepFunctions::StateMachine', {
+      StateMachineName: 'MyTestStack-state-machine',
+      StateMachineType: 'EXPRESS',
+      LoggingConfiguration: {
+        Level: 'ALL',
+      },
+    })
+    template.hasResourceProperties('AWS::Scheduler::Schedule', {
+      Name: 'MyTestStack-schedule-0',
+      ScheduleExpression: 'rate(10 minutes)',
+      Target: {
+        Input: JSON.stringify({
+          WEATHER_TYPE: 'snow',
+          WEATHER_LOCATION_LAT: '123',
+          WEATHER_LOCATION_LON: '456',
+        }),
+      },
+    })
+
+    expect(template.toJSON()).toMatchSnapshot()
   })
 
-  expect(template.toJSON()).toMatchSnapshot()
+  test('Verify alert stack resources', () => {
+    const app = new App()
+    const weatherStack = new WeatherSiteStack(app, 'TestWeatherStack', {
+      locationName: 'Test Location',
+      openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
+      schedules: 'rate(10 minutes)'.split(', '),
+      weatherLocationLat: '123',
+      weatherLocationLon: '456',
+      weatherType: 'snow',
+    })
+
+    const alertStack = new AlertStack(app, 'TestAlertStack', {
+      stepFunction: weatherStack.stepFunction,
+      alertEmail: 'test@example.com',
+    })
+    const template = Template.fromStack(alertStack)
+
+    template.resourceCountIs('AWS::SNS::Topic', 1)
+    template.resourceCountIs('AWS::SNS::Subscription', 1)
+    template.resourceCountIs('AWS::CloudWatch::Alarm', 1)
+
+    template.hasResourceProperties('AWS::SNS::Topic', {
+      TopicName: 'TestAlertStack-error-topic',
+      DisplayName: 'Weather Site Topic for TestAlertStack',
+    })
+    template.hasResourceProperties('AWS::SNS::Subscription', {
+      Protocol: 'email',
+      Endpoint: 'test@example.com',
+    })
+    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+      AlarmName: 'TestAlertStack-alarm',
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold',
+      EvaluationPeriods: 1,
+      Threshold: 2,
+    })
+
+    expect(template.toJSON()).toMatchSnapshot()
+  })
 })
 
 describe('Custom domain resources', () => {

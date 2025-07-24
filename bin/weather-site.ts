@@ -14,7 +14,7 @@ const {
   AWS_DEFAULT_REGION,
   CDK_DEFAULT_ACCOUNT,
   CDK_DEFAULT_REGION,
-  ALERT_EMAIL: alertEmail = '',
+  ALERT_EMAIL: alertEmail = undefined,
   DOMAIN_NAME: domainName = undefined,
   LOCATION_NAME: locationName = '',
   OPEN_WEATHER_URL: openWeatherUrl = '',
@@ -81,7 +81,7 @@ const weatherSiteStack = new WeatherSiteStack(app, `${stackPrefix}-weather`, {
   weatherType,
 })
 
-if (alertEmail !== '') {
+if (alertEmail) {
   const alertStack = new AlertStack(app, `${stackPrefix}-alert`, {
     description: `Alert resources for ${weatherSiteStack.id}`,
     stepFunction: weatherSiteStack.stepFunction,

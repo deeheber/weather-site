@@ -1383,7 +1383,93 @@ exports[`Custom domain resources Verify weather stack with custom domain 1`] = `
 }
 `;
 
-exports[`Verify resources are created for non-custom domain site 1`] = `
+exports[`Non-custom domain resources Verify alert stack resources 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "TestAlertStackalarm6660C789": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Ref": "TestAlertStackerrortopic8CC68A85",
+          },
+        ],
+        "AlarmDescription": "Alarm (TestAlertStack-alarm) if the SUM of errors is greater than or equal to the threshold (2) for 1 evaluation period of 1 minutes",
+        "AlarmName": "TestAlertStack-alarm",
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "StateMachineArn",
+            "Value": {
+              "Fn::ImportValue": "TestWeatherStack:ExportsOutputRefTestWeatherStackstatemachine71961157CFFF7311",
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ExecutionsFailed",
+        "Namespace": "AWS/States",
+        "Period": 3600,
+        "Statistic": "Sum",
+        "Threshold": 2,
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "TestAlertStackerrortopic8CC68A85": {
+      "Properties": {
+        "DisplayName": "Weather Site Topic for TestAlertStack",
+        "TopicName": "TestAlertStack-error-topic",
+      },
+      "Type": "AWS::SNS::Topic",
+    },
+    "TestAlertStackerrortopictestexamplecomE64D51F2": {
+      "Properties": {
+        "Endpoint": "test@example.com",
+        "Protocol": "email",
+        "TopicArn": {
+          "Ref": "TestAlertStackerrortopic8CC68A85",
+        },
+      },
+      "Type": "AWS::SNS::Subscription",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Non-custom domain resources Verify weather stack resources 1`] = `
 {
   "Mappings": {
     "LatestNodeRuntimeMap": {
