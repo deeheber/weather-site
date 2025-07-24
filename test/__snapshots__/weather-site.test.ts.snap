@@ -1,6 +1,1475 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Verify resources are created 1`] = `
+exports[`Custom domain resources Verify weather stack with custom domain 1`] = `
+{
+  "Mappings": {
+    "AWSCloudFrontPartitionHostedZoneIdMap": {
+      "aws": {
+        "zoneId": "Z2FDTNDATAQYW2",
+      },
+      "aws-cn": {
+        "zoneId": "Z3RFFRIM2A3IF5",
+      },
+    },
+    "LatestNodeRuntimeMap": {
+      "af-south-1": {
+        "value": "nodejs22.x",
+      },
+      "ap-east-1": {
+        "value": "nodejs22.x",
+      },
+      "ap-east-2": {
+        "value": "nodejs22.x",
+      },
+      "ap-northeast-1": {
+        "value": "nodejs22.x",
+      },
+      "ap-northeast-2": {
+        "value": "nodejs22.x",
+      },
+      "ap-northeast-3": {
+        "value": "nodejs22.x",
+      },
+      "ap-south-1": {
+        "value": "nodejs22.x",
+      },
+      "ap-south-2": {
+        "value": "nodejs22.x",
+      },
+      "ap-southeast-1": {
+        "value": "nodejs22.x",
+      },
+      "ap-southeast-2": {
+        "value": "nodejs22.x",
+      },
+      "ap-southeast-3": {
+        "value": "nodejs22.x",
+      },
+      "ap-southeast-4": {
+        "value": "nodejs22.x",
+      },
+      "ap-southeast-5": {
+        "value": "nodejs22.x",
+      },
+      "ap-southeast-7": {
+        "value": "nodejs22.x",
+      },
+      "ca-central-1": {
+        "value": "nodejs22.x",
+      },
+      "ca-west-1": {
+        "value": "nodejs22.x",
+      },
+      "cn-north-1": {
+        "value": "nodejs22.x",
+      },
+      "cn-northwest-1": {
+        "value": "nodejs22.x",
+      },
+      "eu-central-1": {
+        "value": "nodejs22.x",
+      },
+      "eu-central-2": {
+        "value": "nodejs22.x",
+      },
+      "eu-isoe-west-1": {
+        "value": "nodejs18.x",
+      },
+      "eu-north-1": {
+        "value": "nodejs22.x",
+      },
+      "eu-south-1": {
+        "value": "nodejs22.x",
+      },
+      "eu-south-2": {
+        "value": "nodejs22.x",
+      },
+      "eu-west-1": {
+        "value": "nodejs22.x",
+      },
+      "eu-west-2": {
+        "value": "nodejs22.x",
+      },
+      "eu-west-3": {
+        "value": "nodejs22.x",
+      },
+      "il-central-1": {
+        "value": "nodejs22.x",
+      },
+      "me-central-1": {
+        "value": "nodejs22.x",
+      },
+      "me-south-1": {
+        "value": "nodejs22.x",
+      },
+      "mx-central-1": {
+        "value": "nodejs22.x",
+      },
+      "sa-east-1": {
+        "value": "nodejs22.x",
+      },
+      "us-east-1": {
+        "value": "nodejs22.x",
+      },
+      "us-east-2": {
+        "value": "nodejs22.x",
+      },
+      "us-gov-east-1": {
+        "value": "nodejs22.x",
+      },
+      "us-gov-west-1": {
+        "value": "nodejs22.x",
+      },
+      "us-iso-east-1": {
+        "value": "nodejs18.x",
+      },
+      "us-iso-west-1": {
+        "value": "nodejs18.x",
+      },
+      "us-isob-east-1": {
+        "value": "nodejs18.x",
+      },
+      "us-isob-west-1": {
+        "value": "nodejs18.x",
+      },
+      "us-west-1": {
+        "value": "nodejs22.x",
+      },
+      "us-west-2": {
+        "value": "nodejs22.x",
+      },
+    },
+  },
+  "Outputs": {
+    "TestWeatherStackcustomurl": {
+      "Description": "Custom Domain URL",
+      "Value": "https://mydomain.com",
+    },
+    "TestWeatherStackurl": {
+      "Description": "Distribution URL",
+      "Value": {
+        "Fn::GetAtt": [
+          "TestWeatherStackdistribution2B284CF8",
+          "DomainName",
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": {
+      "DependsOn": [
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "9a1fcb4a7ecba81ad70e9d3fb241f6794497da945dae5f25924e4dd002b65f2d.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+          },
+        },
+        "Handler": "index.handler",
+        "Layers": [
+          {
+            "Ref": "TestWeatherStackfileuploadAwsCliLayerEE6C674F",
+          },
+        ],
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.11",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CLogRetention1948627D": {
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+              },
+            ],
+          ],
+        },
+        "RetentionInDays": 7,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::LogRetention",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TestWeatherStackbucket354D63DD",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TestWeatherStackbucket354D63DD",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+        "Roles": [
+          {
+            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+      "DependsOn": [
+        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
+        },
+        "Description": {
+          "Fn::Join": [
+            "",
+            [
+              "Lambda function for auto-deleting objects in ",
+              {
+                "Ref": "TestWeatherStackbucket354D63DD",
+              },
+              " S3 bucket.",
+            ],
+          ],
+        },
+        "Handler": "index.handler",
+        "MemorySize": 128,
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+            "Arn",
+          ],
+        },
+        "Runtime": {
+          "Fn::FindInMap": [
+            "LatestNodeRuntimeMap",
+            {
+              "Ref": "AWS::Region",
+            },
+            "value",
+          ],
+        },
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+      "DependsOn": [
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip",
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+            "Arn",
+          ],
+        },
+        "Runtime": {
+          "Fn::FindInMap": [
+            "LatestNodeRuntimeMap",
+            {
+              "Ref": "AWS::Region",
+            },
+            "value",
+          ],
+        },
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:PutRetentionPolicy",
+                "logs:DeleteRetentionPolicy",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "Roles": [
+          {
+            "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "SchedulerRoleForTargetb57c5b0FA7B5B9": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "aws:SourceAccount": {
+                    "Ref": "AWS::AccountId",
+                  },
+                  "aws:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":scheduler:",
+                        {
+                          "Ref": "AWS::Region",
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":schedule-group/default",
+                      ],
+                    ],
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "scheduler.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "SchedulerRoleForTargetb57c5bDefaultPolicy1832274B": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "states:StartExecution",
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "TestWeatherStackstatemachine71961157",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "SchedulerRoleForTargetb57c5bDefaultPolicy1832274B",
+        "Roles": [
+          {
+            "Ref": "SchedulerRoleForTargetb57c5b0FA7B5B9",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "TestWeatherStackarecordFB4C9C3B": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "TestWeatherStackdistribution2B284CF8",
+              "DomainName",
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::FindInMap": [
+              "AWSCloudFrontPartitionHostedZoneIdMap",
+              {
+                "Ref": "AWS::Partition",
+              },
+              "zoneId",
+            ],
+          },
+        },
+        "HostedZoneId": {
+          "Fn::ImportValue": "TestDomainStack:ExportsOutputRefTestDomainStackhostedzone9ECEE808EC76E5C7",
+        },
+        "Name": "mydomain.com.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "TestWeatherStackbucket354D63DD": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
+        "Tags": [
+          {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+          {
+            "Key": "aws-cdk:cr-owned:a38dccf8",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "TestWeatherStackbucketAutoDeleteObjectsCustomResourceEC1E2071": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "TestWeatherStackbucketPolicy78C29E25",
+      ],
+      "Properties": {
+        "BucketName": {
+          "Ref": "TestWeatherStackbucket354D63DD",
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "TestWeatherStackbucketPolicy78C29E25": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "TestWeatherStackbucket354D63DD",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:PutBucketPolicy",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TestWeatherStackbucket354D63DD",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TestWeatherStackbucket354D63DD",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "s3:GetObject",
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceArn": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition",
+                        },
+                        ":cloudfront::",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":distribution/",
+                        {
+                          "Ref": "TestWeatherStackdistribution2B284CF8",
+                        },
+                      ],
+                    ],
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudfront.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "TestWeatherStackbucket354D63DD",
+                        "Arn",
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "TestWeatherStackconnectionConnection2FA44584": {
+      "Properties": {
+        "AuthParameters": {
+          "ApiKeyAuthParameters": {
+            "ApiKeyName": "weather-site-authorization",
+            "ApiKeyValue": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
+          },
+          "InvocationHttpParameters": {
+            "QueryStringParameters": [
+              {
+                "IsValueSecret": true,
+                "Key": "appid",
+                "Value": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
+              },
+            ],
+          },
+        },
+        "AuthorizationType": "API_KEY",
+        "Description": "Connection to OpenWeatherMap API for TestWeatherStack",
+        "Name": "TestWeatherStack",
+      },
+      "Type": "AWS::Events::Connection",
+    },
+    "TestWeatherStackdistribution2B284CF8": {
+      "Properties": {
+        "DistributionConfig": {
+          "Aliases": [
+            "mydomain.com",
+          ],
+          "CustomErrorResponses": [
+            {
+              "ErrorCode": 404,
+              "ResponseCode": 200,
+              "ResponsePagePath": "/index.html",
+            },
+          ],
+          "DefaultCacheBehavior": {
+            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "Compress": true,
+            "TargetOriginId": "TestWeatherStackTestWeatherStackdistributionOrigin101EDEDAD",
+            "ViewerProtocolPolicy": "redirect-to-https",
+          },
+          "DefaultRootObject": "index.html",
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Origins": [
+            {
+              "DomainName": {
+                "Fn::GetAtt": [
+                  "TestWeatherStackbucket354D63DD",
+                  "RegionalDomainName",
+                ],
+              },
+              "Id": "TestWeatherStackTestWeatherStackdistributionOrigin101EDEDAD",
+              "OriginAccessControlId": {
+                "Fn::GetAtt": [
+                  "TestWeatherStackdistributionOrigin1S3OriginAccessControl4D68ED98",
+                  "Id",
+                ],
+              },
+              "S3OriginConfig": {
+                "OriginAccessIdentity": "",
+              },
+            },
+          ],
+        },
+      },
+      "Type": "AWS::CloudFront::Distribution",
+    },
+    "TestWeatherStackdistributionOrigin1S3OriginAccessControl4D68ED98": {
+      "Properties": {
+        "OriginAccessControlConfig": {
+          "Name": "TestWeatherStackTestWeatherSOrigin1S3OriginAccessControlBBD77BB9",
+          "OriginAccessControlOriginType": "s3",
+          "SigningBehavior": "always",
+          "SigningProtocol": "sigv4",
+        },
+      },
+      "Type": "AWS::CloudFront::OriginAccessControl",
+    },
+    "TestWeatherStackfileuploadAwsCliLayerEE6C674F": {
+      "Properties": {
+        "Content": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "1b2c92f2cd21c170884393633bd4c732676df6290562199b6e3ca5e2a1be7d18.zip",
+        },
+        "Description": "/opt/awscli/aws",
+      },
+      "Type": "AWS::Lambda::LayerVersion",
+    },
+    "TestWeatherStackfileuploadCustomResourceE977CDF3": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "DestinationBucketName": {
+          "Ref": "TestWeatherStackbucket354D63DD",
+        },
+        "OutputObjectKeys": true,
+        "Prune": false,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+            "Arn",
+          ],
+        },
+        "SourceBucketNames": [
+          {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+        ],
+        "SourceObjectKeys": [
+          "5dd6e66aca7809028d3677a67f96628aaa6a67242456ee0f3c81ba4842f6afb0.zip",
+        ],
+      },
+      "Type": "Custom::CDKBucketDeployment",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "TestWeatherStackschedule0DFF748AC": {
+      "Properties": {
+        "Description": "Invoke Step Function for TestWeatherStack",
+        "FlexibleTimeWindow": {
+          "Mode": "OFF",
+        },
+        "Name": "TestWeatherStack-schedule-0",
+        "ScheduleExpression": "cron(0/30 * * 6-9 ? *)",
+        "ScheduleExpressionTimezone": "America/Los_Angeles",
+        "State": "ENABLED",
+        "Target": {
+          "Arn": {
+            "Ref": "TestWeatherStackstatemachine71961157",
+          },
+          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
+          "RetryPolicy": {
+            "MaximumEventAgeInSeconds": 90,
+            "MaximumRetryAttempts": 2,
+          },
+          "RoleArn": {
+            "Fn::GetAtt": [
+              "SchedulerRoleForTargetb57c5b0FA7B5B9",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Scheduler::Schedule",
+    },
+    "TestWeatherStackschedule1120A557B": {
+      "Properties": {
+        "Description": "Invoke Step Function for TestWeatherStack",
+        "FlexibleTimeWindow": {
+          "Mode": "OFF",
+        },
+        "Name": "TestWeatherStack-schedule-1",
+        "ScheduleExpression": "cron(0/10 * * 1,2,3,4,5,10,11,12 ? *)",
+        "ScheduleExpressionTimezone": "America/Los_Angeles",
+        "State": "ENABLED",
+        "Target": {
+          "Arn": {
+            "Ref": "TestWeatherStackstatemachine71961157",
+          },
+          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
+          "RetryPolicy": {
+            "MaximumEventAgeInSeconds": 90,
+            "MaximumRetryAttempts": 2,
+          },
+          "RoleArn": {
+            "Fn::GetAtt": [
+              "SchedulerRoleForTargetb57c5b0FA7B5B9",
+              "Arn",
+            ],
+          },
+        },
+      },
+      "Type": "AWS::Scheduler::Schedule",
+    },
+    "TestWeatherStacksflog0F15CF0B": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "TestWeatherStack-sf-log",
+        "RetentionInDays": 7,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "TestWeatherStackstatemachine71961157": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "TestWeatherStackstatemachineRoleDefaultPolicyB979BA97",
+        "TestWeatherStackstatemachineRole7FEF89E3",
+      ],
+      "Properties": {
+        "DefinitionString": {
+          "Fn::Join": [
+            "",
+            [
+              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Get Weather","Type":"Task","Arguments":{"Name":"",
+              {
+                "Ref": "TestWeatherStackstatusparam04027244",
+              },
+              ""},"Output":{},"Assign":{"SiteStatus":"{% $states.result.Parameter.Value %}"},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::aws-sdk:ssm:getParameter"},"Get Weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Arguments":{"ApiEndpoint":"https://api.openweathermap.org/data/3.0/onecall","Authentication":{"ConnectionArn":"",
+              {
+                "Fn::GetAtt": [
+                  "TestWeatherStackconnectionConnection2FA44584",
+                  "Arn",
+                ],
+              },
+              ""},"Method":"GET","Headers":{"Content-Type":"application/json"},"QueryParameters":{"units":"imperial","exclude":"minutely,hourly,daily,alerts","lat":"{% $states.context.Execution.Input.WEATHER_LOCATION_LAT %}","lon":"{% $states.context.Execution.Input.WEATHER_LOCATION_LON %}"}},"Output":{},"Assign":{"CurrentWeather":"{% $contains($lowercase($states.result.ResponseBody.current.weather[0].main), $states.context.Execution.Input.WEATHER_TYPE) ?  $states.context.Execution.Input.WEATHER_TYPE : \\"no \\" & $states.context.Execution.Input.WEATHER_TYPE %}"},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::http:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
+              {
+                "Fn::GetAtt": [
+                  "TestWeatherStackupdateSiteFunction5FF686A0",
+                  "Arn",
+                ],
+              },
+              "","Payload":{"CurrentWeather":"{% $CurrentWeather %}"}},"Output":{},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","Next":"Site is up to date","Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
+              {
+                "Ref": "TestWeatherStackstatusparam04027244",
+              },
+              "","Value":"{% $CurrentWeather %}","Overwrite":true},"Output":{},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::aws-sdk:ssm:putParameter"}}},{"StartAt":"Invalidate CloudFront cache","States":{"Invalidate CloudFront cache":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"DistributionId":"",
+              {
+                "Ref": "TestWeatherStackdistribution2B284CF8",
+              },
+              "","InvalidationBatch":{"CallerReference":"{% $states.context.State.EnteredTime %}","Paths":{"Quantity":1,"Items":["/index.html"]}}},"Output":{},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site is up to date":{"Type":"Pass","QueryLanguage":"JSONata","Comment":"The final state","Output":{"SiteStatus":"{% $CurrentWeather %}"},"End":true},"Site update failure":{"Type":"Fail"}}}",
+            ],
+          ],
+        },
+        "LoggingConfiguration": {
+          "Destinations": [
+            {
+              "CloudWatchLogsLogGroup": {
+                "LogGroupArn": {
+                  "Fn::GetAtt": [
+                    "TestWeatherStacksflog0F15CF0B",
+                    "Arn",
+                  ],
+                },
+              },
+            },
+          ],
+          "IncludeExecutionData": true,
+          "Level": "ALL",
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "TestWeatherStackstatemachineRole7FEF89E3",
+            "Arn",
+          ],
+        },
+        "StateMachineName": "TestWeatherStack-state-machine",
+        "StateMachineType": "EXPRESS",
+        "TracingConfiguration": {
+          "Enabled": true,
+        },
+      },
+      "Type": "AWS::StepFunctions::StateMachine",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "TestWeatherStackstatemachineRole7FEF89E3": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "states.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "TestWeatherStackstatemachineRoleDefaultPolicyB979BA97": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ssm:getParameter",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/",
+                    {
+                      "Ref": "TestWeatherStackstatusparam04027244",
+                    },
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "events:RetrieveConnectionCredentials",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TestWeatherStackconnectionConnection2FA44584",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "TestWeatherStackconnectionConnection2FA44584",
+                  "SecretArn",
+                ],
+              },
+            },
+            {
+              "Action": "states:InvokeHTTPEndpoint",
+              "Condition": {
+                "StringLike": {
+                  "states:HTTPEndpoint": "https://api.openweathermap.org*",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TestWeatherStackupdateSiteFunction5FF686A0",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TestWeatherStackupdateSiteFunction5FF686A0",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:putParameter",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/",
+                    {
+                      "Ref": "TestWeatherStackstatusparam04027244",
+                    },
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "cloudfront:createInvalidation",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:cloudfront::",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":distribution/",
+                    {
+                      "Ref": "TestWeatherStackdistribution2B284CF8",
+                    },
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "logs:CreateLogDelivery",
+                "logs:GetLogDelivery",
+                "logs:UpdateLogDelivery",
+                "logs:DeleteLogDelivery",
+                "logs:ListLogDeliveries",
+                "logs:PutResourcePolicy",
+                "logs:DescribeResourcePolicies",
+                "logs:DescribeLogGroups",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "TestWeatherStackstatemachineRoleDefaultPolicyB979BA97",
+        "Roles": [
+          {
+            "Ref": "TestWeatherStackstatemachineRole7FEF89E3",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "TestWeatherStackstatusparam04027244": {
+      "Properties": {
+        "Description": "Current status of the weather site for TestWeatherStack",
+        "Name": "TestWeatherStack-status-param",
+        "Type": "String",
+        "Value": "Initial value",
+      },
+      "Type": "AWS::SSM::Parameter",
+    },
+    "TestWeatherStackupdateSiteFunction5FF686A0": {
+      "DependsOn": [
+        "TestWeatherStackupdateSiteFunctionServiceRoleDefaultPolicyD45C499C",
+        "TestWeatherStackupdateSiteFunctionServiceRole997D6557",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "71a288359e2225f79baaca64526d4a6eced3d6dfcb3bdc729685c0f79a22e53d.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "BUCKET_NAME": {
+              "Ref": "TestWeatherStackbucket354D63DD",
+            },
+            "LOCATION_NAME": "New York, NY USA",
+            "OPEN_WEATHER_URL": "https://api.openweathermap.org/data/2.5/onecall",
+            "WEATHER_TYPE": "rain",
+          },
+        },
+        "FunctionName": "TestWeatherStack-updateSiteFunction",
+        "Handler": "index.handler",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+          "LogGroup": {
+            "Ref": "TestWeatherStackupdateSiteLogGroupD038D61C",
+          },
+        },
+        "MemorySize": 3008,
+        "Role": {
+          "Fn::GetAtt": [
+            "TestWeatherStackupdateSiteFunctionServiceRole997D6557",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 30,
+        "TracingConfig": {
+          "Mode": "Active",
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "TestWeatherStackupdateSiteFunctionServiceRole997D6557": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "TestWeatherStackupdateSiteFunctionServiceRoleDefaultPolicyD45C499C": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "TestWeatherStackbucket354D63DD",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "TestWeatherStackbucket354D63DD",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "TestWeatherStackupdateSiteFunctionServiceRoleDefaultPolicyD45C499C",
+        "Roles": [
+          {
+            "Ref": "TestWeatherStackupdateSiteFunctionServiceRole997D6557",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "TestWeatherStackupdateSiteLogGroupD038D61C": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/TestWeatherStack-updateSiteLogGroup",
+        "RetentionInDays": 7,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Non-custom domain resources Verify alert stack resources 1`] = `
+{
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "TestAlertStackalarm6660C789": {
+      "Properties": {
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Ref": "TestAlertStackerrortopic8CC68A85",
+          },
+        ],
+        "AlarmDescription": "Alarm (TestAlertStack-alarm) if the SUM of errors is greater than or equal to the threshold (2) for 1 evaluation period of 1 minutes",
+        "AlarmName": "TestAlertStack-alarm",
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "Dimensions": [
+          {
+            "Name": "StateMachineArn",
+            "Value": {
+              "Fn::ImportValue": "TestWeatherStack:ExportsOutputRefTestWeatherStackstatemachine71961157CFFF7311",
+            },
+          },
+        ],
+        "EvaluationPeriods": 1,
+        "MetricName": "ExecutionsFailed",
+        "Namespace": "AWS/States",
+        "Period": 3600,
+        "Statistic": "Sum",
+        "Threshold": 2,
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+    "TestAlertStackerrortopic8CC68A85": {
+      "Properties": {
+        "DisplayName": "Weather Site Topic for TestAlertStack",
+        "TopicName": "TestAlertStack-error-topic",
+      },
+      "Type": "AWS::SNS::Topic",
+    },
+    "TestAlertStackerrortopictestexamplecomE64D51F2": {
+      "Properties": {
+        "Endpoint": "test@example.com",
+        "Protocol": "email",
+        "TopicArn": {
+          "Ref": "TestAlertStackerrortopic8CC68A85",
+        },
+      },
+      "Type": "AWS::SNS::Subscription",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Non-custom domain resources Verify weather stack resources 1`] = `
 {
   "Mappings": {
     "LatestNodeRuntimeMap": {
@@ -1208,7 +2677,7 @@ exports[`Verify resources are created 1`] = `
     "MyTestStackupdateSiteLogGroup7C127C90": {
       "DeletionPolicy": "Delete",
       "Properties": {
-        "LogGroupName": "MyTestStack-updateSiteLogGroup",
+        "LogGroupName": "/aws/lambda/MyTestStack-updateSiteLogGroup",
         "RetentionInDays": 7,
       },
       "Type": "AWS::Logs::LogGroup",
@@ -1276,1563 +2745,6 @@ exports[`Verify resources are created 1`] = `
         "Roles": [
           {
             "Ref": "SchedulerRoleForTarget89bc8f824E762A",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-  },
-  "Rules": {
-    "CheckBootstrapVersion": {
-      "Assertions": [
-        {
-          "Assert": {
-            "Fn::Not": [
-              {
-                "Fn::Contains": [
-                  [
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                  ],
-                  {
-                    "Ref": "BootstrapVersion",
-                  },
-                ],
-              },
-            ],
-          },
-          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
-        },
-      ],
-    },
-  },
-}
-`;
-
-exports[`Verify resources are created with custom domain 1`] = `
-{
-  "Mappings": {
-    "AWSCloudFrontPartitionHostedZoneIdMap": {
-      "aws": {
-        "zoneId": "Z2FDTNDATAQYW2",
-      },
-      "aws-cn": {
-        "zoneId": "Z3RFFRIM2A3IF5",
-      },
-    },
-    "LatestNodeRuntimeMap": {
-      "af-south-1": {
-        "value": "nodejs22.x",
-      },
-      "ap-east-1": {
-        "value": "nodejs22.x",
-      },
-      "ap-east-2": {
-        "value": "nodejs22.x",
-      },
-      "ap-northeast-1": {
-        "value": "nodejs22.x",
-      },
-      "ap-northeast-2": {
-        "value": "nodejs22.x",
-      },
-      "ap-northeast-3": {
-        "value": "nodejs22.x",
-      },
-      "ap-south-1": {
-        "value": "nodejs22.x",
-      },
-      "ap-south-2": {
-        "value": "nodejs22.x",
-      },
-      "ap-southeast-1": {
-        "value": "nodejs22.x",
-      },
-      "ap-southeast-2": {
-        "value": "nodejs22.x",
-      },
-      "ap-southeast-3": {
-        "value": "nodejs22.x",
-      },
-      "ap-southeast-4": {
-        "value": "nodejs22.x",
-      },
-      "ap-southeast-5": {
-        "value": "nodejs22.x",
-      },
-      "ap-southeast-7": {
-        "value": "nodejs22.x",
-      },
-      "ca-central-1": {
-        "value": "nodejs22.x",
-      },
-      "ca-west-1": {
-        "value": "nodejs22.x",
-      },
-      "cn-north-1": {
-        "value": "nodejs22.x",
-      },
-      "cn-northwest-1": {
-        "value": "nodejs22.x",
-      },
-      "eu-central-1": {
-        "value": "nodejs22.x",
-      },
-      "eu-central-2": {
-        "value": "nodejs22.x",
-      },
-      "eu-isoe-west-1": {
-        "value": "nodejs18.x",
-      },
-      "eu-north-1": {
-        "value": "nodejs22.x",
-      },
-      "eu-south-1": {
-        "value": "nodejs22.x",
-      },
-      "eu-south-2": {
-        "value": "nodejs22.x",
-      },
-      "eu-west-1": {
-        "value": "nodejs22.x",
-      },
-      "eu-west-2": {
-        "value": "nodejs22.x",
-      },
-      "eu-west-3": {
-        "value": "nodejs22.x",
-      },
-      "il-central-1": {
-        "value": "nodejs22.x",
-      },
-      "me-central-1": {
-        "value": "nodejs22.x",
-      },
-      "me-south-1": {
-        "value": "nodejs22.x",
-      },
-      "mx-central-1": {
-        "value": "nodejs22.x",
-      },
-      "sa-east-1": {
-        "value": "nodejs22.x",
-      },
-      "us-east-1": {
-        "value": "nodejs22.x",
-      },
-      "us-east-2": {
-        "value": "nodejs22.x",
-      },
-      "us-gov-east-1": {
-        "value": "nodejs22.x",
-      },
-      "us-gov-west-1": {
-        "value": "nodejs22.x",
-      },
-      "us-iso-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-iso-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-east-1": {
-        "value": "nodejs18.x",
-      },
-      "us-isob-west-1": {
-        "value": "nodejs18.x",
-      },
-      "us-west-1": {
-        "value": "nodejs22.x",
-      },
-      "us-west-2": {
-        "value": "nodejs22.x",
-      },
-    },
-  },
-  "Outputs": {
-    "CustomDomainStackcustomurl": {
-      "Description": "Custom Domain URL",
-      "Value": "https://mydomain.com",
-    },
-    "CustomDomainStackurl": {
-      "Description": "Distribution URL",
-      "Value": {
-        "Fn::GetAtt": [
-          "CustomDomainStackdistribution0931BA2E",
-          "DomainName",
-        ],
-      },
-    },
-  },
-  "Parameters": {
-    "BootstrapVersion": {
-      "Default": "/cdk-bootstrap/hnb659fds/version",
-      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
-  },
-  "Resources": {
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": {
-      "DependsOn": [
-        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
-        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "9a1fcb4a7ecba81ad70e9d3fb241f6794497da945dae5f25924e4dd002b65f2d.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
-          },
-        },
-        "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "CustomDomainStackfileuploadAwsCliLayerD8CBAA40",
-          },
-        ],
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
-            "Arn",
-          ],
-        },
-        "Runtime": "python3.11",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CLogRetention1948627D": {
-      "Properties": {
-        "LogGroupName": {
-          "Fn::Join": [
-            "",
-            [
-              "/aws/lambda/",
-              {
-                "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
-              },
-            ],
-          ],
-        },
-        "RetentionInDays": 7,
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "Custom::LogRetention",
-    },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::",
-                      {
-                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-                      },
-                    ],
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::",
-                      {
-                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-                "s3:DeleteObject*",
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "CustomDomainStackbucket2257E27E",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "CustomDomainStackbucket2257E27E",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
-        "Roles": [
-          {
-            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "CustomDomainStackarecordBFE2207F": {
-      "Properties": {
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": [
-              "CustomDomainStackdistribution0931BA2E",
-              "DomainName",
-            ],
-          },
-          "HostedZoneId": {
-            "Fn::FindInMap": [
-              "AWSCloudFrontPartitionHostedZoneIdMap",
-              {
-                "Ref": "AWS::Partition",
-              },
-              "zoneId",
-            ],
-          },
-        },
-        "HostedZoneId": {
-          "Ref": "CustomDomainStackhostedzone0C7A85BB",
-        },
-        "Name": "mydomain.com.",
-        "Type": "A",
-      },
-      "Type": "AWS::Route53::RecordSet",
-    },
-    "CustomDomainStackarecordwwwA9AA0B5F": {
-      "Properties": {
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::GetAtt": [
-              "CustomDomainStackredirectdist09B7BF7F",
-              "DomainName",
-            ],
-          },
-          "HostedZoneId": {
-            "Fn::FindInMap": [
-              "AWSCloudFrontPartitionHostedZoneIdMap",
-              {
-                "Ref": "AWS::Partition",
-              },
-              "zoneId",
-            ],
-          },
-        },
-        "HostedZoneId": {
-          "Ref": "CustomDomainStackhostedzone0C7A85BB",
-        },
-        "Name": "www.mydomain.com.",
-        "Type": "A",
-      },
-      "Type": "AWS::Route53::RecordSet",
-    },
-    "CustomDomainStackbucket2257E27E": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "PublicAccessBlockConfiguration": {
-          "BlockPublicAcls": true,
-          "BlockPublicPolicy": true,
-          "IgnorePublicAcls": true,
-          "RestrictPublicBuckets": true,
-        },
-        "Tags": [
-          {
-            "Key": "aws-cdk:auto-delete-objects",
-            "Value": "true",
-          },
-          {
-            "Key": "aws-cdk:cr-owned:e9fe52f1",
-            "Value": "true",
-          },
-        ],
-      },
-      "Type": "AWS::S3::Bucket",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomDomainStackbucketAutoDeleteObjectsCustomResourceF9B33972": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "CustomDomainStackbucketPolicyED615AC5",
-      ],
-      "Properties": {
-        "BucketName": {
-          "Ref": "CustomDomainStackbucket2257E27E",
-        },
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "Custom::S3AutoDeleteObjects",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomDomainStackbucketPolicyED615AC5": {
-      "Properties": {
-        "Bucket": {
-          "Ref": "CustomDomainStackbucket2257E27E",
-        },
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "s3:PutBucketPolicy",
-                "s3:GetBucket*",
-                "s3:List*",
-                "s3:DeleteObject*",
-              ],
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": {
-                  "Fn::GetAtt": [
-                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
-                    "Arn",
-                  ],
-                },
-              },
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "CustomDomainStackbucket2257E27E",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "CustomDomainStackbucket2257E27E",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": "s3:GetObject",
-              "Condition": {
-                "StringEquals": {
-                  "AWS:SourceArn": {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:",
-                        {
-                          "Ref": "AWS::Partition",
-                        },
-                        ":cloudfront::",
-                        {
-                          "Ref": "AWS::AccountId",
-                        },
-                        ":distribution/",
-                        {
-                          "Ref": "CustomDomainStackdistribution0931BA2E",
-                        },
-                      ],
-                    ],
-                  },
-                },
-              },
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "cloudfront.amazonaws.com",
-              },
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    {
-                      "Fn::GetAtt": [
-                        "CustomDomainStackbucket2257E27E",
-                        "Arn",
-                      ],
-                    },
-                    "/*",
-                  ],
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::S3::BucketPolicy",
-    },
-    "CustomDomainStackcert25F0DD96": {
-      "Properties": {
-        "DomainName": "mydomain.com",
-        "DomainValidationOptions": [
-          {
-            "DomainName": "mydomain.com",
-            "HostedZoneId": {
-              "Ref": "CustomDomainStackhostedzone0C7A85BB",
-            },
-          },
-        ],
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "CustomDomainStack/CustomDomainStack-cert",
-          },
-        ],
-        "ValidationMethod": "DNS",
-      },
-      "Type": "AWS::CertificateManager::Certificate",
-    },
-    "CustomDomainStackcertwwwAD27A73E": {
-      "Properties": {
-        "DomainName": "www.mydomain.com",
-        "DomainValidationOptions": [
-          {
-            "DomainName": "www.mydomain.com",
-            "HostedZoneId": {
-              "Ref": "CustomDomainStackhostedzone0C7A85BB",
-            },
-          },
-        ],
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "CustomDomainStack/CustomDomainStack-cert-www",
-          },
-        ],
-        "ValidationMethod": "DNS",
-      },
-      "Type": "AWS::CertificateManager::Certificate",
-    },
-    "CustomDomainStackconnectionConnection90A16DD9": {
-      "Properties": {
-        "AuthParameters": {
-          "ApiKeyAuthParameters": {
-            "ApiKeyName": "weather-site-authorization",
-            "ApiKeyValue": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
-          },
-          "InvocationHttpParameters": {
-            "QueryStringParameters": [
-              {
-                "IsValueSecret": true,
-                "Key": "appid",
-                "Value": "{{resolve:secretsmanager:weather-site-api-key:SecretString:::}}",
-              },
-            ],
-          },
-        },
-        "AuthorizationType": "API_KEY",
-        "Description": "Connection to OpenWeatherMap API for CustomDomainStack",
-        "Name": "CustomDomainStack",
-      },
-      "Type": "AWS::Events::Connection",
-    },
-    "CustomDomainStackdistribution0931BA2E": {
-      "Properties": {
-        "DistributionConfig": {
-          "Aliases": [
-            "mydomain.com",
-          ],
-          "CustomErrorResponses": [
-            {
-              "ErrorCode": 404,
-              "ResponseCode": 200,
-              "ResponsePagePath": "/index.html",
-            },
-          ],
-          "DefaultCacheBehavior": {
-            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
-            "Compress": true,
-            "TargetOriginId": "CustomDomainStackCustomDomainStackdistributionOrigin1E46DAA32",
-            "ViewerProtocolPolicy": "redirect-to-https",
-          },
-          "DefaultRootObject": "index.html",
-          "Enabled": true,
-          "HttpVersion": "http2",
-          "IPV6Enabled": true,
-          "Origins": [
-            {
-              "DomainName": {
-                "Fn::GetAtt": [
-                  "CustomDomainStackbucket2257E27E",
-                  "RegionalDomainName",
-                ],
-              },
-              "Id": "CustomDomainStackCustomDomainStackdistributionOrigin1E46DAA32",
-              "OriginAccessControlId": {
-                "Fn::GetAtt": [
-                  "CustomDomainStackdistributionOrigin1S3OriginAccessControlEE073A94",
-                  "Id",
-                ],
-              },
-              "S3OriginConfig": {
-                "OriginAccessIdentity": "",
-              },
-            },
-          ],
-          "ViewerCertificate": {
-            "AcmCertificateArn": {
-              "Ref": "CustomDomainStackcert25F0DD96",
-            },
-            "MinimumProtocolVersion": "TLSv1.2_2021",
-            "SslSupportMethod": "sni-only",
-          },
-        },
-      },
-      "Type": "AWS::CloudFront::Distribution",
-    },
-    "CustomDomainStackdistributionOrigin1S3OriginAccessControlEE073A94": {
-      "Properties": {
-        "OriginAccessControlConfig": {
-          "Name": "CustomDomainStackCustomDomaiOrigin1S3OriginAccessControl77BF09BA",
-          "OriginAccessControlOriginType": "s3",
-          "SigningBehavior": "always",
-          "SigningProtocol": "sigv4",
-        },
-      },
-      "Type": "AWS::CloudFront::OriginAccessControl",
-    },
-    "CustomDomainStackfileuploadAwsCliLayerD8CBAA40": {
-      "Properties": {
-        "Content": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "1b2c92f2cd21c170884393633bd4c732676df6290562199b6e3ca5e2a1be7d18.zip",
-        },
-        "Description": "/opt/awscli/aws",
-      },
-      "Type": "AWS::Lambda::LayerVersion",
-    },
-    "CustomDomainStackfileuploadCustomResourceC12393FC": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "DestinationBucketName": {
-          "Ref": "CustomDomainStackbucket2257E27E",
-        },
-        "OutputObjectKeys": true,
-        "Prune": false,
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
-            "Arn",
-          ],
-        },
-        "SourceBucketNames": [
-          {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-        ],
-        "SourceObjectKeys": [
-          "5dd6e66aca7809028d3677a67f96628aaa6a67242456ee0f3c81ba4842f6afb0.zip",
-        ],
-      },
-      "Type": "Custom::CDKBucketDeployment",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomDomainStackhostedzone0C7A85BB": {
-      "Properties": {
-        "Name": "mydomain.com.",
-      },
-      "Type": "AWS::Route53::HostedZone",
-    },
-    "CustomDomainStackredirectdist09B7BF7F": {
-      "Properties": {
-        "DistributionConfig": {
-          "Aliases": [
-            "www.mydomain.com",
-          ],
-          "DefaultCacheBehavior": {
-            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
-            "Compress": true,
-            "FunctionAssociations": [
-              {
-                "EventType": "viewer-request",
-                "FunctionARN": {
-                  "Fn::GetAtt": [
-                    "CustomDomainStackredirectfunction8D971534",
-                    "FunctionARN",
-                  ],
-                },
-              },
-            ],
-            "TargetOriginId": "CustomDomainStackCustomDomainStackredirectdistOrigin1BA8F3018",
-            "ViewerProtocolPolicy": "allow-all",
-          },
-          "Enabled": true,
-          "HttpVersion": "http2",
-          "IPV6Enabled": true,
-          "Origins": [
-            {
-              "CustomOriginConfig": {
-                "OriginProtocolPolicy": "https-only",
-                "OriginSSLProtocols": [
-                  "TLSv1.2",
-                ],
-              },
-              "DomainName": "mydomain.com",
-              "Id": "CustomDomainStackCustomDomainStackredirectdistOrigin1BA8F3018",
-            },
-          ],
-          "ViewerCertificate": {
-            "AcmCertificateArn": {
-              "Ref": "CustomDomainStackcertwwwAD27A73E",
-            },
-            "MinimumProtocolVersion": "TLSv1.2_2021",
-            "SslSupportMethod": "sni-only",
-          },
-        },
-      },
-      "Type": "AWS::CloudFront::Distribution",
-    },
-    "CustomDomainStackredirectfunction8D971534": {
-      "Properties": {
-        "AutoPublish": true,
-        "FunctionCode": "function handler(event) {
-          console.log(event.request.headers);
-          console.log(event.request);
-          var response = {
-              statusCode: 302,
-              statusDescription: 'Found',
-              headers: {
-                  "location": { "value": 'https://mydomain.com'+event.request.uri }    
-              }
-            }
-          return response;
-      }",
-        "FunctionConfig": {
-          "Comment": {
-            "Fn::Join": [
-              "",
-              [
-                {
-                  "Ref": "AWS::Region",
-                },
-                "CustomDomainStacedirect-function3E485C85",
-              ],
-            ],
-          },
-          "Runtime": "cloudfront-js-2.0",
-        },
-        "Name": {
-          "Fn::Join": [
-            "",
-            [
-              {
-                "Ref": "AWS::Region",
-              },
-              "CustomDomainStacedirect-function3E485C85",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::CloudFront::Function",
-    },
-    "CustomDomainStackschedule093951F52": {
-      "Properties": {
-        "Description": "Invoke Step Function for CustomDomainStack",
-        "FlexibleTimeWindow": {
-          "Mode": "OFF",
-        },
-        "Name": "CustomDomainStack-schedule-0",
-        "ScheduleExpression": "cron(0/30 * * 6-9 ? *)",
-        "ScheduleExpressionTimezone": "America/Los_Angeles",
-        "State": "ENABLED",
-        "Target": {
-          "Arn": {
-            "Ref": "CustomDomainStackstatemachine0BC70ECA",
-          },
-          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
-          "RetryPolicy": {
-            "MaximumEventAgeInSeconds": 90,
-            "MaximumRetryAttempts": 2,
-          },
-          "RoleArn": {
-            "Fn::GetAtt": [
-              "SchedulerRoleForTarget89bba0B9BBF877",
-              "Arn",
-            ],
-          },
-        },
-      },
-      "Type": "AWS::Scheduler::Schedule",
-    },
-    "CustomDomainStackschedule11DACB6D3": {
-      "Properties": {
-        "Description": "Invoke Step Function for CustomDomainStack",
-        "FlexibleTimeWindow": {
-          "Mode": "OFF",
-        },
-        "Name": "CustomDomainStack-schedule-1",
-        "ScheduleExpression": "cron(0/10 * * 1,2,3,4,5,10,11,12 ? *)",
-        "ScheduleExpressionTimezone": "America/Los_Angeles",
-        "State": "ENABLED",
-        "Target": {
-          "Arn": {
-            "Ref": "CustomDomainStackstatemachine0BC70ECA",
-          },
-          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
-          "RetryPolicy": {
-            "MaximumEventAgeInSeconds": 90,
-            "MaximumRetryAttempts": 2,
-          },
-          "RoleArn": {
-            "Fn::GetAtt": [
-              "SchedulerRoleForTarget89bba0B9BBF877",
-              "Arn",
-            ],
-          },
-        },
-      },
-      "Type": "AWS::Scheduler::Schedule",
-    },
-    "CustomDomainStacksflog703FD69A": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "LogGroupName": "CustomDomainStack-sf-log",
-        "RetentionInDays": 7,
-      },
-      "Type": "AWS::Logs::LogGroup",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomDomainStackstatemachine0BC70ECA": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "CustomDomainStackstatemachineRoleDefaultPolicy68848DE9",
-        "CustomDomainStackstatemachineRole89A0E400",
-      ],
-      "Properties": {
-        "DefinitionString": {
-          "Fn::Join": [
-            "",
-            [
-              "{"StartAt":"Get site status","States":{"Get site status":{"QueryLanguage":"JSONata","Next":"Get Weather","Type":"Task","Arguments":{"Name":"",
-              {
-                "Ref": "CustomDomainStackstatusparamBB851C7A",
-              },
-              ""},"Output":{},"Assign":{"SiteStatus":"{% $states.result.Parameter.Value %}"},"Resource":"arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":states:::aws-sdk:ssm:getParameter"},"Get Weather":{"QueryLanguage":"JSONata","Next":"Is site up to date?","Retry":[{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Type":"Task","Arguments":{"ApiEndpoint":"https://api.openweathermap.org/data/3.0/onecall","Authentication":{"ConnectionArn":"",
-              {
-                "Fn::GetAtt": [
-                  "CustomDomainStackconnectionConnection90A16DD9",
-                  "Arn",
-                ],
-              },
-              ""},"Method":"GET","Headers":{"Content-Type":"application/json"},"QueryParameters":{"units":"imperial","exclude":"minutely,hourly,daily,alerts","lat":"{% $states.context.Execution.Input.WEATHER_LOCATION_LAT %}","lon":"{% $states.context.Execution.Input.WEATHER_LOCATION_LON %}"}},"Output":{},"Assign":{"CurrentWeather":"{% $contains($lowercase($states.result.ResponseBody.current.weather[0].main), $states.context.Execution.Input.WEATHER_TYPE) ?  $states.context.Execution.Input.WEATHER_TYPE : \\"no \\" & $states.context.Execution.Input.WEATHER_TYPE %}"},"Resource":"arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":states:::http:invoke"},"Is site up to date?":{"Type":"Choice","QueryLanguage":"JSONata","Choices":[{"Condition":"{% $CurrentWeather = $SiteStatus %}","Next":"Site is up to date"}],"Default":"Update site"},"Update site":{"QueryLanguage":"JSONata","Next":"Finish update","Retry":[{"ErrorEquals":["Lambda.ClientExecutionTimeoutException","Lambda.ServiceException","Lambda.AWSLambdaException","Lambda.SdkClientException"],"IntervalSeconds":2,"MaxAttempts":6,"BackoffRate":2},{"ErrorEquals":["States.ALL"],"IntervalSeconds":2,"MaxAttempts":3,"BackoffRate":2,"JitterStrategy":"FULL"}],"Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Type":"Task","Comment":"Update site with new weather data ","Arguments":{"FunctionName":"",
-              {
-                "Fn::GetAtt": [
-                  "CustomDomainStackupdateSiteFunctionD4DB1009",
-                  "Arn",
-                ],
-              },
-              "","Payload":{"CurrentWeather":"{% $CurrentWeather %}"}},"Output":{},"Resource":"arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":states:::lambda:invoke"},"Finish update":{"Type":"Parallel","Next":"Site is up to date","Catch":[{"ErrorEquals":["States.ALL"],"Next":"Site update failure"}],"Branches":[{"StartAt":"Update site status parameter","States":{"Update site status parameter":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"Name":"",
-              {
-                "Ref": "CustomDomainStackstatusparamBB851C7A",
-              },
-              "","Value":"{% $CurrentWeather %}","Overwrite":true},"Output":{},"Resource":"arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":states:::aws-sdk:ssm:putParameter"}}},{"StartAt":"Invalidate CloudFront cache","States":{"Invalidate CloudFront cache":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"DistributionId":"",
-              {
-                "Ref": "CustomDomainStackdistribution0931BA2E",
-              },
-              "","InvalidationBatch":{"CallerReference":"{% $states.context.State.EnteredTime %}","Paths":{"Quantity":1,"Items":["/index.html"]}}},"Output":{},"Resource":"arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site is up to date":{"Type":"Pass","QueryLanguage":"JSONata","Comment":"The final state","Output":{"SiteStatus":"{% $CurrentWeather %}"},"End":true},"Site update failure":{"Type":"Fail"}}}",
-            ],
-          ],
-        },
-        "LoggingConfiguration": {
-          "Destinations": [
-            {
-              "CloudWatchLogsLogGroup": {
-                "LogGroupArn": {
-                  "Fn::GetAtt": [
-                    "CustomDomainStacksflog703FD69A",
-                    "Arn",
-                  ],
-                },
-              },
-            },
-          ],
-          "IncludeExecutionData": true,
-          "Level": "ALL",
-        },
-        "RoleArn": {
-          "Fn::GetAtt": [
-            "CustomDomainStackstatemachineRole89A0E400",
-            "Arn",
-          ],
-        },
-        "StateMachineName": "CustomDomainStack-state-machine",
-        "StateMachineType": "EXPRESS",
-        "TracingConfiguration": {
-          "Enabled": true,
-        },
-      },
-      "Type": "AWS::StepFunctions::StateMachine",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomDomainStackstatemachineRole89A0E400": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "states.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "CustomDomainStackstatemachineRoleDefaultPolicy68848DE9": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "ssm:getParameter",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/",
-                    {
-                      "Ref": "CustomDomainStackstatusparamBB851C7A",
-                    },
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": "events:RetrieveConnectionCredentials",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "CustomDomainStackconnectionConnection90A16DD9",
-                  "Arn",
-                ],
-              },
-            },
-            {
-              "Action": [
-                "secretsmanager:GetSecretValue",
-                "secretsmanager:DescribeSecret",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "CustomDomainStackconnectionConnection90A16DD9",
-                  "SecretArn",
-                ],
-              },
-            },
-            {
-              "Action": "states:InvokeHTTPEndpoint",
-              "Condition": {
-                "StringLike": {
-                  "states:HTTPEndpoint": "https://api.openweathermap.org*",
-                },
-              },
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": "lambda:InvokeFunction",
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "CustomDomainStackupdateSiteFunctionD4DB1009",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "CustomDomainStackupdateSiteFunctionD4DB1009",
-                          "Arn",
-                        ],
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": "ssm:putParameter",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition",
-                    },
-                    ":ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/",
-                    {
-                      "Ref": "CustomDomainStackstatusparamBB851C7A",
-                    },
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": "cloudfront:createInvalidation",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:cloudfront::",
-                    {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":distribution/",
-                    {
-                      "Ref": "CustomDomainStackdistribution0931BA2E",
-                    },
-                  ],
-                ],
-              },
-            },
-            {
-              "Action": [
-                "logs:CreateLogDelivery",
-                "logs:GetLogDelivery",
-                "logs:UpdateLogDelivery",
-                "logs:DeleteLogDelivery",
-                "logs:ListLogDeliveries",
-                "logs:PutResourcePolicy",
-                "logs:DescribeResourcePolicies",
-                "logs:DescribeLogGroups",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "CustomDomainStackstatemachineRoleDefaultPolicy68848DE9",
-        "Roles": [
-          {
-            "Ref": "CustomDomainStackstatemachineRole89A0E400",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "CustomDomainStackstatusparamBB851C7A": {
-      "Properties": {
-        "Description": "Current status of the weather site for CustomDomainStack",
-        "Name": "CustomDomainStack-status-param",
-        "Type": "String",
-        "Value": "Initial value",
-      },
-      "Type": "AWS::SSM::Parameter",
-    },
-    "CustomDomainStackupdateSiteFunctionD4DB1009": {
-      "DependsOn": [
-        "CustomDomainStackupdateSiteFunctionServiceRoleDefaultPolicy4AABA9F6",
-        "CustomDomainStackupdateSiteFunctionServiceRole17F4AF6B",
-      ],
-      "Properties": {
-        "Architectures": [
-          "arm64",
-        ],
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "71a288359e2225f79baaca64526d4a6eced3d6dfcb3bdc729685c0f79a22e53d.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "BUCKET_NAME": {
-              "Ref": "CustomDomainStackbucket2257E27E",
-            },
-            "LOCATION_NAME": "New York, NY USA",
-            "OPEN_WEATHER_URL": "https://api.openweathermap.org/data/2.5/onecall",
-            "WEATHER_TYPE": "rain",
-          },
-        },
-        "FunctionName": "CustomDomainStack-updateSiteFunction",
-        "Handler": "index.handler",
-        "LoggingConfig": {
-          "LogFormat": "JSON",
-          "LogGroup": {
-            "Ref": "CustomDomainStackupdateSiteLogGroup34922802",
-          },
-        },
-        "MemorySize": 3008,
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomDomainStackupdateSiteFunctionServiceRole17F4AF6B",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 30,
-        "TracingConfig": {
-          "Mode": "Active",
-        },
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "CustomDomainStackupdateSiteFunctionServiceRole17F4AF6B": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "CustomDomainStackupdateSiteFunctionServiceRoleDefaultPolicy4AABA9F6": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "s3:DeleteObject*",
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "CustomDomainStackbucket2257E27E",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "CustomDomainStackbucket2257E27E",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "CustomDomainStackupdateSiteFunctionServiceRoleDefaultPolicy4AABA9F6",
-        "Roles": [
-          {
-            "Ref": "CustomDomainStackupdateSiteFunctionServiceRole17F4AF6B",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "CustomDomainStackupdateSiteLogGroup34922802": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "LogGroupName": "CustomDomainStack-updateSiteLogGroup",
-        "RetentionInDays": 7,
-      },
-      "Type": "AWS::Logs::LogGroup",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
-      "DependsOn": [
-        "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
-        },
-        "Description": {
-          "Fn::Join": [
-            "",
-            [
-              "Lambda function for auto-deleting objects in ",
-              {
-                "Ref": "CustomDomainStackbucket2257E27E",
-              },
-              " S3 bucket.",
-            ],
-          ],
-        },
-        "Handler": "index.handler",
-        "MemorySize": 128,
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
-            "Arn",
-          ],
-        },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Sub": "arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
-      "DependsOn": [
-        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
-        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
-          },
-          "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip",
-        },
-        "Handler": "index.handler",
-        "Role": {
-          "Fn::GetAtt": [
-            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
-            "Arn",
-          ],
-        },
-        "Runtime": {
-          "Fn::FindInMap": [
-            "LatestNodeRuntimeMap",
-            {
-              "Ref": "AWS::Region",
-            },
-            "value",
-          ],
-        },
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "logs:PutRetentionPolicy",
-                "logs:DeleteRetentionPolicy",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
-        "Roles": [
-          {
-            "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "SchedulerRoleForTarget89bba0B9BBF877": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Condition": {
-                "StringEquals": {
-                  "aws:SourceAccount": {
-                    "Ref": "AWS::AccountId",
-                  },
-                  "aws:SourceArn": {
-                    "Fn::Join": [
-                      "",
-                      [
-                        "arn:",
-                        {
-                          "Ref": "AWS::Partition",
-                        },
-                        ":scheduler:",
-                        {
-                          "Ref": "AWS::Region",
-                        },
-                        ":",
-                        {
-                          "Ref": "AWS::AccountId",
-                        },
-                        ":schedule-group/default",
-                      ],
-                    ],
-                  },
-                },
-              },
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "scheduler.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "SchedulerRoleForTarget89bba0DefaultPolicy3CA08A5E": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "states:StartExecution",
-              "Effect": "Allow",
-              "Resource": {
-                "Ref": "CustomDomainStackstatemachine0BC70ECA",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "SchedulerRoleForTarget89bba0DefaultPolicy3CA08A5E",
-        "Roles": [
-          {
-            "Ref": "SchedulerRoleForTarget89bba0B9BBF877",
           },
         ],
       },

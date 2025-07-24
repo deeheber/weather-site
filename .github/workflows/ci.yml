@@ -51,9 +51,9 @@ jobs:
           # 15 minutes aka shortest time allowed
           role-duration-seconds: 900
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-1
+          aws-region: us-west-2
 
-      - name: cdk synth
+      - name: cdk synth non custom domain stack
         run: npm run synth:quiet
         env:
           ALERT_EMAIL: test@test.com
@@ -61,6 +61,19 @@ jobs:
           OPEN_WEATHER_URL: https://openweathermap.org/city/5206379
           SCHEDULES: 'rate(60 minutes)'
           STACK_PREFIX: pitt-rain
+          WEATHER_LOCATION_LAT: 40.4406
+          WEATHER_LOCATION_LON: -79.9959
+          WEATHER_TYPE: rain
+
+      - name: cdk synth custom domain stack
+        run: npm run synth:quiet
+        env:
+          ALERT_EMAIL: test@test.com
+          LOCATION_NAME: Pittsburgh, Pennsylvania
+          OPEN_WEATHER_URL: https://openweathermap.org/city/5206379
+          SCHEDULES: 'rate(60 minutes)'
+          STACK_PREFIX: pitt-rain
+          DOMAIN_NAME: pitt-rain-site.com
           WEATHER_LOCATION_LAT: 40.4406
           WEATHER_LOCATION_LON: -79.9959
           WEATHER_TYPE: rain

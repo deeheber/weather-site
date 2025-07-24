@@ -7,19 +7,9 @@ import {
   StackProps,
   TimeZone,
 } from 'aws-cdk-lib'
-import {
-  Certificate,
-  CertificateValidation,
-} from 'aws-cdk-lib/aws-certificatemanager'
-import {
-  Distribution,
-  Function,
-  FunctionCode,
-  FunctionEventType,
-  FunctionRuntime,
-  ViewerProtocolPolicy,
-} from 'aws-cdk-lib/aws-cloudfront'
-import { HttpOrigin, S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager'
+import { Distribution, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
+import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import {
   Authorization,
   Connection,
@@ -68,7 +58,9 @@ import { Construct } from 'constructs'
 import * as path from 'path'
 
 interface WeatherSiteStackProps extends StackProps {
-  domainName: string
+  certificate?: Certificate
+  domainName?: string
+  hostedZone?: HostedZone
   locationName: string
   openWeatherUrl: string
   schedules: string[]
@@ -80,9 +72,6 @@ interface WeatherSiteStackProps extends StackProps {
 export class WeatherSiteStack extends Stack {
   public id: string
   private props: WeatherSiteStackProps
-  private hostedZone: HostedZone
-  private certificate: Certificate
-  private redirectCertificate: Certificate
   private distribution: Distribution
   public stepFunction: StateMachine
   private bucket: Bucket
@@ -92,89 +81,10 @@ export class WeatherSiteStack extends Stack {
     this.id = id
     this.props = props
 
-    if (this.props.domainName) {
-      this.createHostedZone()
-      this.createCertificates()
-      this.createRedirect()
-    }
-
     this.createBucket()
     this.createDistribution()
     this.createStepFunction()
     this.addScheduler()
-  }
-
-  private createHostedZone() {
-    this.hostedZone = new HostedZone(this, `${this.id}-hosted-zone`, {
-      zoneName: this.props.domainName,
-    })
-  }
-
-  private createCertificates() {
-    this.certificate = new Certificate(this, `${this.id}-cert`, {
-      domainName: this.props.domainName,
-      validation: CertificateValidation.fromDns(this.hostedZone),
-    })
-
-    this.redirectCertificate = new Certificate(this, `${this.id}-cert-www`, {
-      domainName: `www.${this.props.domainName}`,
-      validation: CertificateValidation.fromDns(this.hostedZone),
-    })
-  }
-
-  private createRedirect() {
-    /**
-     * Redirect from www to non-www
-     * AWS doesn't provide a nicer way to do this 👎🏻
-     * Thanks to https://paramvirsingh.com/post/article/redirect-www-to-naked-domain-aws-cloudfront for this idea!
-     *
-     * www -> CloudFront Dist 1 -> CloudFront function redirect -> non-www -> CloudFront Dist 2
-     */
-    const redirectFunction = new Function(
-      this,
-      `${this.id}-redirect-function`,
-      {
-        code: FunctionCode.fromInline(`function handler(event) {
-          console.log(event.request.headers);
-          console.log(event.request);
-          var response = {
-              statusCode: 302,
-              statusDescription: 'Found',
-              headers: {
-                  "location": { "value": 'https://${this.props.domainName}'+event.request.uri }    
-              }
-            }
-          return response;
-      }`),
-        runtime: FunctionRuntime.JS_2_0,
-      },
-    )
-
-    const redirectDistribution = new Distribution(
-      this,
-      `${this.id}-redirect-dist`,
-      {
-        defaultBehavior: {
-          origin: new HttpOrigin(this.props.domainName),
-          functionAssociations: [
-            {
-              function: redirectFunction,
-              eventType: FunctionEventType.VIEWER_REQUEST,
-            },
-          ],
-        },
-        domainNames: [`www.${this.props.domainName}`],
-        certificate: this.redirectCertificate,
-      },
-    )
-
-    new ARecord(this, `${this.id}-a-record-www`, {
-      zone: this.hostedZone,
-      recordName: `www.${this.props.domainName}`,
-      target: RecordTarget.fromAlias(
-        new CloudFrontTarget(redirectDistribution),
-      ),
-    })
   }
 
   private createBucket() {
@@ -200,12 +110,12 @@ export class WeatherSiteStack extends Stack {
       ],
       defaultRootObject: 'index.html',
       domainNames: this.props.domainName ? [this.props.domainName] : undefined,
-      certificate: this.props.domainName ? this.certificate : undefined,
+      certificate: this.props.certificate,
     })
 
-    if (this.props.domainName) {
+    if (this.props.domainName && this.props.hostedZone) {
       new ARecord(this, `${this.id}-a-record`, {
-        zone: this.hostedZone,
+        zone: this.props.hostedZone,
         recordName: this.props.domainName,
         target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
       })
@@ -257,7 +167,7 @@ export class WeatherSiteStack extends Stack {
 
     const updateSiteLogGroupId = `${this.id}-updateSiteLogGroup`
     const updateSiteLogGroup = new LogGroup(this, updateSiteLogGroupId, {
-      logGroupName: updateSiteLogGroupId,
+      logGroupName: `/aws/lambda/${updateSiteLogGroupId}`,
       retention: RetentionDays.ONE_WEEK,
       removalPolicy: RemovalPolicy.DESTROY,
     })
