@@ -167,7 +167,7 @@ export class WeatherSiteStack extends Stack {
 
     const updateSiteLogGroupId = `${this.id}-updateSiteLogGroup`
     const updateSiteLogGroup = new LogGroup(this, updateSiteLogGroupId, {
-      logGroupName: updateSiteLogGroupId,
+      logGroupName: `/aws/lambda/${updateSiteLogGroupId}`,
       retention: RetentionDays.ONE_WEEK,
       removalPolicy: RemovalPolicy.DESTROY,
     })

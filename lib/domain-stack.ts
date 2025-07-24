@@ -67,16 +67,14 @@ export class DomainStack extends Stack {
       `${this.id}-redirect-function`,
       {
         code: FunctionCode.fromInline(`function handler(event) {
-          console.log(event.request.headers);
-          console.log(event.request);
-          var response = {
-              statusCode: 302,
-              statusDescription: 'Found',
-              headers: {
-                  "location": { "value": 'https://${this.domainName}'+event.request.uri }    
-              }
+          console.log(event);
+          return {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+                "location": { "value": 'https://${this.domainName}'+event.request.uri }   
             }
-          return response;
+          };
       }`),
         runtime: FunctionRuntime.JS_2_0,
       },
