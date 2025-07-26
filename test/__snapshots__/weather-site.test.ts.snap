@@ -1,4 +1,220 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Custom domain resources Verify domain stack resources 1`] = `
+{
+  "Mappings": {
+    "AWSCloudFrontPartitionHostedZoneIdMap": {
+      "aws": {
+        "zoneId": "Z2FDTNDATAQYW2",
+      },
+      "aws-cn": {
+        "zoneId": "Z3RFFRIM2A3IF5",
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "TestDomainStackarecordwwwDDE3D53E": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "TestDomainStackredirectdist0FB2FF74",
+              "DomainName",
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::FindInMap": [
+              "AWSCloudFrontPartitionHostedZoneIdMap",
+              {
+                "Ref": "AWS::Partition",
+              },
+              "zoneId",
+            ],
+          },
+        },
+        "HostedZoneId": {
+          "Ref": "TestDomainStackhostedzone9ECEE808",
+        },
+        "Name": "www.mydomain.com.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "TestDomainStackcertAB38206D": {
+      "Properties": {
+        "DomainName": "mydomain.com",
+        "DomainValidationOptions": [
+          {
+            "DomainName": "mydomain.com",
+            "HostedZoneId": {
+              "Ref": "TestDomainStackhostedzone9ECEE808",
+            },
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TestDomainStack/TestDomainStack-cert",
+          },
+        ],
+        "ValidationMethod": "DNS",
+      },
+      "Type": "AWS::CertificateManager::Certificate",
+    },
+    "TestDomainStackcertwww4417A04E": {
+      "Properties": {
+        "DomainName": "www.mydomain.com",
+        "DomainValidationOptions": [
+          {
+            "DomainName": "www.mydomain.com",
+            "HostedZoneId": {
+              "Ref": "TestDomainStackhostedzone9ECEE808",
+            },
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TestDomainStack/TestDomainStack-cert-www",
+          },
+        ],
+        "ValidationMethod": "DNS",
+      },
+      "Type": "AWS::CertificateManager::Certificate",
+    },
+    "TestDomainStackhostedzone9ECEE808": {
+      "Properties": {
+        "Name": "mydomain.com.",
+      },
+      "Type": "AWS::Route53::HostedZone",
+    },
+    "TestDomainStackredirectdist0FB2FF74": {
+      "Properties": {
+        "DistributionConfig": {
+          "Aliases": [
+            "www.mydomain.com",
+          ],
+          "DefaultCacheBehavior": {
+            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "Compress": true,
+            "FunctionAssociations": [
+              {
+                "EventType": "viewer-request",
+                "FunctionARN": {
+                  "Fn::GetAtt": [
+                    "TestDomainStackredirectfunctionB8B080EC",
+                    "FunctionARN",
+                  ],
+                },
+              },
+            ],
+            "TargetOriginId": "TestDomainStackTestDomainStackredirectdistOrigin158245CE4",
+            "ViewerProtocolPolicy": "allow-all",
+          },
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Origins": [
+            {
+              "CustomOriginConfig": {
+                "OriginProtocolPolicy": "https-only",
+                "OriginSSLProtocols": [
+                  "TLSv1.2",
+                ],
+              },
+              "DomainName": "mydomain.com",
+              "Id": "TestDomainStackTestDomainStackredirectdistOrigin158245CE4",
+            },
+          ],
+          "ViewerCertificate": {
+            "AcmCertificateArn": {
+              "Ref": "TestDomainStackcertwww4417A04E",
+            },
+            "MinimumProtocolVersion": "TLSv1.2_2021",
+            "SslSupportMethod": "sni-only",
+          },
+        },
+      },
+      "Type": "AWS::CloudFront::Distribution",
+    },
+    "TestDomainStackredirectfunctionB8B080EC": {
+      "Properties": {
+        "AutoPublish": true,
+        "FunctionCode": "function handler(event) {
+          console.log(event);
+          return {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+                "location": { "value": 'https://mydomain.com'+event.request.uri }   
+            }
+          };
+      }",
+        "FunctionConfig": {
+          "Comment": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::Region",
+                },
+                "TestDomainStackTedirect-functionBAE11116",
+              ],
+            ],
+          },
+          "Runtime": "cloudfront-js-2.0",
+        },
+        "Name": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region",
+              },
+              "TestDomainStackTedirect-functionBAE11116",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::CloudFront::Function",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
 
 exports[`Custom domain resources Verify weather stack with custom domain 1`] = `
 {
