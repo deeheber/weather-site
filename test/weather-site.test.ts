@@ -119,6 +119,8 @@ describe('Custom domain resources', () => {
       Name: 'www.mydomain.com.',
       Type: 'A',
     })
+
+    expect(template.toJSON()).toMatchSnapshot()
   })
 
   test('Verify weather stack with custom domain', () => {
