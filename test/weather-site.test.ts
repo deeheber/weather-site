@@ -5,7 +5,7 @@ import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 
 describe('Non-custom domain resources', () => {
-  test('Verify weather stack resources', () => {
+  test('Verify weather stack resources with alerts', () => {
     const app = new App()
     const stack = new WeatherSiteStack(app, 'MyTestStack', {
       alertEmail: 'test@example.com',
@@ -18,12 +18,14 @@ describe('Non-custom domain resources', () => {
     })
     const template = Template.fromStack(stack)
 
+    template.resourceCountIs('AWS::SNS::Topic', 1)
+    template.resourceCountIs('AWS::SNS::Subscription', 1)
     template.resourceCountIs('AWS::S3::Bucket', 1)
     template.resourceCountIs('AWS::SSM::Parameter', 1)
     template.resourceCountIs('AWS::CloudFront::Distribution', 1)
     template.resourceCountIs('AWS::Events::Connection', 1)
-    template.resourceCountIs('AWS::SNS::Topic', 1)
-    template.resourceCountIs('AWS::SNS::Subscription', 1)
+    template.resourceCountIs('AWS::CloudWatch::Alarm', 1)
+    template.resourceCountIs('AWS::Scheduler::Schedule', 1)
 
     template.hasResourceProperties('AWS::SNS::Subscription', {
       Endpoint: 'test@example.com',
@@ -40,6 +42,10 @@ describe('Non-custom domain resources', () => {
       LoggingConfiguration: {
         Level: 'ALL',
       },
+    })
+    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+      MetricName: 'ExecutionsFailed',
+      Namespace: 'AWS/States',
     })
     template.hasResourceProperties('AWS::Scheduler::Schedule', {
       Name: 'MyTestStack-schedule-0',
@@ -91,7 +97,7 @@ describe('Custom domain resources', () => {
     expect(template.toJSON()).toMatchSnapshot()
   })
 
-  test('Verify weather stack with custom domain', () => {
+  test('Verify weather stack with custom domain no alerts', () => {
     const app = new App()
     const domainName = 'mydomain.com'
 
@@ -121,6 +127,7 @@ describe('Custom domain resources', () => {
     template.resourceCountIs('AWS::Events::Connection', 1)
     template.resourceCountIs('AWS::SNS::Topic', 0)
     template.resourceCountIs('AWS::SNS::Subscription', 0)
+    template.resourceCountIs('AWS::CloudWatch::Alarm', 1)
 
     template.hasResourceProperties('AWS::Lambda::Function', {
       FunctionName: 'TestWeatherStack-updateSiteFunction',

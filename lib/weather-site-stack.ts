@@ -92,7 +92,7 @@ export class WeatherSiteStack extends Stack {
     this.createDistribution()
     this.createStepFunction()
     this.createAlerts()
-    this.addScheduler()
+    this.addSchedules()
   }
 
   private createTopic() {
@@ -407,7 +407,7 @@ export class WeatherSiteStack extends Stack {
     }
   }
 
-  private addScheduler() {
+  private addSchedules() {
     const target = new StepFunctionsStartExecution(this.stepFunction, {
       input: ScheduleTargetInput.fromObject({
         WEATHER_TYPE: this.props.weatherType.toLowerCase(),
