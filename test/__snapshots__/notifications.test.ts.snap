@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Non-custom domain resources Verify weather stack resources with notifications 1`] = `
+exports[`Weather stack with notifications Verify weather stack resources with notifications 1`] = `
 {
   "Mappings": {
     "LatestNodeRuntimeMap": {

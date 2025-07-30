@@ -3,7 +3,7 @@ import { Template } from 'aws-cdk-lib/assertions'
 
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 
-describe('Non-custom domain resources', () => {
+describe('Weather stack with notifications', () => {
   test('Verify weather stack resources with notifications', () => {
     const app = new App()
     const stack = new WeatherSiteStack(app, 'MyTestStack', {
