@@ -10,6 +10,8 @@ import {
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager'
 import { Distribution, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import { Alarm, ComparisonOperator } from 'aws-cdk-lib/aws-cloudwatch'
+import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions'
 import {
   Authorization,
   Connection,
@@ -77,7 +79,7 @@ export class WeatherSiteStack extends Stack {
   private props: WeatherSiteStackProps
   private bucket: Bucket
   private distribution: Distribution
-  public stepFunction: StateMachine
+  private stepFunction: StateMachine
   private topic: Topic
 
   constructor(scope: Construct, id: string, props: WeatherSiteStackProps) {
@@ -89,6 +91,7 @@ export class WeatherSiteStack extends Stack {
     this.createBucket()
     this.createDistribution()
     this.createStepFunction()
+    this.createAlerts()
     this.addScheduler()
   }
 
@@ -97,12 +100,16 @@ export class WeatherSiteStack extends Stack {
       return
     }
 
-    // A topic for email notifications of the site status changing
+    /**
+     * Optional Notifications:
+     * - site status change
+     * - step function cloudwatch alarm alerts
+     */
     const topicName = `${this.id}-topic`
 
     this.topic = new Topic(this, topicName, {
       topicName,
-      displayName: `Weather Site State Change Topic for ${this.id}`,
+      displayName: `${this.id} Notifications Topic`,
     })
 
     this.topic.addSubscription(
@@ -373,6 +380,31 @@ export class WeatherSiteStack extends Stack {
       },
       definitionBody: DefinitionBody.fromChainable(definition),
     })
+  }
+
+  private createAlerts() {
+    // Create Cloudwatch Alarm
+    const threshold = 2
+    const evaluationPeriods = 1
+    const period = 1
+    const metric = this.stepFunction.metricFailed({
+      period: Duration.hours(period),
+    })
+
+    const alarmName = `${this.id}-alarm`
+    const alarm = new Alarm(this, alarmName, {
+      actionsEnabled: true,
+      alarmName,
+      alarmDescription: `Alarm (${alarmName}) if the SUM of errors is greater than or equal to the threshold (${threshold}) for ${evaluationPeriods} evaluation period of ${period} minutes`,
+      metric,
+      threshold,
+      evaluationPeriods,
+      comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+    })
+
+    if (this.topic) {
+      alarm.addAlarmAction(new SnsAction(this.topic))
+    }
   }
 
   private addScheduler() {

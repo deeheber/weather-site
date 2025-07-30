@@ -1,7 +1,6 @@
 import { App } from 'aws-cdk-lib'
 import { Template } from 'aws-cdk-lib/assertions'
 
-import { AlertStack } from '../lib/alert-stack'
 import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 
@@ -53,46 +52,6 @@ describe('Non-custom domain resources', () => {
           STACK_NAME: 'MyTestStack',
         }),
       },
-    })
-
-    expect(template.toJSON()).toMatchSnapshot()
-  })
-
-  test('Verify error alert stack resources', () => {
-    const app = new App()
-    const weatherStack = new WeatherSiteStack(app, 'TestWeatherStack', {
-      alertEmail: 'test@example.com',
-      locationName: 'Test Location',
-      openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
-      schedules: 'rate(10 minutes)'.split(', '),
-      weatherLocationLat: '123',
-      weatherLocationLon: '456',
-      weatherType: 'snow',
-    })
-
-    const alertStack = new AlertStack(app, 'TestAlertStack', {
-      stepFunction: weatherStack.stepFunction,
-      alertEmail: 'test@example.com',
-    })
-    const template = Template.fromStack(alertStack)
-
-    template.resourceCountIs('AWS::SNS::Topic', 1)
-    template.resourceCountIs('AWS::SNS::Subscription', 1)
-    template.resourceCountIs('AWS::CloudWatch::Alarm', 1)
-
-    template.hasResourceProperties('AWS::SNS::Topic', {
-      TopicName: 'TestAlertStack-error-topic',
-      DisplayName: 'Weather Site Error Topic for TestAlertStack',
-    })
-    template.hasResourceProperties('AWS::SNS::Subscription', {
-      Protocol: 'email',
-      Endpoint: 'test@example.com',
-    })
-    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
-      AlarmName: 'TestAlertStack-alarm',
-      ComparisonOperator: 'GreaterThanOrEqualToThreshold',
-      EvaluationPeriods: 1,
-      Threshold: 2,
     })
 
     expect(template.toJSON()).toMatchSnapshot()

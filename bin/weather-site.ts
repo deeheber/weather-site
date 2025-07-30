@@ -4,7 +4,6 @@ import 'dotenv/config'
 
 import { App } from 'aws-cdk-lib'
 
-import { AlertStack } from '../lib/alert-stack'
 import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 
@@ -66,7 +65,7 @@ if (domainName) {
   })
 }
 
-const weatherSiteStack = new WeatherSiteStack(app, `${stackPrefix}-weather`, {
+new WeatherSiteStack(app, `${stackPrefix}-weather`, {
   description: `Resources for ${stackPrefix}-weather, an informative weather website`,
   env: { account, region },
   crossRegionReferences: region === 'us-east-1' ? undefined : true,
@@ -81,12 +80,3 @@ const weatherSiteStack = new WeatherSiteStack(app, `${stackPrefix}-weather`, {
   weatherLocationLon,
   weatherType,
 })
-
-if (alertEmail) {
-  const alertStack = new AlertStack(app, `${stackPrefix}-alert`, {
-    description: `Alert resources for ${weatherSiteStack.id}`,
-    stepFunction: weatherSiteStack.stepFunction,
-    alertEmail,
-  })
-  alertStack.addDependency(weatherSiteStack)
-}
