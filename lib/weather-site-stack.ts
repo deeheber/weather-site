@@ -77,9 +77,9 @@ interface WeatherSiteStackProps extends StackProps {
 export class WeatherSiteStack extends Stack {
   public id: string
   private props: WeatherSiteStackProps
-  private bucket: Bucket
   private distribution: Distribution
   private stepFunction: StateMachine
+  private bucket: Bucket
   private topic: Topic
 
   constructor(scope: Construct, id: string, props: WeatherSiteStackProps) {
