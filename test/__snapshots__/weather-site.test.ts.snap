@@ -1079,7 +1079,7 @@ exports[`Custom domain resources Verify weather stack with custom domain 1`] = `
           "Arn": {
             "Ref": "TestWeatherStackstatemachine71961157",
           },
-          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
+          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222","STACK_NAME":"TestWeatherStack"}",
           "RetryPolicy": {
             "MaximumEventAgeInSeconds": 90,
             "MaximumRetryAttempts": 2,
@@ -1108,7 +1108,7 @@ exports[`Custom domain resources Verify weather stack with custom domain 1`] = `
           "Arn": {
             "Ref": "TestWeatherStackstatemachine71961157",
           },
-          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222"}",
+          "Input": "{"WEATHER_TYPE":"rain","WEATHER_LOCATION_LAT":"111","WEATHER_LOCATION_LON":"222","STACK_NAME":"TestWeatherStack"}",
           "RetryPolicy": {
             "MaximumEventAgeInSeconds": 90,
             "MaximumRetryAttempts": 2,
@@ -1599,7 +1599,7 @@ exports[`Custom domain resources Verify weather stack with custom domain 1`] = `
 }
 `;
 
-exports[`Non-custom domain resources Verify alert stack resources 1`] = `
+exports[`Non-custom domain resources Verify error alert stack resources 1`] = `
 {
   "Parameters": {
     "BootstrapVersion": {
@@ -1639,7 +1639,7 @@ exports[`Non-custom domain resources Verify alert stack resources 1`] = `
     },
     "TestAlertStackerrortopic8CC68A85": {
       "Properties": {
-        "DisplayName": "Weather Site Topic for TestAlertStack",
+        "DisplayName": "Weather Site Error Topic for TestAlertStack",
         "TopicName": "TestAlertStack-error-topic",
       },
       "Type": "AWS::SNS::Topic",
@@ -2439,7 +2439,7 @@ exports[`Non-custom domain resources Verify weather stack resources 1`] = `
           "Arn": {
             "Ref": "MyTestStackstatemachineF5D307B4",
           },
-          "Input": "{"WEATHER_TYPE":"snow","WEATHER_LOCATION_LAT":"123","WEATHER_LOCATION_LON":"456"}",
+          "Input": "{"WEATHER_TYPE":"snow","WEATHER_LOCATION_LAT":"123","WEATHER_LOCATION_LON":"456","STACK_NAME":"MyTestStack"}",
           "RetryPolicy": {
             "MaximumEventAgeInSeconds": 90,
             "MaximumRetryAttempts": 2,
@@ -2520,7 +2520,15 @@ exports[`Non-custom domain resources Verify weather stack resources 1`] = `
               {
                 "Ref": "AWS::Partition",
               },
-              ":states:::aws-sdk:cloudfront:createInvalidation"}}}]},"Site is up to date":{"Type":"Pass","QueryLanguage":"JSONata","Comment":"The final state","Output":{"SiteStatus":"{% $CurrentWeather %}"},"End":true},"Site update failure":{"Type":"Fail"}}}",
+              ":states:::aws-sdk:cloudfront:createInvalidation"}}},{"StartAt":"Send email notification of site status change","States":{"Send email notification of site status change":{"QueryLanguage":"JSONata","End":true,"Type":"Task","Arguments":{"TopicArn":"",
+              {
+                "Ref": "MyTestStacktopic278AF978",
+              },
+              "","Subject":"{% $states.context.Execution.Input.STACK_NAME & \\" status change\\" %}","Message":"{% $states.context.Execution.Input.STACK_NAME & \\" changed from \\" & $SiteStatus & \\" to \\" & $CurrentWeather & \\".\\" %}"},"Output":{},"Resource":"arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":states:::aws-sdk:sns:publish"}}}]},"Site is up to date":{"Type":"Pass","QueryLanguage":"JSONata","Comment":"The final state","Output":{"SiteStatus":"{% $CurrentWeather %}"},"End":true},"Site update failure":{"Type":"Fail"}}}",
             ],
           ],
         },
@@ -2709,6 +2717,13 @@ exports[`Non-custom domain resources Verify weather stack resources 1`] = `
               },
             },
             {
+              "Action": "sns:publish",
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "MyTestStacktopic278AF978",
+              },
+            },
+            {
               "Action": [
                 "logs:CreateLogDelivery",
                 "logs:GetLogDelivery",
@@ -2752,6 +2767,23 @@ exports[`Non-custom domain resources Verify weather stack resources 1`] = `
         "Value": "Initial value",
       },
       "Type": "AWS::SSM::Parameter",
+    },
+    "MyTestStacktopic278AF978": {
+      "Properties": {
+        "DisplayName": "Weather Site State Change Topic for MyTestStack",
+        "TopicName": "MyTestStack-topic",
+      },
+      "Type": "AWS::SNS::Topic",
+    },
+    "MyTestStacktopictestexamplecomABC532A0": {
+      "Properties": {
+        "Endpoint": "test@example.com",
+        "Protocol": "email",
+        "TopicArn": {
+          "Ref": "MyTestStacktopic278AF978",
+        },
+      },
+      "Type": "AWS::SNS::Subscription",
     },
     "MyTestStackupdateSiteFunction705B529B": {
       "DependsOn": [

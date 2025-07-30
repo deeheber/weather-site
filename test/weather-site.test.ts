@@ -9,6 +9,7 @@ describe('Non-custom domain resources', () => {
   test('Verify weather stack resources', () => {
     const app = new App()
     const stack = new WeatherSiteStack(app, 'MyTestStack', {
+      alertEmail: 'test@example.com',
       locationName: 'Test Location',
       openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
       schedules: 'rate(10 minutes)'.split(', '),
@@ -22,7 +23,13 @@ describe('Non-custom domain resources', () => {
     template.resourceCountIs('AWS::SSM::Parameter', 1)
     template.resourceCountIs('AWS::CloudFront::Distribution', 1)
     template.resourceCountIs('AWS::Events::Connection', 1)
+    template.resourceCountIs('AWS::SNS::Topic', 1)
+    template.resourceCountIs('AWS::SNS::Subscription', 1)
 
+    template.hasResourceProperties('AWS::SNS::Subscription', {
+      Endpoint: 'test@example.com',
+      Protocol: 'email',
+    })
     template.hasResourceProperties('AWS::Lambda::Function', {
       FunctionName: 'MyTestStack-updateSiteFunction',
       Runtime: 'nodejs22.x',
@@ -43,6 +50,7 @@ describe('Non-custom domain resources', () => {
           WEATHER_TYPE: 'snow',
           WEATHER_LOCATION_LAT: '123',
           WEATHER_LOCATION_LON: '456',
+          STACK_NAME: 'MyTestStack',
         }),
       },
     })
@@ -50,9 +58,10 @@ describe('Non-custom domain resources', () => {
     expect(template.toJSON()).toMatchSnapshot()
   })
 
-  test('Verify alert stack resources', () => {
+  test('Verify error alert stack resources', () => {
     const app = new App()
     const weatherStack = new WeatherSiteStack(app, 'TestWeatherStack', {
+      alertEmail: 'test@example.com',
       locationName: 'Test Location',
       openWeatherUrl: 'https://api.openweathermap.org/data/2.5/onecall',
       schedules: 'rate(10 minutes)'.split(', '),
@@ -73,7 +82,7 @@ describe('Non-custom domain resources', () => {
 
     template.hasResourceProperties('AWS::SNS::Topic', {
       TopicName: 'TestAlertStack-error-topic',
-      DisplayName: 'Weather Site Topic for TestAlertStack',
+      DisplayName: 'Weather Site Error Topic for TestAlertStack',
     })
     template.hasResourceProperties('AWS::SNS::Subscription', {
       Protocol: 'email',
@@ -172,6 +181,7 @@ describe('Custom domain resources', () => {
           WEATHER_TYPE: 'rain',
           WEATHER_LOCATION_LAT: '111',
           WEATHER_LOCATION_LON: '222',
+          STACK_NAME: 'TestWeatherStack',
         }),
       },
     })
@@ -183,6 +193,7 @@ describe('Custom domain resources', () => {
           WEATHER_TYPE: 'rain',
           WEATHER_LOCATION_LAT: '111',
           WEATHER_LOCATION_LON: '222',
+          STACK_NAME: 'TestWeatherStack',
         }),
       },
     })
