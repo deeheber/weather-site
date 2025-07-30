@@ -75,8 +75,8 @@ interface WeatherSiteStackProps extends StackProps {
 export class WeatherSiteStack extends Stack {
   public id: string
   private props: WeatherSiteStackProps
-  private bucket: Bucket
   private distribution: Distribution
+  private bucket: Bucket
   public stepFunction: StateMachine
   private topic: Topic
 
