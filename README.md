@@ -45,7 +45,7 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/) 🚀
 ### 📈 Optional Monitoring Stack
 
 - **👀 CloudWatch** - Alarms for Step Function failures
-- **📧 SNS** - Email notifications
+- **📧 SNS** - Email notifications for site status changes and system failures
 
 ### 🛠️ Technologies
 
@@ -89,7 +89,7 @@ Requires additional domain stack deployed to `us-east-1` region for SSL certific
    ```
 
    - Set required variables: `WEATHER_LOCATION_LAT`, `WEATHER_LOCATION_LON`, `LOCATION_NAME`, etc.
-   - Optionally set `ALERT_EMAIL` for failure notifications 📧
+   - Optionally set `ALERT_EMAIL` for email notifications when site status changes or system failures occur 📧
    - Leave `DOMAIN_NAME` empty for basic deployment
 
 4. 📦 Install dependencies:
@@ -195,7 +195,7 @@ Configure in `.env` file:
 - ⏰ `SCHEDULES` - Cron expressions for check frequency
 - 🏷️ `STACK_PREFIX` - Prefix for all AWS resources
 - 🌐 `DOMAIN_NAME` - Optional custom domain
-- 📧 `ALERT_EMAIL` - Optional email for failure notifications
+- 📧 `ALERT_EMAIL` - Optional email for notifications when site status changes or system failures occur
 
 ### 🧪 Testing
 
@@ -204,6 +204,59 @@ Basic CDK snapshot tests are in the `test/` folder:
 ```bash
 npm run test
 ```
+
+## 📧 Email Notifications (Optional)
+
+The weather site supports optional email notifications for two scenarios:
+
+### 🔄 Status Change Notifications
+
+When the weather condition status changes (e.g., from "NO" to "YES" or vice versa), you'll receive an email notification with the new status.
+
+### ⚠️ System Failure Alerts
+
+If the Step Function fails (e.g., API errors, deployment issues), you'll receive CloudWatch alarm notifications.
+
+### 🛠️ Setup
+
+1. Add your email address to the `.env` file:
+
+   ```bash
+   ALERT_EMAIL=your-email@example.com
+   ```
+
+2. Deploy the weather stack and alert stack:
+
+   ```bash
+   npm run deploy
+   ```
+
+   Or deploy them separately:
+
+   ```bash
+   npm run cdk deploy -- --exclusively "*-weather"
+   npm run cdk deploy -- --exclusively "*-alert"
+   ```
+
+3. **Important**: You will receive two confirmation emails from AWS SNS that you must confirm by clicking the links:
+   - One for status change notifications (from the weather stack)
+   - One for system failure alerts (from the alert stack)
+
+### 📊 What Gets Created
+
+- **📧 SNS Topic** - Handles email delivery
+- **👀 CloudWatch Alarm** - Monitors Step Function failures (≥2 failures in 1 hour)
+- **📬 Email Subscription** - Sends notifications to your specified email
+
+### 🗑️ Removing Email Notifications
+
+To stop receiving emails:
+
+1. Remove `ALERT_EMAIL` from `.env`
+2. Redeploy the weather stack: `npm run cdk deploy -- --exclusively "*-weather"`
+3. Destroy the alert stack: `npm run cdk destroy -- --exclusively "*-alert"`
+
+This removes both the status change notifications (weather stack) and system failure alerts (alert stack).
 
 ## 🧹 Cleanup
 
