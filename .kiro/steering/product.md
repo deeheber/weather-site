@@ -81,7 +81,8 @@ When `ALERT_EMAIL` environment variable is configured:
 - Email notifications must not impact site performance
 - Notifications are completely optional - site works without them
 - User must confirm SNS email subscription after deployment
-- Alert stack is conditionally created only when `ALERT_EMAIL` is set
+- CloudWatch alarm is always created for monitoring purposes
+- SNS topic and alarm action are conditionally created only when `ALERT_EMAIL` is set
 - Notifications should include relevant context (location, status, timestamp)
 
 ## Development Constraints

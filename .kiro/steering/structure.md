@@ -31,9 +31,8 @@ test/          # Jest tests with CDK snapshot testing
 
 ### Stack Organization
 
-- **Main stack**: S3 bucket + CloudFront + Step Functions + Lambda (always required)
+- **Main stack**: S3 bucket + CloudFront + Step Functions + Lambda + CloudWatch alarms + optional SNS topic (always required)
 - **Domain stack**: Route53 hosted zone + SSL certificates + www redirect (optional - only for custom domains)
-- **Alert stack**: CloudWatch alarms + SNS for email notifications (optional - only when ALERT_EMAIL is set)
 - Environment validation required in `bin/weather-site.ts`
 - Use CDK app for stack dependency management
 

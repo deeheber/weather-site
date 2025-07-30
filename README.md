@@ -124,10 +124,6 @@ The CloudFront URL will be output to the console 📋
    ```bash
    npm run deploy -- --region us-west-2 --exclusively "*-weather"
    ```
-4. 📊 Optionally deploy alert stack:
-   ```bash
-   npm run deploy -- --region us-west-2 --exclusively "*-alert"
-   ```
 
 ## 🌍 Custom Domain Setup
 
@@ -140,7 +136,6 @@ The CloudFront URL will be output to the console 📋
 
 - **🌐 Domain Stack**: Must deploy to `us-east-1` (CloudFront SSL certificate requirement) 🔒
 - **☁️ Weather Stack**: Can deploy to any AWS region 🌎
-- **📊 Alert Stack**: Deploy to same region as weather stack 📍
 
 ### 🎁 What Gets Created
 
@@ -164,9 +159,6 @@ npm run deploy -- --region us-east-1 --exclusively "myStack-domain"
 
 # Step 2: ☁️ Deploy main application (any region)
 npm run deploy -- --region us-west-2 --exclusively "myStack-weather"
-
-# Step 3: 📊 Optional monitoring (same region as weather)
-npm run deploy -- --region us-west-2 --exclusively "myStack-alert"
 ```
 
 ## 👨‍💻 Development
@@ -225,22 +217,19 @@ If the Step Function fails (e.g., API errors, deployment issues), you'll receive
    ALERT_EMAIL=your-email@example.com
    ```
 
-2. Deploy the weather stack and alert stack:
+2. Deploy the app:
 
    ```bash
    npm run deploy
    ```
 
-   Or deploy them separately:
+   Or deploy the weather stack separately:
 
    ```bash
    npm run cdk deploy -- --exclusively "*-weather"
-   npm run cdk deploy -- --exclusively "*-alert"
    ```
 
-3. **Important**: You will receive two confirmation emails from AWS SNS that you must confirm by clicking the links:
-   - One for status change notifications (from the weather stack)
-   - One for system failure alerts (from the alert stack)
+3. **Important**: You will receive one confirmation email from AWS SNS that you must confirm by clicking the link. This single topic handles both status change notifications and system failure alerts.
 
 ### 📊 What Gets Created
 
@@ -253,10 +242,9 @@ If the Step Function fails (e.g., API errors, deployment issues), you'll receive
 To stop receiving emails:
 
 1. Remove `ALERT_EMAIL` from `.env`
-2. Redeploy the weather stack: `npm run cdk deploy -- --exclusively "*-weather"`
-3. Destroy the alert stack: `npm run cdk destroy -- --exclusively "*-alert"`
+2. Redeploy the weather stack: `npm run deploy`
 
-This removes both the status change notifications (weather stack) and system failure alerts (alert stack).
+This removes the SNS topic and alarm action, stopping all email notifications. The CloudWatch alarm remains for monitoring purposes.
 
 ## 🧹 Cleanup
 
