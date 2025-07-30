@@ -70,6 +70,7 @@ const weatherSiteStack = new WeatherSiteStack(app, `${stackPrefix}-weather`, {
   description: `Resources for ${stackPrefix}-weather, an informative weather website`,
   env: { account, region },
   crossRegionReferences: region === 'us-east-1' ? undefined : true,
+  alertEmail,
   certificate: domainStack?.certificate,
   domainName,
   hostedZone: domainStack?.hostedZone,

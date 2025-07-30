@@ -33,6 +33,8 @@ import {
   ScheduleTargetInput,
 } from 'aws-cdk-lib/aws-scheduler'
 import { StepFunctionsStartExecution } from 'aws-cdk-lib/aws-scheduler-targets'
+import { Topic } from 'aws-cdk-lib/aws-sns'
+import { EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import {
   Choice,
@@ -58,6 +60,7 @@ import { Construct } from 'constructs'
 import * as path from 'path'
 
 interface WeatherSiteStackProps extends StackProps {
+  alertEmail?: string
   certificate?: Certificate
   domainName?: string
   hostedZone?: HostedZone
@@ -72,19 +75,41 @@ interface WeatherSiteStackProps extends StackProps {
 export class WeatherSiteStack extends Stack {
   public id: string
   private props: WeatherSiteStackProps
+  private bucket: Bucket
   private distribution: Distribution
   public stepFunction: StateMachine
-  private bucket: Bucket
+  private topic: Topic
 
   constructor(scope: Construct, id: string, props: WeatherSiteStackProps) {
     super(scope, id, props)
     this.id = id
     this.props = props
 
+    this.createTopic()
     this.createBucket()
     this.createDistribution()
     this.createStepFunction()
     this.addScheduler()
+  }
+
+  private createTopic() {
+    if (!this.props.alertEmail) {
+      return
+    }
+
+    // A topic for email notifications of the site status changing
+    const topicName = `${this.id}-topic`
+
+    this.topic = new Topic(this, topicName, {
+      topicName,
+      displayName: `Weather Site State Change Topic for ${this.id}`,
+    })
+
+    this.topic.addSubscription(
+      new EmailSubscription(this.props.alertEmail, {
+        json: false,
+      }),
+    )
   }
 
   private createBucket() {
@@ -297,6 +322,26 @@ export class WeatherSiteStack extends Stack {
           outputs: {},
         }),
       )
+    if (this.props.alertEmail) {
+      finishUpdate.branch(
+        new CallAwsService(
+          this,
+          'Send email notification of site status change',
+          {
+            queryLanguage: QueryLanguage.JSONATA,
+            service: 'sns',
+            action: 'publish',
+            parameters: {
+              TopicArn: this.topic.topicArn,
+              Subject: `{% $states.context.Execution.Input.STACK_NAME & " status change" %}`,
+              Message: `{% $states.context.Execution.Input.STACK_NAME & " changed from " & $SiteStatus & " to " & $CurrentWeather & "." %}`,
+            },
+            iamResources: [this.topic.topicArn],
+            outputs: {},
+          },
+        ),
+      )
+    }
     finishUpdate.addCatch(siteUpdateFailure)
     // End of Tasks for Step Function Definition
 
@@ -336,6 +381,7 @@ export class WeatherSiteStack extends Stack {
         WEATHER_TYPE: this.props.weatherType.toLowerCase(),
         WEATHER_LOCATION_LAT: this.props.weatherLocationLat,
         WEATHER_LOCATION_LON: this.props.weatherLocationLon,
+        STACK_NAME: this.id,
       }),
       maxEventAge: Duration.seconds(90),
       retryAttempts: 2,

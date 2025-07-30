@@ -24,7 +24,7 @@ export class AlertStack extends Stack {
     const topicName = `${this.id}-error-topic`
     const errorTopic = new Topic(this, topicName, {
       topicName,
-      displayName: `Weather Site Topic for ${this.id}`,
+      displayName: `Weather Site Error Topic for ${this.id}`,
     })
     errorTopic.addSubscription(
       new EmailSubscription(alertEmail, {
