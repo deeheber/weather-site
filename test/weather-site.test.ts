@@ -160,6 +160,8 @@ describe('Custom domain resources', () => {
     template.resourceCountIs('AWS::CloudFront::Distribution', 1)
     template.resourceCountIs('AWS::Route53::RecordSet', 1)
     template.resourceCountIs('AWS::Events::Connection', 1)
+    template.resourceCountIs('AWS::SNS::Topic', 0)
+    template.resourceCountIs('AWS::SNS::Subscription', 0)
 
     template.hasResourceProperties('AWS::Lambda::Function', {
       FunctionName: 'TestWeatherStack-updateSiteFunction',
