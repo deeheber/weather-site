@@ -53,7 +53,8 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/) 🚀
 
 ## 🔄 Step Function State Machine
 
-<img width="1081" alt="Screenshot 2025-07-01 at 09 24 30" src="https://github.com/user-attachments/assets/aa445da5-5fd0-4abe-8b76-c7db24f2feb9" />
+<img width="1416" height="984" alt="Screenshot 2025-07-31 at 1 44 31 PM" src="https://github.com/user-attachments/assets/0cd3878d-8c93-4213-be2b-bd686b26408a" />
+
 
 ## 🚀 Deployment Options
 
