@@ -109,7 +109,7 @@ describe('Custom domain resources', () => {
       Name: 'mydomain.com.',
       Type: 'A',
     })
-    // Alternative approach - verify the alarm doesn't have AlarmActions property
+    // Ensure the alarm does not have AlarmActions to confirm that no notifications are triggered in the no-notifications scenario
     template.hasResourceProperties(
       'AWS::CloudWatch::Alarm',
       Match.not(Match.objectLike({ AlarmActions: Match.anyValue() })),
