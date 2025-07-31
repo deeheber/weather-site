@@ -55,7 +55,6 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/) 🚀
 
 <img width="1416" height="984" alt="Screenshot 2025-07-31 at 1 44 31 PM" src="https://github.com/user-attachments/assets/0cd3878d-8c93-4213-be2b-bd686b26408a" />
 
-
 ## 🚀 Deployment Options
 
 ### 🎯 Basic Deployment (CloudFront Default Domain)
