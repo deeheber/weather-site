@@ -72,7 +72,7 @@ A serverless weather reporting website that answers a single question: "Is it [c
 When `ALERT_EMAIL` environment variable is configured:
 
 - **Status Change Notifications**: Email sent when weather condition status changes (YES ↔ NO)
-- **System Failure Alerts**: CloudWatch alarms trigger email notifications for Step Function failures
+- **System Failure Alerts**: CloudWatch alarm triggers email notifications for Step Function failures
 - **SNS Integration**: Uses AWS SNS with email subscription (requires user confirmation)
 - **Failure Threshold**: Alarm triggers on ≥2 Step Function failures within 1 hour
 
@@ -99,8 +99,7 @@ When `ALERT_EMAIL` environment variable is configured:
 - Never show error messages to end users
 - Log all errors to CloudWatch for debugging
 - Fallback to last known good status on failures
-- Include health checks for monitoring stack
-- Optional email alerts for system failures via CloudWatch alarms
+- Optional email alerts for system failures via CloudWatch alarm
 
 ### Performance
 

@@ -109,6 +109,9 @@ describe('Custom domain resources', () => {
       Name: 'mydomain.com.',
       Type: 'A',
     })
+    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+      AlarmActions: undefined,
+    })
 
     expect(template.toJSON()).toMatchSnapshot()
   })

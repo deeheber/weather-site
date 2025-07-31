@@ -18,7 +18,7 @@ test/          # Jest tests with CDK snapshot testing
 
 ### AWS Resources
 
-- Stack names: `${stackPrefix}-weather`, `${stackPrefix}-domain`, `${stackPrefix}-alert`
+- Stack names: `${stackPrefix}-weather`, `${stackPrefix}-domain`
 - Resource IDs: `${stackId}-${resource-name}`
 - Lambda functions: `${stackId}-${function-name}Function`
 
@@ -31,7 +31,7 @@ test/          # Jest tests with CDK snapshot testing
 
 ### Stack Organization
 
-- **Main stack**: S3 bucket + CloudFront + Step Functions + Lambda + CloudWatch alarms + optional SNS topic (always required)
+- **Main stack**: S3 bucket + CloudFront + Step Functions + Lambda + CloudWatch alarm + optional SNS topic (always required)
 - **Domain stack**: Route53 hosted zone + SSL certificates + www redirect (optional - only for custom domains)
 - Environment validation required in `bin/weather-site.ts`
 - Use CDK app for stack dependency management

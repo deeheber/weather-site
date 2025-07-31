@@ -35,17 +35,14 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/) 🚀
 - **⏰ EventBridge Scheduler** - Triggers checks every 10 minutes
 - **📊 Systems Manager Parameter Store** - Stores current site status
 - **🔐 Secrets Manager** - Stores OpenWeatherMap API key
+- **👀 CloudWatch** - Alarm for monitoring Step Function failures
+- **📧 SNS** - Optional email notifications (only when `ALERT_EMAIL` is configured)
 
 ### 🌍 Optional Custom Domain Stack
 
 - **🌐 Route53** - DNS hosted zone management
 - **🔒 Certificate Manager** - SSL certificates for HTTPS
 - **↩️ CloudFront Function** - www → non-www redirects
-
-### 📈 Optional Monitoring Stack
-
-- **👀 CloudWatch** - Alarms for Step Function failures
-- **📧 SNS** - Email notifications for site status changes and system failures
 
 ### 🛠️ Technologies
 
@@ -233,8 +230,8 @@ If the Step Function fails (e.g., API errors, deployment issues), you'll receive
 
 ### 📊 What Gets Created
 
-- **📧 SNS Topic** - Handles email delivery
-- **👀 CloudWatch Alarm** - Monitors Step Function failures (≥2 failures in 1 hour)
+- **📧 SNS Topic** - Handles email delivery (only when `ALERT_EMAIL` is set)
+- **👀 CloudWatch Alarm** - Monitors Step Function failures (always created, alarm action only when `ALERT_EMAIL` is set)
 - **📬 Email Subscription** - Sends notifications to your specified email
 
 ### 🗑️ Removing Email Notifications

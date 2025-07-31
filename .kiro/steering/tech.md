@@ -72,12 +72,12 @@ npm run deploy:ci # CI/CD deployment (no prompts)
 
 ### Stack Organization
 
-- **Weather Stack**: Main application stack (S3, CloudFront, Lambda, Step Functions, CloudWatch alarms, optional SNS topic)
+- **Weather Stack**: Main application stack (S3, CloudFront, Lambda, Step Functions, CloudWatch alarm, optional SNS topic)
 - **Domain Stack**: Optional custom domain stack (Route53, SSL certificates, redirects)
 
 ### Regional Deployment Requirements
 
-- **Weather Stack**: Deploy to any AWS region (always includes CloudWatch alarms, optionally includes SNS topic when ALERT_EMAIL is set)
+- **Weather Stack**: Deploy to any AWS region (always includes CloudWatch alarm, optionally includes SNS topic when ALERT_EMAIL is set)
 - **Domain Stack**: **MUST deploy to us-east-1 region** due to CloudFront SSL certificate requirements
 
 ### Custom Domain Deployment Pattern
