@@ -1,5 +1,5 @@
 import { App } from 'aws-cdk-lib'
-import { Template } from 'aws-cdk-lib/assertions'
+import { Match, Template } from 'aws-cdk-lib/assertions'
 
 import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
@@ -109,9 +109,11 @@ describe('Custom domain resources', () => {
       Name: 'mydomain.com.',
       Type: 'A',
     })
-    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
-      AlarmActions: undefined,
-    })
+    // Alternative approach - verify the alarm doesn't have AlarmActions property
+    template.hasResourceProperties(
+      'AWS::CloudWatch::Alarm',
+      Match.not(Match.objectLike({ AlarmActions: Match.anyValue() })),
+    )
 
     expect(template.toJSON()).toMatchSnapshot()
   })
