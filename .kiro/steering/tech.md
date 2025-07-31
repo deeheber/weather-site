@@ -40,6 +40,7 @@ inclusion: always
 
 - Environment variables validated at CDK app startup
 - OpenWeatherMap API key stored in AWS Secrets Manager as `weather-site-api-key`
+- Optional `ALERT_EMAIL` environment variable for email notifications
 - Local development: copy `.env.example` to `.env`
 - Never commit secrets to version control
 
@@ -71,15 +72,13 @@ npm run deploy:ci # CI/CD deployment (no prompts)
 
 ### Stack Organization
 
-- **Weather Stack**: Main application stack (S3, CloudFront, Lambda, Step Functions)
+- **Weather Stack**: Main application stack (S3, CloudFront, Lambda, Step Functions, CloudWatch alarm, optional SNS topic)
 - **Domain Stack**: Optional custom domain stack (Route53, SSL certificates, redirects)
-- **Alert Stack**: Optional monitoring stack (CloudWatch alarms, SNS)
 
 ### Regional Deployment Requirements
 
-- **Weather Stack**: Deploy to any AWS region
+- **Weather Stack**: Deploy to any AWS region (always includes CloudWatch alarm, optionally includes SNS topic when ALERT_EMAIL is set)
 - **Domain Stack**: **MUST deploy to us-east-1 region** due to CloudFront SSL certificate requirements
-- **Alert Stack**: Deploy to same region as weather stack
 
 ### Custom Domain Deployment Pattern
 

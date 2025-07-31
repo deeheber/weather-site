@@ -35,17 +35,14 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/) 🚀
 - **⏰ EventBridge Scheduler** - Triggers checks every 10 minutes
 - **📊 Systems Manager Parameter Store** - Stores current site status
 - **🔐 Secrets Manager** - Stores OpenWeatherMap API key
+- **👀 CloudWatch** - Alarm for monitoring Step Function failures
+- **📧 SNS** - Optional email notifications (only when `ALERT_EMAIL` is configured)
 
 ### 🌍 Optional Custom Domain Stack
 
 - **🌐 Route53** - DNS hosted zone management
 - **🔒 Certificate Manager** - SSL certificates for HTTPS
 - **↩️ CloudFront Function** - www → non-www redirects
-
-### 📈 Optional Monitoring Stack
-
-- **👀 CloudWatch** - Alarms for Step Function failures
-- **📧 SNS** - Email notifications
 
 ### 🛠️ Technologies
 
@@ -56,7 +53,7 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/) 🚀
 
 ## 🔄 Step Function State Machine
 
-<img width="1081" alt="Screenshot 2025-07-01 at 09 24 30" src="https://github.com/user-attachments/assets/aa445da5-5fd0-4abe-8b76-c7db24f2feb9" />
+<img width="1416" height="984" alt="Screenshot 2025-07-31 at 1 44 31 PM" src="https://github.com/user-attachments/assets/0cd3878d-8c93-4213-be2b-bd686b26408a" />
 
 ## 🚀 Deployment Options
 
@@ -89,7 +86,7 @@ Requires additional domain stack deployed to `us-east-1` region for SSL certific
    ```
 
    - Set required variables: `WEATHER_LOCATION_LAT`, `WEATHER_LOCATION_LON`, `LOCATION_NAME`, etc.
-   - Optionally set `ALERT_EMAIL` for failure notifications 📧
+   - Optionally set `ALERT_EMAIL` for email notifications when site status changes or system failures occur 📧
    - Leave `DOMAIN_NAME` empty for basic deployment
 
 4. 📦 Install dependencies:
@@ -124,10 +121,6 @@ The CloudFront URL will be output to the console 📋
    ```bash
    npm run deploy -- --region us-west-2 --exclusively "*-weather"
    ```
-4. 📊 Optionally deploy alert stack:
-   ```bash
-   npm run deploy -- --region us-west-2 --exclusively "*-alert"
-   ```
 
 ## 🌍 Custom Domain Setup
 
@@ -140,7 +133,6 @@ The CloudFront URL will be output to the console 📋
 
 - **🌐 Domain Stack**: Must deploy to `us-east-1` (CloudFront SSL certificate requirement) 🔒
 - **☁️ Weather Stack**: Can deploy to any AWS region 🌎
-- **📊 Alert Stack**: Deploy to same region as weather stack 📍
 
 ### 🎁 What Gets Created
 
@@ -164,9 +156,6 @@ npm run deploy -- --region us-east-1 --exclusively "myStack-domain"
 
 # Step 2: ☁️ Deploy main application (any region)
 npm run deploy -- --region us-west-2 --exclusively "myStack-weather"
-
-# Step 3: 📊 Optional monitoring (same region as weather)
-npm run deploy -- --region us-west-2 --exclusively "myStack-alert"
 ```
 
 ## 👨‍💻 Development
@@ -195,7 +184,7 @@ Configure in `.env` file:
 - ⏰ `SCHEDULES` - Cron expressions for check frequency
 - 🏷️ `STACK_PREFIX` - Prefix for all AWS resources
 - 🌐 `DOMAIN_NAME` - Optional custom domain
-- 📧 `ALERT_EMAIL` - Optional email for failure notifications
+- 📧 `ALERT_EMAIL` - Optional email for notifications when site status changes or system failures occur
 
 ### 🧪 Testing
 
@@ -204,6 +193,55 @@ Basic CDK snapshot tests are in the `test/` folder:
 ```bash
 npm run test
 ```
+
+## 📧 Email Notifications (Optional)
+
+The weather site supports optional email notifications for two scenarios:
+
+### 🔄 Status Change Notifications
+
+When the weather condition status changes (e.g., from "NO" to "YES" or vice versa), you'll receive an email notification with the new status.
+
+### ⚠️ System Failure Alerts
+
+If the Step Function fails (e.g., API errors, deployment issues), you'll receive CloudWatch alarm notifications.
+
+### 🛠️ Setup
+
+1. Add your email address to the `.env` file:
+
+   ```bash
+   ALERT_EMAIL=your-email@example.com
+   ```
+
+2. Deploy the app:
+
+   ```bash
+   npm run deploy
+   ```
+
+   Or deploy the weather stack separately:
+
+   ```bash
+   npm run cdk deploy -- --exclusively "*-weather"
+   ```
+
+3. **Important**: You will receive one confirmation email from AWS SNS that you must confirm by clicking the link. This single topic handles both status change notifications and system failure alerts.
+
+### 📊 What Gets Created
+
+- **📧 SNS Topic** - Handles email delivery (only when `ALERT_EMAIL` is set)
+- **👀 CloudWatch Alarm** - Monitors Step Function failures (always created, alarm action only when `ALERT_EMAIL` is set)
+- **📬 Email Subscription** - Sends notifications to your specified email
+
+### 🗑️ Removing Email Notifications
+
+To stop receiving emails:
+
+1. Remove `ALERT_EMAIL` from `.env`
+2. Redeploy the weather stack: `npm run deploy`
+
+This removes the SNS topic and alarm action, stopping all email notifications. The CloudWatch alarm remains for monitoring purposes.
 
 ## 🧹 Cleanup
 

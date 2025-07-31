@@ -22,6 +22,7 @@ A serverless weather reporting website that answers a single question: "Is it [c
 - Weather data from OpenWeatherMap API only
 - Site updates are atomic: all files updated together or not at all
 - Graceful degradation: show last known status on API failures
+- Optional email notifications when status changes or system failures occur
 
 ## Deployment Options
 
@@ -62,6 +63,27 @@ A serverless weather reporting website that answers a single question: "Is it [c
 3. Compare against stored status in S3
 4. If changed, generate new HTML and upload to S3
 5. CloudFront serves updated content globally
+6. Optional: Send email notification via SNS when status changes
+
+## Notification Features (Optional)
+
+### Email Notifications
+
+When `ALERT_EMAIL` environment variable is configured:
+
+- **Status Change Notifications**: Email sent when weather condition status changes (YES ↔ NO)
+- **System Failure Alerts**: CloudWatch alarm triggers email notifications for Step Function failures
+- **SNS Integration**: Uses AWS SNS with email subscription (requires user confirmation)
+- **Failure Threshold**: Alarm triggers on ≥2 Step Function failures within 1 hour
+
+### Notification Requirements
+
+- Email notifications must not impact site performance
+- Notifications are completely optional - site works without them
+- User must confirm SNS email subscription after deployment
+- CloudWatch alarm is always created for monitoring purposes
+- SNS topic and alarm action are conditionally created only when `ALERT_EMAIL` is set
+- Notifications should include relevant context (location, status, timestamp)
 
 ## Development Constraints
 
@@ -77,7 +99,7 @@ A serverless weather reporting website that answers a single question: "Is it [c
 - Never show error messages to end users
 - Log all errors to CloudWatch for debugging
 - Fallback to last known good status on failures
-- Include health checks for monitoring stack
+- Optional email alerts for system failures via CloudWatch alarm
 
 ### Performance
 

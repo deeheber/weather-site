@@ -10,6 +10,8 @@ import {
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager'
 import { Distribution, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront'
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import { Alarm, ComparisonOperator } from 'aws-cdk-lib/aws-cloudwatch'
+import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions'
 import {
   Authorization,
   Connection,
@@ -33,6 +35,8 @@ import {
   ScheduleTargetInput,
 } from 'aws-cdk-lib/aws-scheduler'
 import { StepFunctionsStartExecution } from 'aws-cdk-lib/aws-scheduler-targets'
+import { Topic } from 'aws-cdk-lib/aws-sns'
+import { EmailSubscription } from 'aws-cdk-lib/aws-sns-subscriptions'
 import { StringParameter } from 'aws-cdk-lib/aws-ssm'
 import {
   Choice,
@@ -58,6 +62,7 @@ import { Construct } from 'constructs'
 import * as path from 'path'
 
 interface WeatherSiteStackProps extends StackProps {
+  alertEmail?: string
   certificate?: Certificate
   domainName?: string
   hostedZone?: HostedZone
@@ -73,18 +78,45 @@ export class WeatherSiteStack extends Stack {
   public id: string
   private props: WeatherSiteStackProps
   private distribution: Distribution
-  public stepFunction: StateMachine
+  private stepFunction: StateMachine
   private bucket: Bucket
+  private topic: Topic
 
   constructor(scope: Construct, id: string, props: WeatherSiteStackProps) {
     super(scope, id, props)
     this.id = id
     this.props = props
 
+    this.createTopic()
     this.createBucket()
     this.createDistribution()
     this.createStepFunction()
-    this.addScheduler()
+    this.createAlerts()
+    this.addSchedules()
+  }
+
+  private createTopic() {
+    if (!this.props.alertEmail) {
+      return
+    }
+
+    /**
+     * Optional Notifications:
+     * - site status change
+     * - step function cloudwatch alarm alerts
+     */
+    const topicName = `${this.id}-topic`
+
+    this.topic = new Topic(this, topicName, {
+      topicName,
+      displayName: `${this.id} Notifications Topic`,
+    })
+
+    this.topic.addSubscription(
+      new EmailSubscription(this.props.alertEmail, {
+        json: false,
+      }),
+    )
   }
 
   private createBucket() {
@@ -297,6 +329,26 @@ export class WeatherSiteStack extends Stack {
           outputs: {},
         }),
       )
+    if (this.props.alertEmail) {
+      finishUpdate.branch(
+        new CallAwsService(
+          this,
+          'Send email notification of site status change',
+          {
+            queryLanguage: QueryLanguage.JSONATA,
+            service: 'sns',
+            action: 'publish',
+            parameters: {
+              TopicArn: this.topic.topicArn,
+              Subject: `{% $states.context.Execution.Input.STACK_NAME & " status change" %}`,
+              Message: `{% $states.context.Execution.Input.STACK_NAME & " changed from " & $SiteStatus & " to " & $CurrentWeather & "." %}`,
+            },
+            iamResources: [this.topic.topicArn],
+            outputs: {},
+          },
+        ),
+      )
+    }
     finishUpdate.addCatch(siteUpdateFailure)
     // End of Tasks for Step Function Definition
 
@@ -330,12 +382,38 @@ export class WeatherSiteStack extends Stack {
     })
   }
 
-  private addScheduler() {
+  private createAlerts() {
+    // Create Cloudwatch Alarm
+    const threshold = 2
+    const evaluationPeriods = 1
+    const period = 1
+    const metric = this.stepFunction.metricFailed({
+      period: Duration.hours(period),
+    })
+
+    const alarmName = `${this.id}-alarm`
+    const alarm = new Alarm(this, alarmName, {
+      actionsEnabled: true,
+      alarmName,
+      alarmDescription: `Alarm (${alarmName}) if the SUM of errors is greater than or equal to the threshold (${threshold}) for ${evaluationPeriods} evaluation period of ${period} minutes`,
+      metric,
+      threshold,
+      evaluationPeriods,
+      comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+    })
+
+    if (this.topic) {
+      alarm.addAlarmAction(new SnsAction(this.topic))
+    }
+  }
+
+  private addSchedules() {
     const target = new StepFunctionsStartExecution(this.stepFunction, {
       input: ScheduleTargetInput.fromObject({
         WEATHER_TYPE: this.props.weatherType.toLowerCase(),
         WEATHER_LOCATION_LAT: this.props.weatherLocationLat,
         WEATHER_LOCATION_LON: this.props.weatherLocationLon,
+        STACK_NAME: this.id,
       }),
       maxEventAge: Duration.seconds(90),
       retryAttempts: 2,

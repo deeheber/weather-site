@@ -68,7 +68,6 @@ jobs:
       - name: cdk synth custom domain stack
         run: npm run synth:quiet
         env:
-          ALERT_EMAIL: test@test.com
           LOCATION_NAME: Pittsburgh, Pennsylvania
           OPEN_WEATHER_URL: https://openweathermap.org/city/5206379
           SCHEDULES: 'rate(60 minutes)'

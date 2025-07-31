@@ -18,7 +18,7 @@ test/          # Jest tests with CDK snapshot testing
 
 ### AWS Resources
 
-- Stack names: `${stackPrefix}-weather`, `${stackPrefix}-domain`, `${stackPrefix}-alert`
+- Stack names: `${stackPrefix}-weather`, `${stackPrefix}-domain`
 - Resource IDs: `${stackId}-${resource-name}`
 - Lambda functions: `${stackId}-${function-name}Function`
 
@@ -31,9 +31,8 @@ test/          # Jest tests with CDK snapshot testing
 
 ### Stack Organization
 
-- **Main stack**: S3 bucket + CloudFront + Step Functions + Lambda (always required)
+- **Main stack**: S3 bucket + CloudFront + Step Functions + Lambda + CloudWatch alarm + optional SNS topic (always required)
 - **Domain stack**: Route53 hosted zone + SSL certificates + www redirect (optional - only for custom domains)
-- **Alert stack**: CloudWatch alarms + SNS (optional)
 - Environment validation required in `bin/weather-site.ts`
 - Use CDK app for stack dependency management
 
@@ -51,6 +50,7 @@ The domain stack is only needed when using a custom domain:
 - Consistent naming: `${stackPrefix}-${resource-type}`
 - Environment variables validated at startup
 - Secrets in AWS Secrets Manager: `weather-site-api-key`
+- Optional email notifications via SNS when `ALERT_EMAIL` is configured
 - ARM64 Lambda architecture with esbuild bundling
 
 ### Code Patterns
