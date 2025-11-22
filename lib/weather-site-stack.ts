@@ -212,7 +212,7 @@ export class WeatherSiteStack extends Stack {
     const updateSiteFuncId = `${this.id}-updateSiteFunction`
     const updateSiteFunction = new NodejsFunction(this, updateSiteFuncId, {
       functionName: updateSiteFuncId,
-      runtime: Runtime.NODEJS_22_X,
+      runtime: Runtime.NODEJS_24_X,
       entry: 'dist/src/functions/update-site.js',
       loggingFormat: LoggingFormat.JSON,
       logGroup: updateSiteLogGroup,
