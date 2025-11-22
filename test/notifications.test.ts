@@ -32,7 +32,7 @@ describe('Weather stack with notifications', () => {
     })
     template.hasResourceProperties('AWS::Lambda::Function', {
       FunctionName: 'MyTestStack-updateSiteFunction',
-      Runtime: 'nodejs22.x',
+      Runtime: 'nodejs24.x',
       Architectures: ['arm64'],
     })
     template.hasResourceProperties('AWS::StepFunctions::StateMachine', {

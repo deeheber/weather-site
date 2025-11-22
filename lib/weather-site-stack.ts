@@ -154,11 +154,17 @@ export class WeatherSiteStack extends Stack {
     }
 
     // Upload CSS file to bucket
+    const uploadAssetsLogId = `${this.id}-uploadAssetsLogGroup`
+    const uploadAssetsLog = new LogGroup(this, uploadAssetsLogId, {
+      logGroupName: `/aws/lambda/${uploadAssetsLogId}`,
+      retention: RetentionDays.ONE_WEEK,
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
     new BucketDeployment(this, `${this.id}-file-upload`, {
       sources: [Source.asset(path.join(__dirname, '../src/site'))],
       destinationBucket: this.bucket,
       prune: false,
-      logRetention: RetentionDays.ONE_WEEK,
+      logGroup: uploadAssetsLog,
     })
 
     new CfnOutput(this, `${this.id}-url`, {
@@ -206,7 +212,7 @@ export class WeatherSiteStack extends Stack {
     const updateSiteFuncId = `${this.id}-updateSiteFunction`
     const updateSiteFunction = new NodejsFunction(this, updateSiteFuncId, {
       functionName: updateSiteFuncId,
-      runtime: Runtime.NODEJS_22_X,
+      runtime: Runtime.NODEJS_24_X,
       entry: 'dist/src/functions/update-site.js',
       loggingFormat: LoggingFormat.JSON,
       logGroup: updateSiteLogGroup,

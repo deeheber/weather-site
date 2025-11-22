@@ -71,7 +71,7 @@ describe('Custom domain resources', () => {
 
     template.hasResourceProperties('AWS::Lambda::Function', {
       FunctionName: 'TestWeatherStack-updateSiteFunction',
-      Runtime: 'nodejs22.x',
+      Runtime: 'nodejs24.x',
       Architectures: ['arm64'],
     })
     template.hasResourceProperties('AWS::StepFunctions::StateMachine', {
