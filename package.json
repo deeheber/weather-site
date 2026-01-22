@@ -22,27 +22,27 @@
     "watch": "tsc -w"
   },
   "devDependencies": {
-    "@eslint/js": "^9.32.0",
+    "@eslint/js": "^9.39.2",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "^8.47.0",
-    "@typescript-eslint/parser": "^8.47.0",
-    "aws-cdk": "^2.1033.0",
+    "@types/node": "^25.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
+    "aws-cdk": "^2.1101.0",
     "dotenv": "^17.2.3",
-    "esbuild": "^0.27.0",
-    "eslint": "^9.39.1",
+    "esbuild": "^0.27.2",
+    "eslint": "^9.39.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "globals": "^16.5.0",
+    "globals": "^17.0.0",
     "jest": "^30.2.0",
-    "prettier": "^3.6.2",
-    "ts-jest": "^29.4.5",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.937.0",
-    "aws-cdk-lib": "~2.227.0",
-    "constructs": "^10.4.3",
+    "@aws-sdk/client-s3": "^3.972.0",
+    "aws-cdk-lib": "~2.235.1",
+    "constructs": "^10.4.5",
     "source-map-support": "^0.5.21"
   }
 }
