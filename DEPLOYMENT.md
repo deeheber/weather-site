@@ -45,55 +45,16 @@ The CloudFront URL will be output to the console.
 
 ### Custom Domain Deployment
 
-Requires additional domain stack deployed to `us-east-1` region for SSL certificates.
-
-**Important**: Domain stack must be deployed to `us-east-1` region first!
-
 1. Set `DOMAIN_NAME` in your `.env` file
-2. Deploy domain stack to us-east-1:
+2. If your domain is not hosted in Route53, point your nameservers to Route53 ([instructions](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html))
+3. Deploy:
    ```bash
-   npm run deploy -- --region us-east-1 --exclusively "*-domain"
-   ```
-3. Deploy weather stack to your preferred region:
-   ```bash
-   npm run deploy -- --region us-west-2 --exclusively "*-weather"
+   npm run deploy
    ```
 
-## 🌍 Custom Domain Setup
+CDK automatically deploys the domain stack to `us-east-1` (required for CloudFront SSL certificates) and wires everything together via `crossRegionReferences`. The domain stack creates `www` → non-www redirects and DNS A records pointing to CloudFront.
 
-### DNS Requirements
-
-- If your domain is not hosted in Route53, point your nameservers to Route53 ([instructions](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html))
-- For non-Route53 domains: Update nameservers quickly after domain stack deployment starts to prevent certificate validation failures
-
-### Regional Requirements
-
-- **Domain Stack**: Must deploy to `us-east-1` (CloudFront SSL certificate requirement)
-- **Weather Stack**: Can deploy to any AWS region
-
-### What Gets Created
-
-- Route53 hosted zone for your domain
-- SSL certificates for both `example.com` and `www.example.com`
-- CloudFront distribution with custom domain
-- Automatic `www` → non-www redirect
-- DNS A records pointing to CloudFront
-
-### Certificate Validation
-
-- DNS validation can take up to 30 minutes
-- Monitor AWS Console for certificate status
-- Ensure nameservers are updated promptly for external domains
-
-### Multi-Region Deployment Pattern
-
-```bash
-# Step 1: Deploy domain resources (us-east-1 required)
-npm run deploy -- --region us-east-1 --exclusively "myStack-domain"
-
-# Step 2: Deploy main application (any region)
-npm run deploy -- --region us-west-2 --exclusively "myStack-weather"
-```
+**Note**: Certificate DNS validation can take up to 30 minutes. For non-Route53 domains, update nameservers quickly after deployment starts to prevent certificate validation failures.
 
 ## 🧹 Cleanup
 

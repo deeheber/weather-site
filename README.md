@@ -41,6 +41,8 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/)
 
 ### Optional Custom Domain Stack
 
+Automatically deployed to `us-east-1` via CDK `crossRegionReferences` when `DOMAIN_NAME` is set.
+
 - **Route53** - DNS hosted zone management
 - **Certificate Manager** - SSL certificates for HTTPS
 - **CloudFront Function** - www → non-www redirects
@@ -89,62 +91,13 @@ Configure in `.env` file:
 - `DOMAIN_NAME` - Optional custom domain
 - `ALERT_EMAIL` - Optional email for notifications when site status changes or system failures occur
 
-### Testing
-
-Basic CDK snapshot tests are in the `test/` folder:
-
-```bash
-npm run test
-```
-
 ## 📧 Email Notifications (Optional)
 
-The weather site supports optional email notifications for two scenarios:
+Set `ALERT_EMAIL` in `.env` to receive notifications for weather status changes and Step Function failures via a shared SNS topic.
 
-### Status Change Notifications
-
-When the weather condition status changes (e.g., from "NO" to "YES" or vice versa), you'll receive an email notification with the new status.
-
-### System Failure Alerts
-
-If the Step Function fails (e.g., API errors, deployment issues), you'll receive CloudWatch alarm notifications.
-
-### Setup
-
-1. Add your email address to the `.env` file:
-
-   ```bash
-   ALERT_EMAIL=your-email@example.com
-   ```
-
-2. Deploy the app:
-
-   ```bash
-   npm run deploy
-   ```
-
-   Or deploy the weather stack separately:
-
-   ```bash
-   npm run cdk deploy -- --exclusively "*-weather"
-   ```
-
-3. **Important**: You will receive one confirmation email from AWS SNS that you must confirm by clicking the link. This single topic handles both status change notifications and system failure alerts.
-
-### What Gets Created
-
-- **SNS Topic** - Handles email delivery (only when `ALERT_EMAIL` is set)
-- **CloudWatch Alarm** - Monitors Step Function failures (always created, alarm action only when `ALERT_EMAIL` is set)
-- **Email Subscription** - Sends notifications to your specified email
-
-### Removing Email Notifications
-
-To stop receiving emails:
-
-1. Remove `ALERT_EMAIL` from `.env`
-2. Redeploy the weather stack: `npm run deploy`
-
-This removes the SNS topic and alarm action, stopping all email notifications. The CloudWatch alarm remains for monitoring purposes.
+1. Add `ALERT_EMAIL=your-email@example.com` to `.env`
+2. Deploy: `npm run deploy`
+3. **Confirm the SNS subscription** by clicking the link in the confirmation email from AWS
 
 ## 🤝 Contributing
 
