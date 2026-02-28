@@ -72,7 +72,7 @@ export const handler = async (
     await s3.send(new PutObjectCommand(params))
   } catch (err) {
     console.error('Error', err)
-    throw new Error('Failed to update site')
+    throw new Error('Failed to update site', { cause: err })
   }
 
   return {

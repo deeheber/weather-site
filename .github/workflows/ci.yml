@@ -1,11 +1,10 @@
 name: ci
-run-name: ${{ github.actor }} has run the ci trigger
+run-name: ci run by ${{ github.actor }}
 
 on:
   pull_request:
     branches:
       - main
-  # option to run manually in the GitHub UI
   workflow_dispatch:
 
 concurrency:
@@ -46,7 +45,7 @@ jobs:
         run: npm test
 
       - name: configure AWS credentials from OIDC
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           # 15 minutes aka shortest time allowed
           role-duration-seconds: 900
