@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Weather stack with notifications Verify weather stack resources with notifications 1`] = `
+exports[`Weather stack with notifications > Verify weather stack resources with notifications 1`] = `
 {
   "Outputs": {
     "MyTestStackurl": {
@@ -493,7 +493,7 @@ exports[`Weather stack with notifications Verify weather stack resources with no
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c82567645316e1499ecd064c937f1183bb4a74e95800ff64fab4d308451ba5f0.zip",
+          "S3Key": "0cfdecad2260a3a84ad0c2d08a77e03c9d25e26c7b52f26b1e1faf97aef92f18.zip",
         },
         "Description": "/opt/awscli/aws",
       },
@@ -899,7 +899,7 @@ exports[`Weather stack with notifications Verify weather stack resources with no
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "71a288359e2225f79baaca64526d4a6eced3d6dfcb3bdc729685c0f79a22e53d.zip",
+          "S3Key": "313c414123890f4474c3395bc901602ffcbfea48931d27b5934b574ae5101d6b.zip",
         },
         "Environment": {
           "Variables": {

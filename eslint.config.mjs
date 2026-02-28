@@ -1,39 +1,24 @@
+import { defineConfig, globalIgnores } from 'eslint/config'
 import js from '@eslint/js'
-import tseslint from '@typescript-eslint/eslint-plugin'
-import tsParser from '@typescript-eslint/parser'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
-export default [
+export default defineConfig(
+  globalIgnores(['dist/', 'cdk.out/', '**/*.js', '**/*.mjs', '**/*.d.ts']),
+  js.configs.recommended,
+  tseslint.configs.recommendedTypeChecked,
   {
     files: ['**/*.ts'],
-    ignores: [
-      '**/*.js',
-      '**/*.d.ts',
-      '**/node_modules/',
-      'cdk.out/**/*',
-      'dist/**/*',
-    ],
-    plugins: {
-      'simple-import-sort': simpleImportSort,
-      '@typescript-eslint': tseslint,
+    plugins: { 'simple-import-sort': simpleImportSort },
+    languageOptions: {
+      globals: { ...globals.node },
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
     },
     rules: {
-      ...js.configs.recommended.rules,
-      ...tseslint.configs.recommended.rules,
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
-      'no-array-constructor': 'error',
-      'no-unused-vars': 'error',
-      'no-unused-expressions': 'error',
       'no-console': 'warn',
     },
-    languageOptions: {
-      globals: {
-        ...globals.jest,
-        ...globals.node,
-      },
-      parser: tsParser,
-    },
   },
-]
+)

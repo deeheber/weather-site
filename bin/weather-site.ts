@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import 'source-map-support/register'
 import 'dotenv/config'
 
 import { App } from 'aws-cdk-lib'

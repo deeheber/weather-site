@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/weather-site.ts",
+  "app": "npx tsx bin/weather-site.ts",
   "watch": {
     "include": ["**"],
     "exclude": [
@@ -109,6 +109,7 @@
     "@aws-cdk/pipelines:reduceCrossAccountActionRoleTrustScope": true,
     "@aws-cdk/pipelines:reduceStageRoleTrustScope": true,
     "@aws-cdk/s3-notifications:addS3TrustKeyPolicyForSnsSubscriptions": true,
-    "@aws-cdk/aws-route53-patterns:useDistribution": true
+    "@aws-cdk/aws-route53-patterns:useDistribution": true,
+    "@aws-cdk/aws-eks:useNativeOidcProvider": true
   }
 }
