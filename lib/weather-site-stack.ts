@@ -213,18 +213,20 @@ export class WeatherSiteStack extends Stack {
     const updateSiteFunction = new NodejsFunction(this, updateSiteFuncId, {
       functionName: updateSiteFuncId,
       runtime: Runtime.NODEJS_24_X,
-      entry: 'dist/src/functions/update-site.js',
+      entry: 'src/functions/update-site.ts',
+      bundling: { sourceMap: true },
       loggingFormat: LoggingFormat.JSON,
       logGroup: updateSiteLogGroup,
       tracing: Tracing.ACTIVE,
       architecture: Architecture.ARM_64,
       timeout: Duration.seconds(30),
-      memorySize: 3008,
+      memorySize: 512,
       environment: {
         BUCKET_NAME: this.bucket.bucketName,
         LOCATION_NAME: this.props.locationName,
         OPEN_WEATHER_URL: this.props.openWeatherUrl,
         WEATHER_TYPE: this.props.weatherType,
+        NODE_OPTIONS: '--enable-source-maps',
       },
     })
     this.bucket.grantWrite(updateSiteFunction)

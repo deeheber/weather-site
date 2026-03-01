@@ -899,7 +899,7 @@ exports[`Weather stack with notifications > Verify weather stack resources with 
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "313c414123890f4474c3395bc901602ffcbfea48931d27b5934b574ae5101d6b.zip",
+          "S3Key": "aac6bbfae1c334a8f3241d7f548703f07d7ced61a888e15c8a319af37837bebd.zip",
         },
         "Environment": {
           "Variables": {
@@ -907,6 +907,7 @@ exports[`Weather stack with notifications > Verify weather stack resources with 
               "Ref": "MyTestStackbucketE9C89BC4",
             },
             "LOCATION_NAME": "Test Location",
+            "NODE_OPTIONS": "--enable-source-maps",
             "OPEN_WEATHER_URL": "https://api.openweathermap.org/data/2.5/onecall",
             "WEATHER_TYPE": "snow",
           },
@@ -919,7 +920,7 @@ exports[`Weather stack with notifications > Verify weather stack resources with 
             "Ref": "MyTestStackupdateSiteLogGroup7C127C90",
           },
         },
-        "MemorySize": 3008,
+        "MemorySize": 512,
         "Role": {
           "Fn::GetAtt": [
             "MyTestStackupdateSiteFunctionServiceRole9D67F132",

@@ -1218,7 +1218,7 @@ exports[`Custom domain resources > Verify weather stack with custom domain no no
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "313c414123890f4474c3395bc901602ffcbfea48931d27b5934b574ae5101d6b.zip",
+          "S3Key": "aac6bbfae1c334a8f3241d7f548703f07d7ced61a888e15c8a319af37837bebd.zip",
         },
         "Environment": {
           "Variables": {
@@ -1226,6 +1226,7 @@ exports[`Custom domain resources > Verify weather stack with custom domain no no
               "Ref": "TestWeatherStackbucket354D63DD",
             },
             "LOCATION_NAME": "New York, NY USA",
+            "NODE_OPTIONS": "--enable-source-maps",
             "OPEN_WEATHER_URL": "https://api.openweathermap.org/data/2.5/onecall",
             "WEATHER_TYPE": "rain",
           },
@@ -1238,7 +1239,7 @@ exports[`Custom domain resources > Verify weather stack with custom domain no no
             "Ref": "TestWeatherStackupdateSiteLogGroupD038D61C",
           },
         },
-        "MemorySize": 3008,
+        "MemorySize": 512,
         "Role": {
           "Fn::GetAtt": [
             "TestWeatherStackupdateSiteFunctionServiceRole997D6557",
