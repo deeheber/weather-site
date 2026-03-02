@@ -5,27 +5,25 @@
     "weather-site": "bin/weather-site.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noEmit",
     "cdk": "cdk",
-    "clean": "rm -rf dist",
-    "deploy": "npm run clean && npm run build && npm run cdk deploy -- --all",
-    "deploy:ci": "npm run clean && npm run build && npm run cdk deploy -- --all --require-approval never",
+    "deploy": "npm run cdk deploy -- --all",
+    "deploy:ci": "npm run cdk deploy -- --all --require-approval never",
     "destroy": "npm run cdk destroy -- --all",
     "diff": "npm run cdk diff -- --all",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "format:ci": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "lint": "eslint --fix",
     "lint:ci": "eslint --quiet",
-    "synth": "npm run build && npm run cdk synth",
-    "synth:quiet": "npm run build && npm run cdk synth -- -q",
+    "synth": "npm run cdk synth",
+    "synth:quiet": "npm run cdk synth -- -q",
     "test": "vitest run",
-    "watch": "tsc -w"
+    "watch": "tsc -w --noEmit"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.2",
     "aws-cdk": "^2.1108.0",
-    "dotenv": "^17.3.1",
     "esbuild": "^0.27.3",
     "eslint": "^10.0.2",
     "eslint-plugin-simple-import-sort": "^12.1.1",
@@ -34,7 +32,8 @@
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.56.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "zod": "^4.3.6"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1000.0",

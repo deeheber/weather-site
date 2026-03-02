@@ -1,51 +1,39 @@
 #!/usr/bin/env node
-import 'dotenv/config'
-
 import { App } from 'aws-cdk-lib'
+import { z } from 'zod'
 
 import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
 
-// Env var validation
-const {
-  AWS_DEFAULT_ACCOUNT_ID,
-  AWS_DEFAULT_REGION,
-  CDK_DEFAULT_ACCOUNT,
-  CDK_DEFAULT_REGION,
-  ALERT_EMAIL: alertEmail = undefined,
-  DOMAIN_NAME: domainName = undefined,
-  LOCATION_NAME: locationName = '',
-  OPEN_WEATHER_URL: openWeatherUrl = '',
-  SCHEDULES: schedules = 'rate(10 minutes)',
-  STACK_PREFIX: stackPrefix = 'myStack',
-  WEATHER_LOCATION_LAT: weatherLocationLat = '',
-  WEATHER_LOCATION_LON: weatherLocationLon = '',
-  WEATHER_TYPE: weatherType = 'snow',
-} = process.env
+const envSchema = z
+  .object({
+    CDK_DEFAULT_ACCOUNT: z.string().optional(),
+    CDK_DEFAULT_REGION: z.string().optional(),
+    AWS_DEFAULT_ACCOUNT_ID: z.string().optional(),
+    AWS_DEFAULT_REGION: z.string().optional(),
+    ALERT_EMAIL: z.email().optional(),
+    DOMAIN_NAME: z.string().min(1).optional(),
+    LOCATION_NAME: z.string().min(1, 'LOCATION_NAME is required'),
+    OPEN_WEATHER_URL: z.url('OPEN_WEATHER_URL must be a valid URL'),
+    SCHEDULES: z.string().default('rate(10 minutes)'),
+    STACK_PREFIX: z.string().default('myStack'),
+    WEATHER_LOCATION_LAT: z.string().min(1, 'WEATHER_LOCATION_LAT is required'),
+    WEATHER_LOCATION_LON: z.string().min(1, 'WEATHER_LOCATION_LON is required'),
+    WEATHER_TYPE: z.string().default('snow'),
+  })
+  .refine((data) => data.CDK_DEFAULT_ACCOUNT || data.AWS_DEFAULT_ACCOUNT_ID, {
+    message:
+      'AWS account not found. Configure AWS CLI credentials or set AWS_DEFAULT_ACCOUNT_ID.',
+  })
+  .refine((data) => data.CDK_DEFAULT_REGION || data.AWS_DEFAULT_REGION, {
+    message:
+      'AWS region not found. Configure AWS CLI credentials or set AWS_DEFAULT_REGION.',
+  })
 
-const account = CDK_DEFAULT_ACCOUNT || AWS_DEFAULT_ACCOUNT_ID
-const region = CDK_DEFAULT_REGION || AWS_DEFAULT_REGION
+const env = envSchema.parse(process.env)
 
-if (
-  ![locationName, openWeatherUrl, weatherLocationLat, weatherLocationLon].every(
-    (el) => !!el,
-  )
-) {
-  // eslint-disable-next-line no-console
-  console.log(
-    JSON.stringify(
-      {
-        locationName,
-        openWeatherUrl,
-        weatherLocationLat,
-        weatherLocationLon,
-      },
-      null,
-      2,
-    ),
-  )
-  throw new Error('Missing environment variables!')
-}
+const account = (env.CDK_DEFAULT_ACCOUNT || env.AWS_DEFAULT_ACCOUNT_ID)!
+const region = (env.CDK_DEFAULT_REGION || env.AWS_DEFAULT_REGION)!
 
 const app = new App()
 
@@ -55,27 +43,27 @@ const app = new App()
  * https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cnames-and-https-requirements.html#https-requirements-aws-region
  */
 let domainStack
-if (domainName) {
-  domainStack = new DomainStack(app, `${stackPrefix}-domain`, {
-    description: ` Resources needed to have a custom domain for on ${stackPrefix}-weather`,
+if (env.DOMAIN_NAME) {
+  domainStack = new DomainStack(app, `${env.STACK_PREFIX}-domain`, {
+    description: ` Resources needed to have a custom domain for on ${env.STACK_PREFIX}-weather`,
     crossRegionReferences: true,
     env: { account, region: 'us-east-1' },
-    domainName,
+    domainName: env.DOMAIN_NAME,
   })
 }
 
-new WeatherSiteStack(app, `${stackPrefix}-weather`, {
-  description: `Resources for ${stackPrefix}-weather, an informative weather website`,
+new WeatherSiteStack(app, `${env.STACK_PREFIX}-weather`, {
+  description: `Resources for ${env.STACK_PREFIX}-weather, an informative weather website`,
   env: { account, region },
   crossRegionReferences: region === 'us-east-1' ? undefined : true,
-  alertEmail,
+  alertEmail: env.ALERT_EMAIL,
   certificate: domainStack?.certificate,
-  domainName,
+  domainName: env.DOMAIN_NAME,
   hostedZone: domainStack?.hostedZone,
-  locationName,
-  openWeatherUrl,
-  schedules: schedules.split(', '),
-  weatherLocationLat,
-  weatherLocationLon,
-  weatherType,
+  locationName: env.LOCATION_NAME,
+  openWeatherUrl: env.OPEN_WEATHER_URL,
+  schedules: env.SCHEDULES.split(', '),
+  weatherLocationLat: env.WEATHER_LOCATION_LAT,
+  weatherLocationLon: env.WEATHER_LOCATION_LON,
+  weatherType: env.WEATHER_TYPE,
 })

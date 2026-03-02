@@ -2,6 +2,7 @@ import { App } from 'aws-cdk-lib'
 import { Template } from 'aws-cdk-lib/assertions'
 
 import { WeatherSiteStack } from '../lib/weather-site-stack'
+import { sanitizeAssetHashes } from './test-utils'
 
 describe('Weather stack with notifications', () => {
   test('Verify weather stack resources with notifications', () => {
@@ -59,6 +60,6 @@ describe('Weather stack with notifications', () => {
       },
     })
 
-    expect(template.toJSON()).toMatchSnapshot()
+    expect(sanitizeAssetHashes(template.toJSON())).toMatchSnapshot()
   })
 })

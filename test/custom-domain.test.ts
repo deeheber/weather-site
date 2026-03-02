@@ -3,6 +3,7 @@ import { Match, Template } from 'aws-cdk-lib/assertions'
 
 import { DomainStack } from '../lib/domain-stack'
 import { WeatherSiteStack } from '../lib/weather-site-stack'
+import { sanitizeAssetHashes } from './test-utils'
 
 describe('Custom domain resources', () => {
   test('Verify domain stack resources', () => {
@@ -34,7 +35,7 @@ describe('Custom domain resources', () => {
       Type: 'A',
     })
 
-    expect(template.toJSON()).toMatchSnapshot()
+    expect(sanitizeAssetHashes(template.toJSON())).toMatchSnapshot()
   })
 
   test('Verify weather stack with custom domain no notifications', () => {
@@ -115,6 +116,6 @@ describe('Custom domain resources', () => {
       Match.not(Match.objectLike({ AlarmActions: Match.anyValue() })),
     )
 
-    expect(template.toJSON()).toMatchSnapshot()
+    expect(sanitizeAssetHashes(template.toJSON())).toMatchSnapshot()
   })
 })
