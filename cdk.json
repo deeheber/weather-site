@@ -110,6 +110,9 @@
     "@aws-cdk/pipelines:reduceStageRoleTrustScope": true,
     "@aws-cdk/s3-notifications:addS3TrustKeyPolicyForSnsSubscriptions": true,
     "@aws-cdk/aws-route53-patterns:useDistribution": true,
-    "@aws-cdk/aws-eks:useNativeOidcProvider": true
+    "@aws-cdk/aws-eks:useNativeOidcProvider": true,
+    "@aws-cdk/aws-cloudfront:defaultFunctionRuntimeV2_0": true,
+    "@aws-cdk/aws-elasticloadbalancingv2:usePostQuantumTlsPolicy": true,
+    "@aws-cdk/core:automaticL1Traits": true
   }
 }
