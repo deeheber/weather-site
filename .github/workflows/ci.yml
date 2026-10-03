@@ -47,6 +47,7 @@ jobs:
       - name: configure AWS credentials from OIDC
         uses: aws-actions/configure-aws-credentials@v6
         with:
+          mask-aws-account-id: true
           # 15 minutes aka shortest time allowed
           role-duration-seconds: 900
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
