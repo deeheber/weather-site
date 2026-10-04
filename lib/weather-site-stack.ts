@@ -1,3 +1,5 @@
+import * as path from 'path'
+
 import {
   CfnOutput,
   Duration,
@@ -59,7 +61,6 @@ import {
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
 import { Construct } from 'constructs'
-import * as path from 'path'
 
 interface WeatherSiteStackProps extends StackProps {
   alertEmail?: string
@@ -403,7 +404,7 @@ export class WeatherSiteStack extends Stack {
     const alarm = new Alarm(this, alarmName, {
       actionsEnabled: true,
       alarmName,
-      alarmDescription: `Alarm (${alarmName}) if the SUM of errors is greater than or equal to the threshold (${threshold}) for ${evaluationPeriods} evaluation period of ${period} minutes`,
+      alarmDescription: `Alarm (${alarmName}) if the SUM of errors is greater than or equal to the threshold (${threshold}) for ${evaluationPeriods} evaluation period of ${period} hour`,
       metric,
       threshold,
       evaluationPeriods,

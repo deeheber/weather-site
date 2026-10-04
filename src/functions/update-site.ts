@@ -1,5 +1,6 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { Buffer } from 'buffer'
+
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 
 type FunctionInput = {
   CurrentWeather: string
@@ -35,6 +36,7 @@ export const handler = async (
 
   const htmlString = `<html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Is it ${weather}ing in ${process.env.LOCATION_NAME}?</title>
   </head>

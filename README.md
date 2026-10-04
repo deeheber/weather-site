@@ -33,7 +33,7 @@ My deployment of this site is [here](https://isitsnowinginhillsboro.com/)
 - **CloudFront** - Global CDN distribution
 - **Lambda** - HTML generation and site updates (ARM64)
 - **Step Functions** - Orchestrates weather checks and updates
-- **EventBridge Scheduler** - Triggers checks every 10 minutes
+- **EventBridge Scheduler** - Triggers checks on a configurable schedule (every 10 minutes by default)
 - **Systems Manager Parameter Store** - Stores current site status
 - **Secrets Manager** - Stores OpenWeatherMap API key
 - **CloudWatch** - Alarm for monitoring Step Function failures
@@ -67,10 +67,10 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for setup instructions, deployment commands, 
 ### Available Commands
 
 ```bash
-npm run build          # Compile TypeScript
+npm run build          # Type-check TypeScript
 npm run test           # Run tests
-npm run format         # Format code with Prettier
-npm run lint           # Lint code with ESLint
+npm run format         # Format code with Oxfmt
+npm run lint           # Lint code with Oxlint
 npm run synth          # Generate CloudFormation templates
 npm run diff           # Preview infrastructure changes
 npm run deploy         # Interactive deployment

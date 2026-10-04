@@ -257,6 +257,9 @@ exports[`Custom domain resources > Verify weather stack with custom domain no no
         "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
       ],
       "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
         "Code": {
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
@@ -279,6 +282,7 @@ exports[`Custom domain resources > Verify weather stack with custom domain no no
             "Ref": "TestWeatherStackuploadAssetsLogGroup65040592",
           },
         },
+        "MemorySize": 1024,
         "Role": {
           "Fn::GetAtt": [
             "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
@@ -446,7 +450,7 @@ exports[`Custom domain resources > Verify weather stack with custom domain no no
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -543,7 +547,7 @@ exports[`Custom domain resources > Verify weather stack with custom domain no no
     "TestWeatherStackalarmC6A48337": {
       "Properties": {
         "ActionsEnabled": true,
-        "AlarmDescription": "Alarm (TestWeatherStack-alarm) if the SUM of errors is greater than or equal to the threshold (2) for 1 evaluation period of 1 minutes",
+        "AlarmDescription": "Alarm (TestWeatherStack-alarm) if the SUM of errors is greater than or equal to the threshold (2) for 1 evaluation period of 1 hour",
         "AlarmName": "TestWeatherStack-alarm",
         "ComparisonOperator": "GreaterThanOrEqualToThreshold",
         "Dimensions": [

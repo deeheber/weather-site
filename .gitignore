@@ -11,12 +11,12 @@ cdk.out
 # Ignore all files and directories starting with dot
 .*
 # Exceptions
-!/.vscode/*
-!/.github/*
+!/.vscode/
+!/.github/
 !.gitignore
 !.env.example
 !.nvmrc
-!.prettierrc
-!.prettierignore
+!.oxlintrc.json
+!.oxfmtrc.json
 !.npmignore
 !.kiro

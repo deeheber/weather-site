@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2024",
-    "module": "commonjs",
+    "module": "preserve",
     "lib": ["es2024"],
     "declaration": true,
     "strict": true,
@@ -14,7 +14,8 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "moduleResolution": "bundler"
   },
   "exclude": ["node_modules", "cdk.out", "dist"]
 }
