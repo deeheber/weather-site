@@ -27,6 +27,9 @@ exports[`Weather stack with notifications > Verify weather stack resources with 
         "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
       ],
       "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
         "Code": {
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
@@ -49,6 +52,7 @@ exports[`Weather stack with notifications > Verify weather stack resources with 
             "Ref": "MyTestStackuploadAssetsLogGroupFD171DDB",
           },
         },
+        "MemorySize": 1024,
         "Role": {
           "Fn::GetAtt": [
             "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
@@ -216,7 +220,7 @@ exports[`Weather stack with notifications > Verify weather stack resources with 
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",

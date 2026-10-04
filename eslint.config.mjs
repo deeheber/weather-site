@@ -9,7 +9,7 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   {
-    files: ['**/*.ts'],
+    files: ['**/*.ts', '**/*.mts'],
     plugins: { 'simple-import-sort': simpleImportSort },
     languageOptions: {
       globals: { ...globals.node },
