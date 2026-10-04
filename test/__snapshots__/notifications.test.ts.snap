@@ -251,7 +251,7 @@ exports[`Weather stack with notifications > Verify weather stack resources with 
             "Ref": "MyTestStacktopic278AF978",
           },
         ],
-        "AlarmDescription": "Alarm (MyTestStack-alarm) if the SUM of errors is greater than or equal to the threshold (2) for 1 evaluation period of 1 minutes",
+        "AlarmDescription": "Alarm (MyTestStack-alarm) if the SUM of errors is greater than or equal to the threshold (2) for 1 evaluation period of 1 hour",
         "AlarmName": "MyTestStack-alarm",
         "ComparisonOperator": "GreaterThanOrEqualToThreshold",
         "Dimensions": [

@@ -35,6 +35,7 @@ export const handler = async (
 
   const htmlString = `<html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Is it ${weather}ing in ${process.env.LOCATION_NAME}?</title>
   </head>

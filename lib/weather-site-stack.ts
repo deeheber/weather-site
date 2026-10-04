@@ -403,7 +403,7 @@ export class WeatherSiteStack extends Stack {
     const alarm = new Alarm(this, alarmName, {
       actionsEnabled: true,
       alarmName,
-      alarmDescription: `Alarm (${alarmName}) if the SUM of errors is greater than or equal to the threshold (${threshold}) for ${evaluationPeriods} evaluation period of ${period} minutes`,
+      alarmDescription: `Alarm (${alarmName}) if the SUM of errors is greater than or equal to the threshold (${threshold}) for ${evaluationPeriods} evaluation period of ${period} hour`,
       metric,
       threshold,
       evaluationPeriods,
