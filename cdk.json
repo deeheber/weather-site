@@ -113,6 +113,12 @@
     "@aws-cdk/aws-eks:useNativeOidcProvider": true,
     "@aws-cdk/aws-cloudfront:defaultFunctionRuntimeV2_0": true,
     "@aws-cdk/aws-elasticloadbalancingv2:usePostQuantumTlsPolicy": true,
-    "@aws-cdk/core:automaticL1Traits": true
+    "@aws-cdk/core:automaticL1Traits": true,
+    "@aws-cdk/aws-batch:defaultToAL2023": false,
+    "@aws-cdk/aws-ecs:removeEmptyLoadBalancers": false,
+    "@aws-cdk/aws-eks:defaultToAL2023": false,
+    "@aws-cdk/core:annotationsInValidationReport": false,
+    "@aws-cdk/core:defaultCrossStackReferences": "strong",
+    "@aws-cdk/core:validateAgainstDefaultRules": false
   }
 }
