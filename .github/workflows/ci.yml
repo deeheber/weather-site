@@ -16,18 +16,21 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: true
+      AWS_DEFAULT_ACCOUNT_ID: '123456789012'
+      AWS_DEFAULT_REGION: us-west-2
     permissions:
       contents: read
-      id-token: write
 
     steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: '.nvmrc'
+          cache: npm
+          check-latest: true
 
       - name: install dependencies
         run: npm ci
@@ -44,17 +47,8 @@ jobs:
       - name: test
         run: npm test
 
-      - name: configure AWS credentials from OIDC
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          mask-aws-account-id: true
-          # 15 minutes aka shortest time allowed
-          role-duration-seconds: 900
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-west-2
-
       - name: cdk synth non custom domain stack
-        run: npm run synth:quiet
+        run: npm run synth:quiet -- --no-lookups
         env:
           ALERT_EMAIL: test@test.com
           LOCATION_NAME: Pittsburgh, Pennsylvania
@@ -66,7 +60,7 @@ jobs:
           WEATHER_TYPE: rain
 
       - name: cdk synth custom domain stack
-        run: npm run synth:quiet
+        run: npm run synth:quiet -- --no-lookups
         env:
           LOCATION_NAME: Pittsburgh, Pennsylvania
           OPEN_WEATHER_URL: https://openweathermap.org/city/5206379
