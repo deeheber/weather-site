@@ -1,3 +1,5 @@
+import * as path from 'path'
+
 import {
   CfnOutput,
   Duration,
@@ -59,7 +61,6 @@ import {
   LambdaInvoke,
 } from 'aws-cdk-lib/aws-stepfunctions-tasks'
 import { Construct } from 'constructs'
-import * as path from 'path'
 
 interface WeatherSiteStackProps extends StackProps {
   alertEmail?: string

@@ -69,8 +69,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for setup instructions, deployment commands, 
 ```bash
 npm run build          # Type-check TypeScript
 npm run test           # Run tests
-npm run format         # Format code with Prettier
-npm run lint           # Lint code with ESLint
+npm run format         # Format code with Oxfmt
+npm run lint           # Lint code with Oxlint
 npm run synth          # Generate CloudFormation templates
 npm run diff           # Preview infrastructure changes
 npm run deploy         # Interactive deployment

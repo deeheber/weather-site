@@ -35,10 +35,10 @@ jobs:
       - name: build
         run: npm run build
 
-      - name: run prettier format check
+      - name: run oxfmt format check
         run: npm run format:ci
 
-      - name: run eslint check
+      - name: run oxlint check
         run: npm run lint:ci
 
       - name: test

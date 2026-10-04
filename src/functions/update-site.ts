@@ -1,5 +1,6 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { Buffer } from 'buffer'
+
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 
 type FunctionInput = {
   CurrentWeather: string
