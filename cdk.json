@@ -119,6 +119,8 @@
     "@aws-cdk/aws-eks:defaultToAL2023": false,
     "@aws-cdk/core:annotationsInValidationReport": false,
     "@aws-cdk/core:defaultCrossStackReferences": "strong",
-    "@aws-cdk/core:validateAgainstDefaultRules": false
+    "@aws-cdk/core:validateAgainstDefaultRules": false,
+    "@aws-cdk/aws-apigateway:logGroupDestinationArnWithoutWildcard": true,
+    "@aws-cdk/aws-cloudfront:defaultViewerProtocolPolicyRedirectToHttps": true
   }
 }
