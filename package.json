@@ -23,8 +23,8 @@
     "@types/node": "^24.19.2",
     "aws-cdk": "^2.1146.1",
     "esbuild": "^0.28.2",
-    "oxfmt": "^0.74.0",
-    "oxlint": "^1.89.0",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
     "oxlint-tsgolint": "^7.0.2005",
     "tsx": "^4.23.15",
     "typescript": "~7.0.2",
@@ -32,8 +32,8 @@
     "zod": "^4.6.7"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1156.0",
-    "aws-cdk-lib": "^2.274.0",
+    "@aws-sdk/client-s3": "^3.1160.0",
+    "aws-cdk-lib": "^2.275.0",
     "constructs": "^10.8.1"
   },
   "allowScripts": {
